@@ -1,0 +1,18 @@
+{
+  "name": "techscrolls",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {},
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "services/*"
+  ]
+}
