@@ -1,0 +1,1 @@
+CREATE INDEX `followedby_idx` ON `follow` (`followed_by`);

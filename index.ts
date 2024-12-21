@@ -32,7 +32,7 @@ async function main() {
   });
   wss.addEventListener("message", (ev) => {
     const data = ev.data as string;
-    if (data.match(/github/)) {
+    if (data.match(/love/)) {
       console.log("wss msg", JSON.parse(data));
     }
   });
