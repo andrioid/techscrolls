@@ -1,6 +1,7 @@
 {
-  "name": "pt1",
+  "name": "@andrioid/atproto",
   "module": "index.ts",
+  "private": "true",
   "type": "module",
   "scripts": {
     "db:generate": "bunx drizzle-kit generate",

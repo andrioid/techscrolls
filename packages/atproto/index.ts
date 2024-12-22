@@ -1,14 +1,14 @@
 import { getFeedSkeletonHandler } from "./api/get-feed-skeleton";
 import { wellKnownDidHandler } from "./api/well-known-did";
 import { config } from "./config";
-import { createAppContext } from "./context";
+import { createAtContext } from "./context";
 import { listenForPosts } from "./domain/jetstream-subscription";
 
 console.log(`Server listening on ${config.port}`);
-const appContext = await createAppContext();
+const atContext = await createAtContext();
 //const sub = new PostSubscription(appContext);
 //await sub.listen();
-await listenForPosts(appContext);
+await listenForPosts(atContext);
 
 Bun.serve({
   port: config.port,
@@ -21,9 +21,9 @@ Bun.serve({
       case "/":
         return new Response("Bare bones feed generator for Bluesky");
       case "/.well-known/did.json":
-        return wellKnownDidHandler(req, appContext);
+        return wellKnownDidHandler(req, atContext);
       case "/xrpc/app.bsky.feed.getFeedSkeleton":
-        return getFeedSkeletonHandler(req, appContext);
+        return getFeedSkeletonHandler(req, atContext);
       default:
         return new Response("404!");
     }

@@ -3,7 +3,7 @@ export const config = (() => {
   const password = process.env["DID_PASSWORD"];
   const port = process.env["PORT"] ?? 3000;
   const fgHostname =
-    process.env["FEEDGEN_HOSTNAME"] ?? "585a-87-104-249-212.ngrok-free.app";
+    process.env["FEEDGEN_HOSTNAME"] ?? "2a21-87-104-249-212.ngrok-free.app";
   const recordName = "testfeed";
   const sqliteFile = process.env["SQLITE_FILE"] ?? "app.db";
 

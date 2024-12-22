@@ -4,7 +4,7 @@ import { config } from "./config";
 import { db } from "./db/db";
 import { appData } from "./db/schema";
 
-export async function createAppContext() {
+export async function createAtContext() {
   const atpAgent = new AtpAgent({
     service: "https://bsky.social", // TODO: look up actual pds
     persistSession: (evt, sessionData) => {
@@ -32,7 +32,7 @@ export async function createAppContext() {
     if (existingSession.length === 1) {
       const sdata = existingSession[0]
         .existingSession as unknown as AtpSessionData;
-      await atpAgent.resumeSession(sdata);
+      const res = await atpAgent.resumeSession(sdata);
       //process.exit(1);
     } else {
       await atpAgent.login({
@@ -48,10 +48,20 @@ export async function createAppContext() {
 
     return ctx;
   } catch (err) {
-    console.error(err);
-    console.log("Login to Bluesky has failed");
-    process.exit(1);
+    await atpAgent.login({
+      identifier: config.identifier,
+      password: config.password,
+    });
+    return {
+      atpAgent,
+      db,
+    };
+    /*
+    throw new Error("Login to Bluesky has failed", {
+      cause: err,
+    });
+    */
   }
 }
 
-export type AppContext = Awaited<ReturnType<typeof createAppContext>>;
+export type AppContext = Awaited<ReturnType<typeof createAtContext>>;
