@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import type { AppContext } from "../context";
+import type { AtContext } from "../context";
 import { followTable, userTable } from "../db/schema";
 import { getAllFollows } from "../helpers/follows";
 
@@ -7,7 +7,7 @@ import { getAllFollows } from "../helpers/follows";
  * Registers the feedUser's followers. Fetches them if necessary.
  * If we already have a list, then we won't update (TODO)
  */
-export async function getOrUpdateFollows(ctx: AppContext, did: string) {
+export async function getOrUpdateFollows(ctx: AtContext, did: string) {
   console.log("getorupdatefollows", did);
   const existingActor = await ctx.db
     .select()

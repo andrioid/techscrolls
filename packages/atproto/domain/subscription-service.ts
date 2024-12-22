@@ -1,6 +1,6 @@
 import type { AppBskyFeedPost } from "@atproto/api";
 import { Jetstream } from "@skyware/jetstream";
-import type { AppContext } from "../context";
+import type { AtContext } from "../context";
 import { followTable } from "../db/schema";
 import { queueForClassification } from "./queue-for-classification";
 type PostRecord = AppBskyFeedPost.Record & {
@@ -32,9 +32,9 @@ type StreamCollection = {
 export class PostSubscription {
   socket: WebSocket | undefined = undefined;
   jetstream: Jetstream | undefined = undefined;
-  ctx: AppContext;
+  ctx: AtContext;
   cursor?: string; // TODO
-  constructor(ctx: AppContext) {
+  constructor(ctx: AtContext) {
     this.ctx = ctx;
   }
 

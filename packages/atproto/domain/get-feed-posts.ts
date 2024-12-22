@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm/expressions";
-import type { AppContext } from "../context";
+import type { AtContext } from "../context";
 import { followTable, postTable } from "../db/schema";
 
 export async function getFeedPosts(
-  ctx: AppContext,
+  ctx: AtContext,
   did: string
 ): Promise<Array<string>> {
   const fls = ctx.db

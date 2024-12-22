@@ -1,10 +1,10 @@
 import { AtUri, type AppBskyFeedPost } from "@atproto/api";
-import type { AppContext } from "../context";
+import type { AtContext } from "../context";
 import { followTable } from "../db/schema";
 import { createJetStreamListener } from "./jetstream";
 import { queueForClassification } from "./queue-for-classification";
 
-export async function listenForPosts(ctx: AppContext) {
+export async function listenForPosts(ctx: AtContext) {
   const wantedDids = await ctx.db
     .selectDistinct({ did: followTable.follows })
     .from(followTable);

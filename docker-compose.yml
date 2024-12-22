@@ -1,0 +1,15 @@
+services:
+   db:
+      build: ./packages/db
+      environment:
+         POSTGRES_USER: devuser
+         POSTGRES_PASSWORD: devpass
+         POSTGRES_DB: devdb
+      ports:
+         - "5432:5432"
+      volumes:
+         - postgres_data:/var/lib/postgresql/data
+         - ./packages/db/init_pgvector.sql:/docker-entrypoint-initdb.d/init_pgvector.sql
+
+volumes:
+   postgres_data:

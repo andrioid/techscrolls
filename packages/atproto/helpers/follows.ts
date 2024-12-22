@@ -1,7 +1,7 @@
 import { AppBskyGraphGetFollows } from "@atproto/api";
-import type { AppContext } from "../context";
+import type { AtContext } from "../context";
 
-export async function getAllFollows(ctx: AppContext, actor: string) {
+export async function getAllFollows(ctx: AtContext, actor: string) {
   let isDone = false;
   let follows: AppBskyGraphGetFollows.Response["data"]["follows"] = [];
   let currentCursor: string | undefined = undefined;

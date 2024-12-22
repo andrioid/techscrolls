@@ -1,5 +1,5 @@
 import { AtUri, type AppBskyFeedPost } from "@atproto/api";
-import type { AppContext } from "../context";
+import type { AtContext } from "../context";
 import { post_queue } from "../db/schema";
 
 export type FeedPostWithUri = {
@@ -8,7 +8,7 @@ export type FeedPostWithUri = {
 };
 
 export async function queueForClassification(
-  ctx: AppContext,
+  ctx: AtContext,
   // TODO: Just receive the entire PostRecord
   post: FeedPostWithUri
 ) {

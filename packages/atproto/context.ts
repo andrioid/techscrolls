@@ -64,4 +64,4 @@ export async function createAtContext() {
   }
 }
 
-export type AppContext = Awaited<ReturnType<typeof createAtContext>>;
+export type AtContext = Awaited<ReturnType<typeof createAtContext>>;

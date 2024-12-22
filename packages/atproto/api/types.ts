@@ -1,3 +1,3 @@
-import type { AppContext } from "../context";
+import type { AtContext } from "../context";
 
-export type HandlerFn = (req: Request, ctx: AppContext) => Promise<Response>;
+export type HandlerFn = (req: Request, ctx: AtContext) => Promise<Response>;
