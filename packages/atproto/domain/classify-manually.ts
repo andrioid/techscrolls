@@ -2,14 +2,16 @@ import type { ClassifierTags } from "../classifiers/types";
 import type { AtContext } from "../context";
 import { postTags, tagTable } from "../db/schema";
 
+export type ClassifyPostArgs = {
+  postUri: string;
+  tag: ClassifierTags;
+  score: number;
+  algorithm: string;
+};
+
 export async function classifyPost(
   ctx: AtContext,
-  {
-    postUri,
-    tag,
-    score,
-    algorithm,
-  }: { postUri: string; tag: ClassifierTags; score: number; algorithm: string }
+  { postUri, tag, score, algorithm }: ClassifyPostArgs
 ) {
   await ctx.db.transaction(async (tx) => {
     await tx

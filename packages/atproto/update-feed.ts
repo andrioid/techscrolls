@@ -1,7 +1,7 @@
-import { AppBskyFeedGenerator } from "@atproto/api";
 import {} from "@atproto/lexicon";
 import { config } from "./config";
 import { createAtContext } from "./context";
+import { feeds } from "./feeds";
 
 const run = async () => {
   const feedGenDid = config.feedGenDid;
@@ -9,6 +9,14 @@ const run = async () => {
   const ctx = await createAtContext();
   const agent = ctx.atpAgent;
 
+  for (const feed of feeds) {
+    await agent.api.com.atproto.repo.putRecord({
+      repo: agent.session?.did ?? "",
+      collection: "app.bsky.feed.generator",
+      ...feed,
+    });
+  }
+  /*
   await agent.api.com.atproto.repo.putRecord({
     repo: agent.session?.did ?? "",
     collection: "app.bsky.feed.generator",
@@ -21,8 +29,9 @@ const run = async () => {
       createdAt: new Date().toISOString(),
     } satisfies AppBskyFeedGenerator.Record,
   });
+  */
 
   console.log("All done 🎉");
 };
 
-run();
+run().then(() => process.exit(0));

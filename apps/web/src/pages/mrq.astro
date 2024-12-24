@@ -1,20 +1,9 @@
 ---
-import {
-  postRecords,
-  postScores,
-  postTable,
-} from "@andrioid/atproto/db/schema";
-import { desc, eq } from "drizzle-orm/expressions";
+import { getModerationPosts } from "@andrioid/atproto";
 import Layout from "../layouts/Layout.astro";
 import { PostModerator } from "./_react/post-moderator";
-const db = Astro.locals.at.db;
-const posts = await db
-  .select()
-  .from(postTable)
-  .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
-  .innerJoin(postScores, eq(postTable.id, postScores.postId))
-  .orderBy(desc(postTable.created))
-  .limit(50);
+const { at } = Astro.locals;
+const posts = await getModerationPosts(at);
 ---
 
 <Layout>
@@ -23,8 +12,8 @@ const posts = await db
       posts.map((r) => (
         <PostModerator
           client:visible
-          postId={r.post.id}
-          text={r.post_record.value?.text ?? "N/A"}
+          postId={r.postId}
+          text={r.record?.text ?? ""}
         />
       ))
     }

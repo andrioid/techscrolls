@@ -15,12 +15,12 @@ export async function getOrUpdateFollows(ctx: AtContext, did: string) {
     .where(eq(userTable.did, did));
 
   if (existingActor.length === 0) {
-    console.log("actor does not exist, adding", did);
+    console.log("feed follower does not exist, adding", did);
     await ctx.db.insert(userTable).values({
       did: did,
     });
   }
-  console.log("actor exists", existingActor);
+  //console.log("actor exists", existingActor);
 
   const existingFollows = await ctx.db
     .select()

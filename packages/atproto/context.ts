@@ -1,11 +1,18 @@
 import { AtpAgent, type AtpSessionData } from "@atproto/api";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { config } from "./config";
 import { appData } from "./db/schema";
 
 export async function createAtContext() {
-  const db = drizzle(config.pgURL);
+  const dbClient = postgres(config.pgURL);
+  const db = drizzle({
+    client: dbClient,
+  });
+
+  await db.execute("select 1"); // Make sure we're connected to DB
+
   const atpAgent = new AtpAgent({
     service: "https://bsky.social", // TODO: look up actual pds
     persistSession: async (evt, sessionData) => {
@@ -64,6 +71,7 @@ export async function createAtContext() {
     return {
       atpAgent,
       db,
+      dbClient,
     };
     /*
     throw new Error("Login to Bluesky has failed", {

@@ -3,8 +3,6 @@ import zstd from "@bokuweb/zstd-wasm";
 import path from "path";
 import type { FeedPostWithUri } from "./queue-for-classification";
 
-const zDictionary = Bun.file(path.join(__dirname, "../zstd_dictionary.dat"));
-
 type PostRecord = AppBskyFeedPost.Record & {
   reply?: {
     parent?: {
@@ -124,6 +122,7 @@ export async function createJetStreamListener({
       });
     }
   }
+  const zDictionary = Bun.file(path.join(__dirname, "../zstd_dictionary.dat"));
 
   await init();
 }
