@@ -2,24 +2,26 @@ import type { AppBskyFeedPost } from "@atproto/api";
 import { relations, sql } from "drizzle-orm";
 import {
   index,
+  integer,
+  jsonb,
+  pgTable,
+  pgView,
   primaryKey,
-  real,
-  sqliteTable,
   text,
-} from "drizzle-orm/sqlite-core";
+  unique,
+} from "drizzle-orm/pg-core";
+import { type ClassifierTags } from "../classifiers/types";
 
-export const appData = sqliteTable(
+export const appData = pgTable(
   "app",
   {
     k: text("k", { enum: ["session"] }).primaryKey(),
-    v: text("v", {
-      mode: "json",
-    }),
+    v: jsonb("v"),
   },
   (t) => []
 );
 
-export const followTable = sqliteTable(
+export const followTable = pgTable(
   "follow",
   {
     followedBy: text("followed_by")
@@ -35,7 +37,7 @@ export const followTable = sqliteTable(
   ]
 );
 
-export const postTable = sqliteTable(
+export const postTable = pgTable(
   "post",
   {
     id: text().primaryKey(), // bluesky post id
@@ -51,28 +53,31 @@ export const postTable = sqliteTable(
 );
 
 // Should be deleted after processing
-export const post_queue = sqliteTable(
-  "post_queue",
+export const postRecords = pgTable(
+  "post_record",
   {
-    postId: text("post_id").primaryKey(),
+    postId: text("post_id")
+      .primaryKey()
+      .references(() => postTable.id),
     type: text({
       enum: ["AppBskyFeedPost.Record"],
     }).notNull(),
-    value: text({ mode: "json" }).$type<AppBskyFeedPost.Record>(),
+    cid: text().notNull(),
+    value: jsonb().$type<AppBskyFeedPost.Record>(),
   },
   (t) => [index("post_idx").on(t.postId)]
 );
 
-export const tagTable = sqliteTable(
+export const tagTable = pgTable(
   "tag",
   {
-    id: text().primaryKey(),
+    id: text().primaryKey().$type<ClassifierTags>(),
     description: text(),
   },
   () => []
 );
 
-export const postTags = sqliteTable(
+export const postTags = pgTable(
   "post_tag",
   {
     tagId: text("tag_id")
@@ -81,12 +86,29 @@ export const postTags = sqliteTable(
     postId: text("post_id")
       .notNull()
       .references(() => postTable.id),
-    probability: real(),
+    // Allows an algorithm to give post a relevancy score for tag
+    score: integer("score").notNull(), // 0-100
+    // popularity should  be in its own table, regardless of algorithms
+    //popularity: integer("popularity"),
+    algo: text("algo").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.postId, t.tagId] })]
+  (t) => [
+    index("tagpost_idx").on(t.postId, t.tagId),
+    unique().on(t.algo, t.postId, t.tagId),
+  ]
 );
 
-export const userTable = sqliteTable(
+// Enable algorithms to affect post ranking
+export const postRanking = pgTable("post_ranking", {
+  postId: text("post_id")
+    .notNull()
+    .references(() => postTable.id),
+  tagId: text("tag_id").references(() => tagTable.id), // optionally relevant to tag,
+  score: integer("score").notNull(), // 0-100
+  algo: text().notNull(),
+});
+
+export const userTable = pgTable(
   "user",
   {
     did: text("did").primaryKey(),
@@ -114,9 +136,9 @@ export const postRelations = relations(postTable, ({ one, many }) => ({
     references: [userTable.did],
   }),
   // TODO: add followedby
-  unprocessed: one(post_queue, {
+  unprocessed: one(postRecords, {
     fields: [postTable.id],
-    references: [post_queue.postId],
+    references: [postRecords.postId],
   }),
   tags: many(postTags),
 }));
@@ -135,3 +157,16 @@ export const followTableRelations = relations(followTable, ({ one }) => ({
     references: [userTable.did],
   }),
 }));
+
+// Views
+export const postScores = pgView("posts_tag_avg").as((qb) => {
+  return qb
+    .select({
+      postId: postTags.postId,
+      tagId: postTags.tagId,
+      avgScore: sql`round(avg(${postTags.score}), 0)`.as("avg_score"),
+      algos: sql`ARRAY_AGG(DISTINCT ${postTags.algo})`.as("algos"),
+    })
+    .from(postTags)
+    .groupBy(sql`${postTags.postId}, ${postTags.tagId}`);
+});

@@ -1,0 +1,13 @@
+{
+  "name": "db",
+  "type": "module",
+  "scripts": {
+    "dev": "cd ../../ && docker compose up"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

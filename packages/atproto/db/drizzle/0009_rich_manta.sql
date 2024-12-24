@@ -1,0 +1,1 @@
+CREATE VIEW "public"."posts_with_tags" AS (select "id" from "post");

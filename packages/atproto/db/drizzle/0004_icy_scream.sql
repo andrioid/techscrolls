@@ -1,0 +1,2 @@
+ALTER TABLE "post_queue" RENAME TO "post_records";--> statement-breakpoint
+ALTER TABLE "post_records" ADD CONSTRAINT "post_records_post_id_post_id_fk" FOREIGN KEY ("post_id") REFERENCES "public"."post"("id") ON DELETE no action ON UPDATE no action;

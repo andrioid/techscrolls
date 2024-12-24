@@ -1,7 +1,9 @@
 import type { AppBskyFeedPost } from "@atproto/api";
 import zstd from "@bokuweb/zstd-wasm";
+import path from "path";
+import type { FeedPostWithUri } from "./queue-for-classification";
 
-const zDictionary = Bun.file("./zstd_dictionary.dat");
+const zDictionary = Bun.file(path.join(__dirname, "../zstd_dictionary.dat"));
 
 type PostRecord = AppBskyFeedPost.Record & {
   reply?: {
@@ -21,6 +23,7 @@ type StreamCollection = {
   time_us: number;
   kind: "commit";
   commit: {
+    cid: string;
     collection: "app.bsky.feed.post";
     rev: string;
     operation: "create";
@@ -45,8 +48,9 @@ export async function createJetStreamListener({
 }: {
   wantedCollections?: Array<string>;
   wantedDids?: Array<string>;
+  /** Typically the unixtime of the last received post */
   cursor?: string;
-  onPostCreated?: (uri: string, post: AppBskyFeedPost.Record) => void;
+  onPostCreated?: (post: FeedPostWithUri) => void;
 }) {
   async function init() {
     await zstd.init();
@@ -69,6 +73,7 @@ export async function createJetStreamListener({
       });
       url.searchParams.append("requireHello", "true");
       url.searchParams.append("compress", "true");
+      if (cursor) url.searchParams.append("cursor", cursor);
 
       const query = url.toString();
       console.log(`[JETSTREAM] query (${requestDids.length})`, query);
@@ -88,6 +93,7 @@ export async function createJetStreamListener({
       });
       wss.addEventListener("close", (ev) => {
         console.log("[jetstream] closed", ev.code, ev.reason, ev.wasClean);
+        // TODO: Wait a while, and reconnect
       });
       wss.addEventListener("error", (ev) => {
         console.log("[jetstream] error");
@@ -111,10 +117,11 @@ export async function createJetStreamListener({
       data.commit.operation === "create" &&
       data.commit.collection === "app.bsky.feed.post"
     ) {
-      onPostCreated?.(
-        `at://${data.did}/app.bsky.feed.post/${data.commit.rkey}`,
-        data.commit.record
-      );
+      onPostCreated?.({
+        uri: `at://${data.did}/app.bsky.feed.post/${data.commit.rkey}`,
+        record: data.commit.record,
+        cid: data.commit.cid,
+      });
     }
   }
 

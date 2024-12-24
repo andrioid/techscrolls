@@ -1,0 +1,1 @@
+ALTER TABLE "post_tag" RENAME COLUMN "probability" TO "score";

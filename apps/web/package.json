@@ -3,16 +3,11 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "bunx --bun astro dev",
+    "dev": "bun --env-file=../../.env --bun astro dev",
     "build": "astro build",
     "server": "bun run-server.mjs",
     "preview": "astro preview",
-    "astro": "astro",
-    "db:generate": "bunx drizzle-kit generate",
-    "db:migrate": "bunx drizzle-kit migrate",
-    "db:studio": "bunx drizzle-kit studio",
-    "db:update": "bunx drizzle-kit generate && bunx drizzle-kit migrate",
-    "db:wipe": "rm -rf db/drizzle app.db"
+    "astro": "astro"
   },
   "dependencies": {
     "@andrioid/atproto": "workspace:*",
@@ -25,8 +20,9 @@
     "@atproto/oauth-client-node": "^0.2.3",
     "@atproto/xrpc-server": "^0.7.3",
     "astro": "5.1.1",
-    "atutils": "workspace:*",
+    "drizzle-orm": "^0.38.2",
     "express": "^4.21.2",
+    "postgres": "^3.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^3.4.16"

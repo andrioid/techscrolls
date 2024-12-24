@@ -19,10 +19,12 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "db": "workspace:*",
     "@atproto/api": "^0.13.21",
     "@bokuweb/zstd-wasm": "^0.0.22",
     "@skyware/jetstream": "^0.2.1",
     "drizzle-orm": "^0.38.2",
+    "postgres": "^3.4.5",
     "zstddec": "^0.1.0"
   }
 }

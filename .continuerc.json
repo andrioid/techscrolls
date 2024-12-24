@@ -1,0 +1,16 @@
+{
+    "contextProviders": [
+        {
+            "name": "postgres",
+            "params": {
+              "host": "localhost",
+              "port": 5432,
+              "user": "devuser",
+              "password": "devpass",
+              "database": "devdb",
+              "schema": "public",
+              "sampleRows": 3
+            }
+          }
+    ]
+}

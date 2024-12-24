@@ -1,1 +1,0 @@
-ALTER TABLE `post_data` RENAME TO `post_queue`;

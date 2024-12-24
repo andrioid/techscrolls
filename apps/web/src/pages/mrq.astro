@@ -1,0 +1,35 @@
+---
+import {
+  postRecords,
+  postScores,
+  postTable,
+} from "@andrioid/atproto/db/schema";
+import { desc, eq } from "drizzle-orm/expressions";
+import Layout from "../layouts/Layout.astro";
+import { PostModerator } from "./_react/post-moderator";
+const db = Astro.locals.at.db;
+const posts = await db
+  .select()
+  .from(postTable)
+  .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
+  .innerJoin(postScores, eq(postTable.id, postScores.postId))
+  .orderBy(desc(postTable.created))
+  .limit(50);
+---
+
+<Layout>
+  <main class="p-12 max-w-2xl flex flex-col gap-3">
+    {
+      posts.map((r) => (
+        <PostModerator
+          client:visible
+          postId={r.post.id}
+          text={r.post_record.value?.text ?? "N/A"}
+        />
+      ))
+    }
+  </main>
+</Layout>
+
+<script is:inline src="https://embed.bsky.app/static/embed.js" charset="utf-8"
+></script>

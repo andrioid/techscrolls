@@ -1,0 +1,17 @@
+{
+  "name": "classifier",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --env-file=../../.env index.ts"
+  },
+  "dependencies": {
+    "@andrioid/atproto": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

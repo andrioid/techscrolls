@@ -1,28 +1,68 @@
 {
-  "version": "6",
-  "dialect": "sqlite",
-  "id": "15955115-bfb7-46d2-8201-0dbb0123e4a3",
-  "prevId": "b71f2809-5f01-4370-8d00-c42f4bd56216",
+  "id": "75391ffd-2485-447a-a592-11d52bf2b6bf",
+  "prevId": "353ee649-aa20-43f3-9357-c0afb42168ac",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "follow": {
+    "public.app": {
+      "name": "app",
+      "schema": "",
+      "columns": {
+        "k": {
+          "name": "k",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "v": {
+          "name": "v",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.follow": {
       "name": "follow",
+      "schema": "",
       "columns": {
         "followed_by": {
           "name": "followed_by",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "follows": {
           "name": "follows",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "followedby_idx": {
+          "name": "followedby_idx",
+          "columns": [
+            {
+              "expression": "followed_by",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "follow_followed_by_user_did_fk": {
           "name": "follow_followed_by_user_did_fk",
@@ -36,102 +76,43 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "follow_follows_user_did_fk": {
-          "name": "follow_follows_user_did_fk",
-          "tableFrom": "follow",
-          "tableTo": "user",
-          "columnsFrom": [
-            "follows"
-          ],
-          "columnsTo": [
-            "did"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "follow_follows_followed_by_pk": {
+          "name": "follow_follows_followed_by_pk",
           "columns": [
             "follows",
             "followed_by"
-          ],
-          "name": "follow_follows_followed_by_pk"
+          ]
         }
       },
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "post_data": {
-      "name": "post_data",
-      "columns": {
-        "post_id": {
-          "name": "post_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "post_idx": {
-          "name": "post_idx",
-          "columns": [
-            "post_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "post_data_post_id_post_id_fk": {
-          "name": "post_data_post_id_post_id_fk",
-          "tableFrom": "post_data",
-          "tableTo": "post",
-          "columnsFrom": [
-            "post_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "post": {
+    "public.post": {
       "name": "post",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "author_id": {
           "name": "author_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "created": {
           "name": "created",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "(CURRENT_TIMESTAMP)"
         },
         "modified": {
@@ -139,56 +120,69 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "(CURRENT_TIMESTAMP)"
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "post_author_id_user_did_fk": {
-          "name": "post_author_id_user_did_fk",
-          "tableFrom": "post",
-          "tableTo": "user",
-          "columnsFrom": [
-            "author_id"
-          ],
-          "columnsTo": [
-            "did"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "post_tag": {
+    "public.post_tag": {
       "name": "post_tag",
+      "schema": "",
       "columns": {
         "tag_id": {
           "name": "tag_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "post_id": {
           "name": "post_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "probability": {
           "name": "probability",
-          "type": "real",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true
+        },
+        "algo": {
+          "name": "algo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "tagpost_idx": {
+          "name": "tagpost_idx",
+          "columns": [
+            {
+              "expression": "post_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "tag_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "post_tag_tag_id_tag_id_fk": {
           "name": "post_tag_tag_id_tag_id_fk",
@@ -217,58 +211,99 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "post_tag_post_id_tag_id_pk": {
-          "columns": [
-            "post_id",
-            "tag_id"
-          ],
-          "name": "post_tag_post_id_tag_id_pk"
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.post_queue": {
+      "name": "post_queue",
+      "schema": "",
+      "columns": {
+        "post_id": {
+          "name": "post_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
         }
       },
+      "indexes": {
+        "post_idx": {
+          "name": "post_idx",
+          "columns": [
+            {
+              "expression": "post_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "tag": {
+    "public.tag": {
       "name": "tag",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "user": {
+    "public.user": {
       "name": "user",
+      "schema": "",
       "columns": {
         "did": {
           "name": "did",
           "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "modified": {
           "name": "modified",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "(CURRENT_TIMESTAMP)"
         }
       },
@@ -276,17 +311,20 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
-  "views": {},
   "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "indexes": {}
+    "tables": {}
   }
 }

@@ -1,0 +1,1 @@
+DROP VIEW "public"."posts_with_tags";

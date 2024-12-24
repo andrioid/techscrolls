@@ -1,5 +1,3 @@
-import { getFeedSkeletonHandler } from "./api/get-feed-skeleton";
-import { wellKnownDidHandler } from "./api/well-known-did";
 import { config } from "./config";
 import { createAtContext } from "./context";
 import { listenForPosts } from "./domain/jetstream-subscription";
@@ -20,10 +18,6 @@ Bun.serve({
     switch (url.pathname) {
       case "/":
         return new Response("Bare bones feed generator for Bluesky");
-      case "/.well-known/did.json":
-        return wellKnownDidHandler(req, atContext);
-      case "/xrpc/app.bsky.feed.getFeedSkeleton":
-        return getFeedSkeletonHandler(req, atContext);
       default:
         return new Response("404!");
     }

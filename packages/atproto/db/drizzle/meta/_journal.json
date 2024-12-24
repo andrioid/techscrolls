@@ -1,82 +1,96 @@
 {
   "version": "7",
-  "dialect": "sqlite",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "6",
-      "when": 1734777195321,
-      "tag": "0000_equal_living_lightning",
+      "version": "7",
+      "when": 1734875626532,
+      "tag": "0000_public_pride",
       "breakpoints": true
     },
     {
       "idx": 1,
-      "version": "6",
-      "when": 1734778152257,
-      "tag": "0001_slim_sister_grimm",
+      "version": "7",
+      "when": 1734894959235,
+      "tag": "0001_cultured_ultimates",
       "breakpoints": true
     },
     {
       "idx": 2,
-      "version": "6",
-      "when": 1734778382151,
-      "tag": "0002_fair_captain_cross",
+      "version": "7",
+      "when": 1734936460897,
+      "tag": "0002_nifty_sharon_carter",
       "breakpoints": true
     },
     {
       "idx": 3,
-      "version": "6",
-      "when": 1734778476053,
-      "tag": "0003_foamy_swordsman",
+      "version": "7",
+      "when": 1734936956342,
+      "tag": "0003_useful_infant_terrible",
       "breakpoints": true
     },
     {
       "idx": 4,
-      "version": "6",
-      "when": 1734785140860,
-      "tag": "0004_fixed_harrier",
+      "version": "7",
+      "when": 1734937149566,
+      "tag": "0004_icy_scream",
       "breakpoints": true
     },
     {
       "idx": 5,
-      "version": "6",
-      "when": 1734790233945,
-      "tag": "0005_safe_vin_gonzales",
+      "version": "7",
+      "when": 1734937300017,
+      "tag": "0005_plain_liz_osborn",
       "breakpoints": true
     },
     {
       "idx": 6,
-      "version": "6",
-      "when": 1734798238305,
-      "tag": "0006_milky_white_queen",
+      "version": "7",
+      "when": 1734938505564,
+      "tag": "0006_productive_lizard",
       "breakpoints": true
     },
     {
       "idx": 7,
-      "version": "6",
-      "when": 1734812702811,
-      "tag": "0007_sudden_dark_phoenix",
+      "version": "7",
+      "when": 1734938538034,
+      "tag": "0007_busy_sabretooth",
       "breakpoints": true
     },
     {
       "idx": 8,
-      "version": "6",
-      "when": 1734812798498,
-      "tag": "0008_redundant_spectrum",
+      "version": "7",
+      "when": 1734945432189,
+      "tag": "0008_steep_scourge",
       "breakpoints": true
     },
     {
       "idx": 9,
-      "version": "6",
-      "when": 1734812969373,
-      "tag": "0009_skinny_cerebro",
+      "version": "7",
+      "when": 1734946899688,
+      "tag": "0009_rich_manta",
       "breakpoints": true
     },
     {
       "idx": 10,
-      "version": "6",
-      "when": 1734813044639,
-      "tag": "0010_sad_salo",
+      "version": "7",
+      "when": 1734950421808,
+      "tag": "0010_nifty_miss_america",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1734950637315,
+      "tag": "0011_steep_namor",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1734953811872,
+      "tag": "0012_wonderful_tinkerer",
       "breakpoints": true
     }
   ]

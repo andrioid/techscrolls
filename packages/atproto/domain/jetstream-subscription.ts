@@ -1,8 +1,12 @@
-import { AtUri, type AppBskyFeedPost } from "@atproto/api";
+import { AtUri } from "@atproto/api";
+import { desc } from "drizzle-orm";
 import type { AtContext } from "../context";
-import { followTable } from "../db/schema";
+import { followTable, postTable } from "../db/schema";
 import { createJetStreamListener } from "./jetstream";
-import { queueForClassification } from "./queue-for-classification";
+import {
+  queueForClassification,
+  type FeedPostWithUri,
+} from "./queue-for-classification";
 
 export async function listenForPosts(ctx: AtContext) {
   const wantedDids = await ctx.db
@@ -15,17 +19,26 @@ export async function listenForPosts(ctx: AtContext) {
     return;
   }
 
-  async function handlePostCreated(
-    uri: string,
-    postRecord: AppBskyFeedPost.Record
-  ) {
-    const atUrl = new AtUri(uri);
+  const latestPost = await ctx.db
+    .select()
+    .from(postTable)
+    .orderBy(desc(postTable.created))
+    .limit(1);
 
-    await queueForClassification(ctx, { uri, record: postRecord });
+  const cursor =
+    latestPost.length > 0
+      ? Math.floor(new Date(latestPost[0].created).getTime() / 1000)
+      : undefined;
+
+  async function handlePostCreated(args: FeedPostWithUri) {
+    const atUrl = new AtUri(args.uri);
+
+    await queueForClassification(ctx, args);
   }
 
   createJetStreamListener({
     wantedDids: dids,
     onPostCreated: handlePostCreated,
+    cursor: cursor?.toString(),
   });
 }
