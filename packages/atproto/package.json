@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "bun --env-file=../../.env run db:studio",
     "update": "bun --env-file=../../.env update-feed.ts",
-    "db:generate": "bunx drizzle-kit generate",
-    "db:migrate": "bunx drizzle-kit migrate",
-    "db:studio": "bunx drizzle-kit studio",
-    "db:update": "bunx drizzle-kit generate && bunx drizzle-kit migrate",
+    "bayes": "bun --env-file=../../.env scripts/bayes.ts",
+    "db:generate": "bun --env-file=../../.env drizzle-kit generate",
+    "db:migrate": "bun --env-file=../../.env drizzle-kit migrate",
+    "db:studio": "bun --env-file=../../.env drizzle-kit studio",
+    "db:update": "bun run db:generate && bun run db:migrate",
     "db:wipe": "rm -rf db/drizzle app.db"
   },
   "devDependencies": {
@@ -24,9 +25,14 @@
     "@atproto/api": "^0.13.21",
     "@bokuweb/zstd-wasm": "^0.0.22",
     "@skyware/jetstream": "^0.2.1",
+    "@tensorflow/tfjs-node": "^4.22.0",
     "drizzle-orm": "^0.38.2",
     "lande": "^1.0.10",
+    "ml5": "^1.2.1",
+    "natural": "^8.0.1",
     "postgres": "^3.4.5",
+    "stopwords-iso": "^1.1.0",
+    "ts-bayes": "workspace:*",
     "zstddec": "^0.1.0"
   }
 }

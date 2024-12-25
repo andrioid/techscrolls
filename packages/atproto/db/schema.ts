@@ -15,7 +15,7 @@ import { type ClassifierTags } from "../classifiers/types";
 export const appData = pgTable(
   "app",
   {
-    k: text("k", { enum: ["session"] }).primaryKey(),
+    k: text("k", { enum: ["session", "bayes"] }).primaryKey(),
     v: jsonb("v"),
   },
   (t) => []

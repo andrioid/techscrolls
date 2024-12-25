@@ -1,10 +1,10 @@
 import type { AppBskyEmbedExternal } from "@atproto/api";
 import type { ClassifierFn } from "../types";
 
-export const gitHubLinkClassifier: ClassifierFn = async ({ ctx, post }) => {
+export const techLinkClassifier: ClassifierFn = async ({ ctx, post }) => {
   if (!post.record.embed?.external) return notInterested;
   const external = post.record.embed?.external as AppBskyEmbedExternal.External;
-  if (external.uri.match(/^https:\/\/(www\.)?github.com/)) {
+  if (external.uri.match(techLinkMatcher)) {
     return {
       score: 80,
       tag: "tech",
@@ -18,3 +18,7 @@ const notInterested = {
   score: null,
   tag: "tech",
 } as const;
+
+const techLinkMatcher = new RegExp(
+  /^https:\/\/(www\.)?(github\.com|developer\.mozilla.org|stackoverflow\.com|serverfault\.com|superuser\.com)/i
+);

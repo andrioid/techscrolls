@@ -3,7 +3,7 @@ export const config = (() => {
   const password = process.env["DID_PASSWORD"];
   const port = process.env["PORT"] ?? 3000;
   const fgHostname =
-    process.env["FEEDGEN_HOSTNAME"] ?? "7645-87-104-249-212.ngrok-free.app";
+    process.env["FEEDGEN_HOSTNAME"] ?? "14ce-87-104-249-212.ngrok-free.app";
   const recordName = "testfeed";
   const pgURL =
     process.env["PG_URL"] ?? "postgres://devuser:devpass@localhost:5432/devdb";

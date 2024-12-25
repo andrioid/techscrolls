@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { gitHubLinkClassifier } from "../classifiers/tech/github-links";
 import { mutedWordsClassifier } from "../classifiers/tech/muted-words";
+import { techLinkClassifier } from "../classifiers/tech/tech-links";
 import { techWordsRegExp } from "../classifiers/tech/tech-words";
 import type { ClassifierFn } from "../classifiers/types";
 import { createAtContext } from "../context";
@@ -13,7 +13,7 @@ export const LISTEN_NOTIFY_POSTQUEUE = "atproto.postqueue";
 const classifiers: Array<ClassifierFn> = [
   mutedWordsClassifier,
   techWordsRegExp,
-  gitHubLinkClassifier,
+  techLinkClassifier,
 ];
 
 export async function classifier() {
@@ -51,6 +51,8 @@ export async function classifier() {
   console.log("[classifier] listening for new posts...");
   await ctx.db.$client.listen(LISTEN_NOTIFY_POSTQUEUE, async (payload) => {
     const p = JSON.parse(payload) as FeedPostWithUri;
+    const t0 = performance.now();
+
     for (const cf of classifiers) {
       if (!p.record) continue;
       const res = await cf({
@@ -69,7 +71,9 @@ export async function classifier() {
         tag: res.tag,
       });
     }
-    console.log("new post from listen", p.uri);
+    const t1 = performance.now();
+
+    console.log(`[classifier] ${p.uri} in ${(t1 - t0).toFixed(2)} ms`);
   });
   //while (true) {} // listen doesn't wait
 }
