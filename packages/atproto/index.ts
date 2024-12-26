@@ -8,4 +8,4 @@ export * from "./domain/jetstream-subscription";
 export * from "./domain/queue-for-classification";
 export * from "./feeds";
 export * from "./helpers/jwt";
-export * from "./scripts/classify";
+export * from "./scripts/classifier";

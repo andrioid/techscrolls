@@ -7,7 +7,7 @@ export function toArrayBuffer(buffer: Buffer) {
   return arrayBuffer;
 }
 
-function toBuffer(arrayBuffer: ArrayBuffer) {
+export function toBuffer(arrayBuffer: ArrayBuffer) {
   const buffer = Buffer.alloc(arrayBuffer.byteLength);
   const view = new Uint8Array(arrayBuffer);
   for (let i = 0; i < buffer.length; ++i) {

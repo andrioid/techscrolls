@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { mutedWordsClassifier } from "../classifiers/tech/muted-words";
 import { techLinkClassifier } from "../classifiers/tech/tech-links";
 import { techWordsRegExp } from "../classifiers/tech/tech-words";
+import { createBayesClassiferFn } from "../classifiers/tfjs";
 import type { ClassifierFn } from "../classifiers/types";
 import { createAtContext } from "../context";
 import { postRecords, postTable } from "../db/schema";
@@ -10,15 +11,15 @@ import type { FeedPostWithUri } from "../domain/queue-for-classification";
 
 export const LISTEN_NOTIFY_POSTQUEUE = "atproto.postqueue";
 
-const classifiers: Array<ClassifierFn> = [
-  mutedWordsClassifier,
-  techWordsRegExp,
-  techLinkClassifier,
-];
-
 export async function classifier() {
   // 1. Process existing records in batches
   const ctx = await createAtContext();
+  const classifiers: Array<ClassifierFn> = [
+    mutedWordsClassifier,
+    techWordsRegExp,
+    techLinkClassifier,
+    await createBayesClassiferFn(ctx),
+  ];
 
   const res = await ctx.db
     .select()

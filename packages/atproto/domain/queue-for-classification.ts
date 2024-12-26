@@ -2,7 +2,7 @@ import { AtUri, type AppBskyFeedPost } from "@atproto/api";
 import lande from "lande";
 import type { AtContext } from "../context";
 import { postRecords, postTable } from "../db/schema";
-import { LISTEN_NOTIFY_POSTQUEUE } from "../scripts/classify";
+import { LISTEN_NOTIFY_POSTQUEUE } from "../scripts/classifier";
 
 export type FeedPostWithUri = {
   uri: string;

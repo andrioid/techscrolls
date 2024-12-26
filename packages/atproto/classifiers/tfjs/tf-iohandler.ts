@@ -1,8 +1,8 @@
-import * as tf from "@tensorflow/tfjs";
+import * as tf from "@tensorflow/tfjs-core";
 import { eq } from "drizzle-orm";
-import type { AtContext } from "../context";
-import { tfjsModels } from "../db/schema";
-import { toArrayBuffer } from "./buffer-to-arraybuffer";
+import type { AtContext } from "../../context";
+import { tfjsModels } from "../../db/schema";
+import { toArrayBuffer, toBuffer } from "../../helpers/buffer-to-arraybuffer";
 
 type ModelMetadata = Omit<tf.io.ModelJSON, "modelTopology" | "weightsManifest">;
 type ModelBundle = {
@@ -64,12 +64,17 @@ export class ModelPersistance implements tf.io.IOHandler {
       weightsManifest,
     };
 
+    if (Array.isArray(mfa.weightData))
+      throw new Error("Multiple weight datas not supported");
+
+    const weights = toBuffer(mfa.weightData);
+
     await this.ctx.db
       .insert(tfjsModels)
       .values({
         name: this.modelName,
         model: modelJSON,
-        weights: Buffer.from(mfa.weightData),
+        weights: toBuffer(mfa.weightData),
         uniqueWords: this.uniqueWords,
         wordIndex: this.wordIndex,
       })
