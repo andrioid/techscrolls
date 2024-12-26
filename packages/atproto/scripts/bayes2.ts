@@ -2,7 +2,8 @@ import tf from "@tensorflow/tfjs-node";
 import { and, desc, eq } from "drizzle-orm";
 import natural from "natural";
 import { createAtContext, type AtContext } from "../context";
-import { postRecords, postTable, postTags } from "../db/schema";
+import { postRecords, postTable, postTags, tfjsModels } from "../db/schema";
+import { ModelPersistance } from "../helpers/tf-iohandler";
 
 const tokenizer = new natural.WordTokenizer();
 const tfidf = new natural.TfIdf();
@@ -107,6 +108,13 @@ async function train(ctx: AtContext) {
     epochs: 20,
     batchSize: 2,
   });
+
+  await model.save(
+    new ModelPersistance({ ctx, modelName: "tech", uniqueWords, wordIndex })
+  );
+  await model.save("file://techmodel.tmp"); // TODO: Remove
+
+  model.summary();
   return {
     model,
     uniqueWords,
@@ -122,7 +130,7 @@ async function classify(
     wordIndex,
     onMatch,
   }: {
-    model: tf.Sequential;
+    model: tf.LayersModel;
     uniqueWords: Array<string>;
     wordIndex: Record<string, number>;
     onMatch: (args: {
@@ -142,6 +150,9 @@ async function classify(
     .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
     .orderBy(desc(postTable.created));
   //.limit(40);
+
+  console.log("[classify]", uniqueWords.length, Object.keys(wordIndex).length);
+
   for (const pr of unlabeledPosts) {
     // Predict for a new sample (testing)
     const text = pr.value?.text;
@@ -173,26 +184,59 @@ async function classify(
         text: text,
         tag: "tech",
       });
-      console.log("[tech]: ", text);
     }
   }
 }
 
+async function loadModelFromDb(ctx: AtContext, modelName: string = "tech") {
+  const res = await ctx.db
+    .select()
+    .from(tfjsModels)
+    .where(eq(tfjsModels.name, modelName));
+  if (!res || res.length === 0) {
+    throw new Error("Could not find model in DB");
+  }
+  /*
+  const model = await tf.loadLayersModel(
+    new ModelPersistance({ ctx, modelName })
+  );
+  */
+  const model = await tf.loadLayersModel("file://techmodel.tmp/model.json");
+
+  const modelConf = res[0];
+  if (!modelConf.uniqueWords) throw new Error("uniqueWords missing");
+  if (!modelConf.wordIndex) throw new Error("wordIndex missing");
+  model.summary();
+  return {
+    model,
+    uniqueWords: modelConf.uniqueWords,
+    wordIndex: modelConf.wordIndex,
+  };
+}
 async function main() {
   const ctx = await createAtContext();
   // TODO: persist https://chatgpt.com/c/676bf1d6-534c-800a-9ed0-3e22823c7c4e
-  const pargs = await train(ctx);
+  //const trained = await train(ctx);
+  const loaded = await loadModelFromDb(ctx);
+  let matchesPerTrained = 0;
+  let matchesPerLoaded = 0;
+  /*
   await classify(ctx, {
-    ...pargs,
+    ...trained,
     onMatch: async (match) => {
-      await ctx.db.insert(postTags).values({
-        algo: "bayes2",
-        tagId: match.tag,
-        score: 85,
-        postId: match.postId,
-      });
+      matchesPerTrained++;
     },
   });
+  */
+
+  await classify(ctx, {
+    ...loaded,
+    onMatch: async (match) => {
+      matchesPerLoaded++;
+    },
+  });
+
+  console.log("Tech matches", matchesPerTrained, matchesPerLoaded);
 }
 
 main()

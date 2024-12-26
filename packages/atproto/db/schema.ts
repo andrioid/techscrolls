@@ -1,6 +1,8 @@
 import type { AppBskyFeedPost } from "@atproto/api";
+import type * as tf from "@tensorflow/tfjs";
 import { relations, sql } from "drizzle-orm";
 import {
+  customType,
   index,
   integer,
   jsonb,
@@ -8,6 +10,7 @@ import {
   pgView,
   primaryKey,
   text,
+  timestamp,
   unique,
 } from "drizzle-orm/pg-core";
 import { type ClassifierTags } from "../classifiers/types";
@@ -118,6 +121,21 @@ export const userTable = pgTable(
   },
   () => []
 );
+
+const bytea = customType<{ data: Buffer }>({
+  dataType() {
+    return "bytea";
+  },
+});
+
+export const tfjsModels = pgTable("tfjs_model", {
+  name: text().notNull().primaryKey(),
+  model: jsonb("model_json").notNull().$type<tf.io.ModelJSON>(),
+  weights: bytea().notNull(),
+  uniqueWords: jsonb("unique_words").notNull().$type<Array<string>>(),
+  wordIndex: jsonb("word_index").notNull().$type<Record<string, number>>(),
+  createdAt: timestamp("created_at").default(sql`(CURRENT_TIMESTAMP)`),
+});
 
 export const postsToTagsRelations = relations(postTags, ({ one }) => ({
   post: one(postTable, {
