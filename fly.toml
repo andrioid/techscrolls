@@ -6,6 +6,11 @@
 app = 'techscrolls'
 primary_region = 'arn'
 
+[processes]
+app = "web"
+classifier = "classifier"
+jetstream = "jetstream"
+
 [build]
 
 [http_service]

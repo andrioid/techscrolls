@@ -29,6 +29,7 @@ export async function train(ctx: AtContext) {
         label: item.score === 100 ? item.tag : `not:${item.tag}`,
       };
     });
+
   const trainingData: string[] = labeledData.map((item) => item.text);
   const trainingDataLabels: string[] = labeledData.map((item) => item.label);
 
