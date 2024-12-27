@@ -4,7 +4,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --filter '*' dev"
+    "dev": "bun --filter '*' dev",
+    "build": "bun --filter '*' build",
+    "web": "bun run migrate && bun run --cwd apps/web server",
+    "migrate": "bun run --cwd packages/atproto db:migrate"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -12,12 +15,7 @@
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
-  "dependencies": {
-    "@atcute/client": "^2.0.6",
-    "@atproto/api": "^0.13.21",
-    "@atproto/lexicon": "^0.4.4",
-    "inquirer": "^12.2.0"
-  },
+  "dependencies": {},
   "workspaces": [
     "packages/*",
     "apps/*",

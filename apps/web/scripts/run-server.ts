@@ -6,4 +6,6 @@ const app = express();
 app.use("/", express.static("dist/client/"));
 app.use(ssrHandler);
 
-app.listen(process.env["port"] ?? 8080);
+const port = process.env["port"] ?? 8080;
+console.log("[astro] express listening at ", port);
+app.listen(port);

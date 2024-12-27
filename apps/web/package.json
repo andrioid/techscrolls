@@ -1,11 +1,11 @@
 {
-  "name": "tech-scrolls",
+  "name": "web",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
     "dev": "bun --env-file=../../.env --bun astro dev",
     "build": "astro build",
-    "server": "bun run-server.mjs",
+    "server": "bun scripts/run-server.ts",
     "preview": "astro preview",
     "astro": "astro"
   },
