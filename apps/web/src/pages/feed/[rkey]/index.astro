@@ -1,0 +1,36 @@
+---
+import { AtUri, DEFAULT_FEED_ACTOR, feeds } from "@andrioid/atproto";
+import { PostThread } from "react-bluesky-embed";
+import Layout from "../../../layouts/Layout.astro";
+const { rkey } = Astro.params;
+const feed = feeds.find((f) => f.rkey === rkey);
+if (!feed) {
+  console.log("404");
+  return Astro.redirect("/404");
+}
+console.log("found feed", feed);
+const posts = await feed.handler(Astro.locals.at, DEFAULT_FEED_ACTOR);
+---
+
+<Layout>
+  <div class="p-14">
+    <div class="max-w-2xl flex flex-col gap-4">
+      {
+        posts.map((post) => {
+          const aturi = new AtUri(post);
+          const did = aturi.hostname;
+          const rkey = aturi.rkey;
+          return (
+            <PostThread
+              client:visible
+              params={{
+                did,
+                rkey,
+              }}
+            />
+          );
+        })
+      }
+    </div>
+  </div>
+</Layout>

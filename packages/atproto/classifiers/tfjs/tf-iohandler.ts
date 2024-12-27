@@ -85,6 +85,7 @@ export class ModelPersistance implements tf.io.IOHandler {
           weights: Buffer.from(mfa.weightData),
           uniqueWords: this.uniqueWords,
           wordIndex: this.wordIndex,
+          createdAt: new Date(),
         },
       });
 

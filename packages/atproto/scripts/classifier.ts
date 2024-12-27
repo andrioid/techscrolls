@@ -1,11 +1,11 @@
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 import { mutedWordsClassifier } from "../classifiers/tech/muted-words";
 import { techLinkClassifier } from "../classifiers/tech/tech-links";
 import { techWordsRegExp } from "../classifiers/tech/tech-words";
 import { createBayesClassiferFn } from "../classifiers/tfjs";
 import type { ClassifierFn } from "../classifiers/types";
 import { createAtContext } from "../context";
-import { postRecords, postTable } from "../db/schema";
+import { postRecords, postTable, postTags } from "../db/schema";
 import { classifyPost } from "../domain/classify-manually";
 import type { FeedPostWithUri } from "../domain/queue-for-classification";
 
@@ -24,8 +24,12 @@ export async function classifier() {
   const res = await ctx.db
     .select()
     .from(postTable)
-    .innerJoin(postRecords, eq(postTable.id, postRecords.postId));
+    .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
+    .leftJoin(postTags, eq(postTable.id, postTags.postId))
+    .where(isNull(postTags.tagId));
   // TODO: Only process unprocessed posts
+
+  console.log("[classifier] processing older posts", res.length);
 
   for (const pr of res) {
     for (const cf of classifiers) {

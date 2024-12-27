@@ -23,7 +23,6 @@ export async function loadModelFromDb(
   const modelConf = res[0];
   if (!modelConf.uniqueWords) throw new Error("uniqueWords missing");
   if (!modelConf.wordIndex) throw new Error("wordIndex missing");
-  model.summary();
   return {
     model,
     uniqueWords: modelConf.uniqueWords,

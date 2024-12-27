@@ -4,6 +4,8 @@ import type { AtContext } from "../context";
 import { getTechAllFeed } from "../domain/get-tech-all-feed";
 import { getTechFollowingFeed } from "../domain/get-tech-following-feed";
 
+export const DEFAULT_FEED_ACTOR = "did:plc:rrrwbar3wv576qpsymwey5p5";
+
 export type FeedDefinition = {
   rkey: string; // feed-id (affects url)
   record: AppBskyFeedGenerator.Record;

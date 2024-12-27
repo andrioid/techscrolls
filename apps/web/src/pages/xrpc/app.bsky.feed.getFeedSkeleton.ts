@@ -25,8 +25,7 @@ export const GET: APIRoute = async ({ request: req, locals }) => {
   const feed = feeds.find((f) => f.rkey === rkey);
   if (!feed) return HTTPError();
 
-  // This should only be done once in a while, not every time
-  const actor = jwt?.iss ?? "did:plc:rrrwbar3wv576qpsymwey5p5";
+  const actor = jwt?.iss ?? "did:plc:rrrwbar3wv576qpsymwey5p5"; // defaults to me for testing
   await getOrUpdateFollows(ctx, actor);
   const posts = (await feed.handler(ctx, actor)).map((p) => ({
     post: p,

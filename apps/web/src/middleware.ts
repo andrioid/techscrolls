@@ -11,5 +11,5 @@ try {
 
 export const onRequest = defineMiddleware((context, next) => {
   context.locals.at = atContext;
-  next();
+  return next();
 });

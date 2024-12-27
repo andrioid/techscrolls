@@ -1,0 +1,15 @@
+---
+import { feeds } from "@andrioid/atproto";
+import Layout from "../../layouts/Layout.astro";
+---
+
+<h1>Feeds</h1>
+<Layout>
+  {
+    feeds.map((feed: any) => (
+      <div>
+        <a href={`/feed/${feed.rkey}`}>{feed.record.displayName}</a>
+      </div>
+    ))
+  }
+</Layout>

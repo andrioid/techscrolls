@@ -1,3 +1,4 @@
+export { AtUri } from "@atproto/api";
 export * from "./context";
 export * from "./domain/classify-manually";
 export * from "./domain/get-moderation-queue";
