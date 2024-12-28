@@ -5,15 +5,17 @@ import { getTechAllFeed } from "../domain/get-tech-all-feed";
 import { getTechFollowingFeed } from "../domain/get-tech-following-feed";
 
 export const DEFAULT_FEED_ACTOR = "did:plc:rrrwbar3wv576qpsymwey5p5";
+export type FeedHandlerArgs = {
+  ctx: AtContext;
+  actorDid: string;
+  cursor?: string;
+  limit?: number;
+};
 
 export type FeedDefinition = {
   rkey: string; // feed-id (affects url)
   record: AppBskyFeedGenerator.Record;
-  handler: (
-    ctx: AtContext,
-    actorDid: string,
-    cursor?: string
-  ) => Promise<Array<string>>;
+  handler: (args: FeedHandlerArgs) => Promise<Array<string>>;
 };
 
 export const feeds: Array<FeedDefinition> = [
@@ -21,9 +23,9 @@ export const feeds: Array<FeedDefinition> = [
     rkey: "tech-following",
     record: {
       did: config.feedGenDid,
-      displayName: "Tech (following)",
+      displayName: "Following Tech",
       description:
-        "Posts from your following; filtered for anything that isn't considered tech related. \n\nNOTE: Under heavy development and without hosting atm",
+        "Posts from your following; filtered for anything that isn't considered tech related.",
       //avatar: avatarRef,
       createdAt: new Date("2024-12-19").toISOString(),
     },

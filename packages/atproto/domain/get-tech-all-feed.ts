@@ -1,17 +1,11 @@
 import { and, desc, eq, gte } from "drizzle-orm/expressions";
-import type { AtContext } from "../context";
-import { followTable, postScores, postTable } from "../db/schema";
+import { postScores, postTable } from "../db/schema";
+import type { FeedHandlerArgs } from "../feeds";
 
 export async function getTechAllFeed(
-  ctx: AtContext,
-  did: string,
-  limit: number = 30
+  args: FeedHandlerArgs
 ): Promise<Array<string>> {
-  const fls = ctx.db
-    .select()
-    .from(followTable)
-    .where(eq(followTable.followedBy, did))
-    .as("fls");
+  const { ctx, cursor } = args;
 
   const posts = await ctx.db
     .select({ id: postTable.id })
@@ -20,9 +14,10 @@ export async function getTechAllFeed(
       postScores,
       and(eq(postScores.postId, postTable.id), eq(postScores.tagId, "tech"))
     )
-    .where(gte(postScores.avgScore, 80)) // TODO: Raise this to 80
+    .where(gte(postScores.avgScore, 80))
     .orderBy(desc(postTable.created))
-    .limit(limit);
+
+    .limit(30);
 
   return posts.map((post) => post.id);
 }

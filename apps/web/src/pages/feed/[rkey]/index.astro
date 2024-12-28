@@ -9,7 +9,10 @@ if (!feed) {
   return Astro.redirect("/404");
 }
 console.log("found feed", feed);
-const posts = await feed.handler(Astro.locals.at, DEFAULT_FEED_ACTOR);
+const posts = await feed.handler({
+  ctx: Astro.locals.at,
+  actorDid: DEFAULT_FEED_ACTOR,
+});
 ---
 
 <Layout>

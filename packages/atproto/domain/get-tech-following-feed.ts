@@ -1,15 +1,16 @@
 import { and, desc, eq, gte } from "drizzle-orm/expressions";
-import type { AtContext } from "../context";
 import { followTable, postScores, postTable } from "../db/schema";
+import type { FeedHandlerArgs } from "../feeds";
 
 export async function getTechFollowingFeed(
-  ctx: AtContext,
-  did: string
+  args: FeedHandlerArgs
 ): Promise<Array<string>> {
+  const { ctx, actorDid } = args;
+
   const fls = ctx.db
     .select()
     .from(followTable)
-    .where(eq(followTable.followedBy, did))
+    .where(eq(followTable.followedBy, actorDid))
     .as("fls");
 
   const posts = await ctx.db

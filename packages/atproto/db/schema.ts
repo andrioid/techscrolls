@@ -52,7 +52,9 @@ export const postTable = pgTable(
       .notNull(),
     modified: timestamp({ withTimezone: true }).defaultNow().notNull(),
   },
-  () => []
+  (t) => [
+    index("idx_created").on(t.created), // For feed cursor
+  ]
 );
 
 // Should be deleted after processing

@@ -11,7 +11,8 @@
     "db:migrate": "bun --env-file=../../.env drizzle-kit migrate",
     "db:studio": "bun --env-file=../../.env drizzle-kit studio",
     "db:update": "bun run db:generate && bun run db:migrate",
-    "db:wipe": "rm -rf db/drizzle app.db"
+    "db:wipe": "rm -rf db/drizzle app.db",
+    "verify:types": "bunx tsc --noEmit"
   },
   "devDependencies": {
     "@libsql/client": "^0.14.0",
