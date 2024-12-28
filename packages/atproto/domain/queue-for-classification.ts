@@ -20,9 +20,13 @@ export async function queueForClassification(
 
   const langProb = lande(text);
   // If english isn't the most likely language, we skip it entirely
-  const isNotEnglish =
-    text.length > 20 && langProb[0] && langProb[0][0] !== "eng";
-  if (isNotEnglish) {
+  const detectedNonEnglish = (() => {
+    if (text.length < 20) return false;
+    const [firstLang, pb] = langProb[0];
+    if (firstLang !== "eng" && pb > 0.8) return true;
+    return false; // We just don't know
+  })();
+  if (detectedNonEnglish) {
     console.log("[queue] not english: ", text);
     return;
   }

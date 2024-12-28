@@ -4,7 +4,8 @@ import { followTable, postScores, postTable } from "../db/schema";
 
 export async function getTechAllFeed(
   ctx: AtContext,
-  did: string
+  did: string,
+  limit: number = 30
 ): Promise<Array<string>> {
   const fls = ctx.db
     .select()
@@ -21,7 +22,7 @@ export async function getTechAllFeed(
     )
     .where(gte(postScores.avgScore, 80)) // TODO: Raise this to 80
     .orderBy(desc(postTable.created))
-    .limit(50);
+    .limit(limit);
 
   return posts.map((post) => post.id);
 }

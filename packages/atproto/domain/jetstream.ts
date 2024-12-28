@@ -38,22 +38,22 @@ export const JETSTREAM_BASE_URL =
 // TODO: Let each listener have id, and cursor. Then persist it
 let subscriptions: Array<WebSocket> | undefined;
 
-export async function createJetStreamListener({
-  wantedCollections = ["app.bsky.feed.post"],
-  wantedDids = [],
-  cursor,
-  onPostCreated,
-}: {
-  wantedCollections?: Array<string>;
-  wantedDids?: Array<string>;
+export async function createJetStreamListener(args: {
+  wantedCollections?: Readonly<Array<string>>;
+  wantedDids?: Readonly<Array<string>>;
   /** Typically the unixtime of the last received post */
-  cursor?: string;
+  cursor?: Readonly<string>;
   onPostCreated?: (post: FeedPostWithUri) => void;
 }) {
+  let wantedDids = args.wantedDids ?? [];
+  let wantedCollections = args.wantedCollections ?? [];
+  let cursor = args.cursor;
+  const { onPostCreated } = args;
+
   async function init() {
     subscriptions = [];
-    await zstd.init();
-    let remainingDids = wantedDids;
+    let remainingDids = [...wantedDids];
+    console.log(`[jetstream] init ${wantedDids.length} dids requested`);
     while (remainingDids.length > 0) {
       const requestDids = remainingDids.splice(
         0,
@@ -61,9 +61,6 @@ export async function createJetStreamListener({
           ? remainingDids.length
           : MAX_DIDS_PER_SOCKET
       );
-      const wcQ = wantedCollections.map((c) => `wantedCollections=${c}`);
-
-      const wdQ = requestDids.map((did) => `wantedDids=${did}`);
 
       // Requesting everything from the start crashes the socket
       const url = new URL(JETSTREAM_BASE_URL);
@@ -132,16 +129,20 @@ export async function createJetStreamListener({
     if (args.wantedCollections) wantedCollections = args.wantedCollections;
     if (args.wantedDids) wantedDids = args.wantedDids;
     if (args.cursor) cursor = args.cursor;
-    if (!subscriptions) return;
+    if (!subscriptions) {
+      return;
+    }
     // Close existing sockets and re-init
     for (const sub of subscriptions) {
       sub.close();
     }
+    // TODO: this is broken
     await init();
   }
 
   const zDictionary = Bun.file(path.join(__dirname, "../zstd_dictionary.dat"));
 
+  await zstd.init();
   await init();
   return { updateRequest };
 }
