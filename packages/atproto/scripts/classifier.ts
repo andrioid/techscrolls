@@ -86,7 +86,7 @@ export async function classifier() {
     console.log(`[classifier] ${p.uri} in ${(t1 - t0).toFixed(2)} ms`);
     if (new Date().getTime() - birthDay.getTime() > 2 * 60 * 60 * 1000) {
       // Time to rest. Fly will launch another one.
-      process.exit(0);
+      process.exit(42);
     }
   });
   //while (true) {} // listen doesn't wait

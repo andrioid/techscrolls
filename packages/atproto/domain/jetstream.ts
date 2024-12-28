@@ -36,7 +36,7 @@ export const JETSTREAM_BASE_URL =
   "wss://jetstream2.us-east.bsky.network/subscribe";
 
 // TODO: Let each listener have id, and cursor. Then persist it
-let subscriptions: Array<WebSocket> = [];
+let subscriptions: Array<WebSocket> | undefined;
 
 export async function createJetStreamListener({
   wantedCollections = ["app.bsky.feed.post"],
@@ -51,6 +51,7 @@ export async function createJetStreamListener({
   onPostCreated?: (post: FeedPostWithUri) => void;
 }) {
   async function init() {
+    subscriptions = [];
     await zstd.init();
     let remainingDids = wantedDids;
     while (remainingDids.length > 0) {
@@ -122,7 +123,25 @@ export async function createJetStreamListener({
       });
     }
   }
+
+  async function updateRequest(args: {
+    wantedCollections?: Array<string>;
+    wantedDids?: Array<string>;
+    cursor?: string;
+  }) {
+    if (args.wantedCollections) wantedCollections = args.wantedCollections;
+    if (args.wantedDids) wantedDids = args.wantedDids;
+    if (args.cursor) cursor = args.cursor;
+    if (!subscriptions) return;
+    // Close existing sockets and re-init
+    for (const sub of subscriptions) {
+      sub.close();
+    }
+    await init();
+  }
+
   const zDictionary = Bun.file(path.join(__dirname, "../zstd_dictionary.dat"));
 
   await init();
+  return { updateRequest };
 }

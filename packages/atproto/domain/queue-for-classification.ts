@@ -36,8 +36,8 @@ export async function queueForClassification(
         .values({
           authorId,
           id: post.uri,
-          created: post.record.createdAt,
-          modified: post.record.createdAt,
+          created: new Date(post.record.createdAt),
+          modified: new Date(post.record.createdAt),
         })
         .onConflictDoNothing();
       // TODO: Maybe store author in a table later for scoring
