@@ -106,6 +106,34 @@
       "when": 1735196841478,
       "tag": "0014_elite_goblin_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1735370837187,
+      "tag": "0015_gorgeous_santa_claus",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1735371017061,
+      "tag": "0016_violet_namorita",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1735371721014,
+      "tag": "0017_conscious_arachne",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1735371927796,
+      "tag": "0018_fair_iron_lad",
+      "breakpoints": true
     }
   ]
 }

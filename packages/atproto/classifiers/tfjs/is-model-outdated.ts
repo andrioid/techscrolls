@@ -10,8 +10,9 @@ export async function isModelOutdated(ctx: AtContext): Promise<boolean> {
   if (!res || res.length === 0) return true;
   const createdAt = res[0].createdAt;
   if (!createdAt) return true;
-  const oneWeekAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000);
-  if (createdAt < oneWeekAgo) return true;
+  // currently half a day while im training, then much higher
+  const maxModelLifeTime = new Date(Date.now() - 0.5 * 24 * 60 * 60 * 1000);
+  if (createdAt < maxModelLifeTime) return true;
 
   return false;
 }

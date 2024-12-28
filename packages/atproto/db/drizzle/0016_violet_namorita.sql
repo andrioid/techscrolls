@@ -1,0 +1,2 @@
+ALTER TABLE "post" ALTER COLUMN "created" SET DATA TYPE timestamp with time zone using created::timestamp;
+ALTER TABLE "post" ALTER COLUMN "modified" SET DATA TYPE timestamp with time zone using created::timestamp;

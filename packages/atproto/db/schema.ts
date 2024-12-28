@@ -45,12 +45,12 @@ export const postTable = pgTable(
   {
     id: text().primaryKey(), // bluesky post id
     authorId: text("author_id").notNull(),
-    created: text()
-      .default(sql`(CURRENT_TIMESTAMP)`)
+    created: timestamp({
+      withTimezone: true,
+    })
+      .defaultNow()
       .notNull(),
-    modified: text()
-      .default(sql`(CURRENT_TIMESTAMP)`)
-      .notNull(),
+    modified: timestamp({ withTimezone: true }).defaultNow().notNull(),
   },
   () => []
 );
@@ -61,7 +61,7 @@ export const postRecords = pgTable(
   {
     postId: text("post_id")
       .primaryKey()
-      .references(() => postTable.id),
+      .references(() => postTable.id, { onDelete: "cascade" }),
     type: text({
       enum: ["AppBskyFeedPost.Record"],
     }).notNull(),
@@ -88,7 +88,9 @@ export const postTags = pgTable(
       .references(() => tagTable.id),
     postId: text("post_id")
       .notNull()
-      .references(() => postTable.id),
+      .references(() => postTable.id, {
+        onDelete: "cascade",
+      }),
     // Allows an algorithm to give post a relevancy score for tag
     score: integer("score").notNull(), // 0-100
     // popularity should  be in its own table, regardless of algorithms

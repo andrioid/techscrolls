@@ -17,6 +17,13 @@ const run = async () => {
     });
   }
   /*
+  await agent.api.com.atproto.repo.deleteRecord({
+    repo: agent.session?.did ?? "",
+    collection: "app.bsky.feed.generator",
+    rkey: "testfeed",
+  });
+  */
+  /*
   await agent.api.com.atproto.repo.putRecord({
     repo: agent.session?.did ?? "",
     collection: "app.bsky.feed.generator",

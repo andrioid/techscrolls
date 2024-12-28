@@ -7,13 +7,18 @@ import type { ClassifierFn } from "../classifiers/types";
 import { createAtContext } from "../context";
 import { postRecords, postTable, postTags } from "../db/schema";
 import { classifyPost } from "../domain/classify-manually";
+import { cleanupOldPosts } from "../domain/cleanup-old-posts";
 import type { FeedPostWithUri } from "../domain/queue-for-classification";
 
 export const LISTEN_NOTIFY_POSTQUEUE = "atproto.postqueue";
 
 export async function classifier() {
+  const birthDay = new Date(); // We'll let it rest a bit after a while
+
   // 1. Process existing records in batches
   const ctx = await createAtContext();
+  await cleanupOldPosts(ctx);
+
   const classifiers: Array<ClassifierFn> = [
     mutedWordsClassifier,
     techWordsRegExp,
@@ -79,6 +84,10 @@ export async function classifier() {
     const t1 = performance.now();
 
     console.log(`[classifier] ${p.uri} in ${(t1 - t0).toFixed(2)} ms`);
+    if (new Date().getTime() - birthDay.getTime() > 2 * 60 * 60 * 1000) {
+      // Time to rest. Fly will launch another one.
+      process.exit(0);
+    }
   });
   //while (true) {} // listen doesn't wait
 }

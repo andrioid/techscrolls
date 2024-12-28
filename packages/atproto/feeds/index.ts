@@ -25,7 +25,7 @@ export const feeds: Array<FeedDefinition> = [
       description:
         "Posts from your following; filtered for anything that isn't considered tech related. \n\nNOTE: Under heavy development and without hosting atm",
       //avatar: avatarRef,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date("2024-12-19").toISOString(),
     },
     handler: getTechFollowingFeed,
   },
@@ -37,7 +37,7 @@ export const feeds: Array<FeedDefinition> = [
       description:
         "Curated tech posts from across the network.\n\nNOTE: Under heavy development and without hosting atm",
       //avatar: avatarRef,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date("2024-12-19").toISOString(),
     },
     handler: getTechAllFeed,
   },
