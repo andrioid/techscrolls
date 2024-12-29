@@ -1,5 +1,14 @@
 {
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~react/*": ["./src/components/react/*"],
+      "~astro/*": ["./src/components/astro/*"],
+      "~/*": ["./*"],
+    }
+  },
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*", "./src/env.d.ts"],
-  "exclude": ["dist"]
+  "exclude": ["dist"],
+  
 }

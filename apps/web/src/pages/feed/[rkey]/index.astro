@@ -1,38 +1,36 @@
 ---
-import { AtUri, DEFAULT_FEED_ACTOR, feeds } from "@andrioid/atproto";
-import { PostThread } from "react-bluesky-embed";
-import Layout from "../../../layouts/Layout.astro";
+import { DEFAULT_FEED_ACTOR, feeds, getPublicPosts } from "@andrioid/atproto";
+import Layout from "~astro/layout.astro";
+import { BskyPostList } from "~react/bluesky/post-list";
+
 const { rkey } = Astro.params;
 const feed = feeds.find((f) => f.rkey === rkey);
 if (!feed) {
   console.log("404");
   return Astro.redirect("/404");
 }
-const posts = await feed.handler({
+const postUris = await feed.handler({
   ctx: Astro.locals.at,
   actorDid: DEFAULT_FEED_ACTOR,
 });
+const posts = await getPublicPosts(postUris);
+const mayClassify = Astro.locals.mayClassify;
 ---
 
 <Layout>
-  <div class="p-14">
+  <div class="p-14 flex flex-col gap-4">
+    <h1 class="text-3xl font-semibold">{feed.record.displayName}</h1>
+    {
+      feed.record.description && (
+        <p class="text-gray-600">{feed.record.description}</p>
+      )
+    }
     <div class="max-w-2xl flex flex-col gap-4">
-      {
-        posts.map((post) => {
-          const aturi = new AtUri(post);
-          const did = aturi.hostname;
-          const rkey = aturi.rkey;
-          return (
-            <PostThread
-              client:visible
-              params={{
-                did,
-                rkey,
-              }}
-            />
-          );
-        })
-      }
+      <BskyPostList
+        client:only="react"
+        posts={posts}
+        mayClassify={mayClassify}
+      />
     </div>
   </div>
 </Layout>

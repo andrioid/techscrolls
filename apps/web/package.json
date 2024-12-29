@@ -14,7 +14,7 @@
     "@astrojs/node": "^9.0.0",
     "@astrojs/react": "4.1.2",
     "@astrojs/tailwind": "5.1.4",
-    "@atproto/api": "^0.13.19",
+    "@atproto/api": "^0.13.23",
     "@atproto/lexicon": "^0.4.3",
     "@atproto/oauth-client-browser": "^0.3.3",
     "@atproto/oauth-client-node": "^0.2.3",
@@ -26,9 +26,11 @@
     "react": "^19.0.0",
     "react-bluesky-embed": "^0.5.0",
     "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0",
     "tailwindcss": "^3.4.16"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0"
+    "@types/express": "^5.0.0",
+    "@types/react": "^19"
   }
 }

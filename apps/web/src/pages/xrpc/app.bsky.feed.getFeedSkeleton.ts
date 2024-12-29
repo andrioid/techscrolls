@@ -38,7 +38,7 @@ export const GET: APIRoute = async ({ request: req, locals }) => {
 
 function HTTPError(msg: string = "You are holding it wrong") {
   return new Response(msg, {
-    status: 400,
-    statusText: "Invalid arguments",
+    status: 401,
+    statusText: msg,
   });
 }

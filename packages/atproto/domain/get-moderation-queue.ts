@@ -13,5 +13,5 @@ export async function getModerationPosts(ctx: AtContext) {
     .leftJoin(postScores, eq(postTable.id, postScores.postId))
     .orderBy(desc(postTable.created))
     .where(isNull(postScores.tagId))
-    .limit(50);
+    .limit(25);
 }

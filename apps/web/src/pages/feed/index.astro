@@ -1,15 +1,23 @@
 ---
 import { feeds } from "@andrioid/atproto";
-import Layout from "../../layouts/Layout.astro";
+import Layout from "~astro/layout.astro";
 ---
 
-<h1>Feeds</h1>
 <Layout>
-  {
-    feeds.map((feed: any) => (
-      <div>
-        <a href={`/feed/${feed.rkey}`}>{feed.record.displayName}</a>
-      </div>
-    ))
-  }
+  <div class="p-14 flex flex-col gap-4">
+    {
+      feeds.map((feed: any) => (
+        <a href={`/feed/${feed.rkey}`}>
+          <div>
+            <h1 class="text-3xl font-semibold hover:text-blue-700">
+              {feed.record.displayName}
+            </h1>
+            {feed.record.description && (
+              <p class="text-gray-600">{feed.record.description}</p>
+            )}
+          </div>
+        </a>
+      ))
+    }
+  </div>
 </Layout>
