@@ -134,6 +134,20 @@
       "when": 1735371927796,
       "tag": "0018_fair_iron_lad",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1735416466513,
+      "tag": "0019_clumsy_cobalt_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1735455955183,
+      "tag": "0020_mighty_wraith",
+      "breakpoints": true
     }
   ]
 }

@@ -13,9 +13,9 @@ export async function getAllFollows(ctx: AtContext, actor: string) {
         cursor: currentCursor,
       })) as AppBskyGraphGetFollows.Response; // TODO: cursor breaks the satisfies somehow
 
-      console.log(
-        `adding ${res.data.follows.length} ${res.data.cursor} ${currentCursor}`
-      );
+      // console.log(
+      //   `adding ${res.data.follows.length} ${res.data.cursor} ${currentCursor}`
+      // );
 
       follows = [...follows, ...res.data.follows];
 
@@ -26,7 +26,7 @@ export async function getAllFollows(ctx: AtContext, actor: string) {
       currentCursor = res.data.cursor;
       Bun.sleep(500); // be nice to the api
     } catch (err) {
-      console.log("error from api", err);
+      console.log("error from api while updating followers", err);
       isDone = true;
     }
   }

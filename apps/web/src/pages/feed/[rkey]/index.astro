@@ -8,7 +8,6 @@ if (!feed) {
   console.log("404");
   return Astro.redirect("/404");
 }
-console.log("found feed", feed);
 const posts = await feed.handler({
   ctx: Astro.locals.at,
   actorDid: DEFAULT_FEED_ACTOR,

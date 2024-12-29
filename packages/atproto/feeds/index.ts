@@ -35,9 +35,8 @@ export const feeds: Array<FeedDefinition> = [
     rkey: "tech-all",
     record: {
       did: config.feedGenDid,
-      displayName: "Tech (all)",
-      description:
-        "Curated tech posts from across the network.\n\nNOTE: Under heavy development and without hosting atm",
+      displayName: "Technical Scrolls",
+      description: "Curated tech posts from across the network.",
       //avatar: avatarRef,
       createdAt: new Date("2024-12-19").toISOString(),
     },

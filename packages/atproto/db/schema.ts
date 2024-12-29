@@ -119,8 +119,15 @@ export const userTable = pgTable(
   "user",
   {
     did: text("did").primaryKey(),
-    modified: text()
-      .default(sql`(CURRENT_TIMESTAMP)`)
+    created: timestamp("created", {
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    modified: timestamp("modified", {
+      withTimezone: true,
+    })
+      .defaultNow()
       .notNull(),
   },
   () => []

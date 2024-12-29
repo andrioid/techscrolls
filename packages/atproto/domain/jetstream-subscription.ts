@@ -52,7 +52,10 @@ export async function listenForPosts(ctx: AtContext) {
 
   ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, async () => {
     const newDids = await getDids();
-    if (dids.length === newDids.length) return;
+    if (dids.length === newDids.length) {
+      console.log("[jetstream] followers changed but same length, ignoring");
+      return;
+    }
     console.log("[jetstream] restarting jetstream, new subscribers");
     await updateRequest({
       wantedDids: dids,

@@ -1,11 +1,14 @@
 import { and, desc, eq, gte } from "drizzle-orm/expressions";
 import { followTable, postScores, postTable } from "../db/schema";
 import type { FeedHandlerArgs } from "../feeds";
+import { getOrUpdateFollows } from "./get-or-update-follows";
 
 export async function getTechFollowingFeed(
   args: FeedHandlerArgs
 ): Promise<Array<string>> {
   const { ctx, actorDid } = args;
+
+  await getOrUpdateFollows(ctx, actorDid);
 
   const fls = ctx.db
     .select()

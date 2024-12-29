@@ -1,0 +1,1 @@
+CREATE INDEX "idx_created" ON "post" USING btree ("created");
