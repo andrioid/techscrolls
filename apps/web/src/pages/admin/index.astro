@@ -1,0 +1,21 @@
+---
+import { getAdminStats } from "@andrioid/atproto";
+import Layout from "~astro/layout.astro";
+import PageLayout from "~astro/page-layout.astro";
+const at = Astro.locals.at;
+
+const dat = await getAdminStats(at);
+---
+
+<Layout>
+  <PageLayout title="Admin Dashboard">
+    {
+      dat.map((d) => (
+        <div>
+          {d.label}
+          {d.value}
+        </div>
+      ))
+    }
+  </PageLayout>
+</Layout>

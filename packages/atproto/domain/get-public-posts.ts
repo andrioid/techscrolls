@@ -2,6 +2,8 @@ import AtpAgent from "@atproto/api";
 
 export const GET_POSTS_LIMIT = 25;
 
+export type BskyPostView = ReturnType<AtpAgent["api"]["getPost"]>;
+
 export async function getPublicPosts(wantedUris: Array<string>) {
   let remaining = [...wantedUris];
   const atpAgent = new AtpAgent({

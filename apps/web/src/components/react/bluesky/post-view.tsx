@@ -2,9 +2,9 @@ import { AppBskyFeedDefs, AppBskyFeedPost, AtUri } from "@atproto/api";
 import { useState } from "react";
 import { PostContent } from "react-bluesky-embed";
 import { twMerge } from "tailwind-merge";
-import { ClassifyButtons } from "~react/bluesky/classify-buttons";
 import { Embed } from "~react/bluesky/embed";
 import { BlueskyLogo } from "~react/bluesky/logo";
+import { TagControls } from "~react/tag-controls";
 
 export function PostView({
   view,
@@ -16,10 +16,6 @@ export function PostView({
   const [isClassified, setIsClassified] = useState<boolean | undefined>(
     undefined
   );
-
-  function handleClassified(isTech: boolean) {
-    setIsClassified(isTech);
-  }
 
   if (!view) {
     console.log("no view", view);
@@ -92,12 +88,8 @@ export function PostView({
       {mayClassify && (
         <div>
           <hr />
-          <div className="flex flex-row p-4 text-sm">
-            <ClassifyButtons
-              postUri={view.uri}
-              onClassified={handleClassified}
-              classification={isClassified}
-            />
+          <div className="py-1.5 px-4">
+            <TagControls postUri={view.uri} />
           </div>
         </div>
       )}

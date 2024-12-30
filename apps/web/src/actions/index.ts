@@ -1,4 +1,4 @@
-import { classifyPost } from "@andrioid/atproto";
+import { classifyPost, getPostTags } from "@andrioid/atproto";
 import { defineAction } from "astro:actions";
 import { z } from "astro:schema";
 
@@ -23,10 +23,13 @@ export const server = {
   classifyManually: defineAction({
     input: z.object({
       postUri: z.string(),
-      match: z.boolean(),
+      match: z.boolean().nullable(),
       tag: z.string().default("tech"),
     }),
     handler: async (input, ctx) => {
+      if (!ctx.locals.mayClassify) {
+        throw new Error("Not authorized to classify");
+      }
       await classifyPost(ctx.locals.at, {
         postUri: input.postUri,
         algorithm: "manual",
@@ -34,6 +37,17 @@ export const server = {
         tag: "tech",
       });
       // insert a manual tag on the post
+    },
+  }),
+  getTagsForPost: defineAction({
+    input: z.object({
+      postUri: z.string(),
+    }),
+    handler: async (input, ctx) => {
+      if (!ctx.locals.mayClassify) {
+        throw new Error("Not authorized to classify");
+      }
+      return getPostTags(ctx.locals.at, input.postUri);
     },
   }),
 };

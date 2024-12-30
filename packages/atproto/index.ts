@@ -1,8 +1,10 @@
 export { AtUri } from "@atproto/api";
 export * from "./context";
 export * from "./domain/classify-manually";
+export * from "./domain/get-admin-stats";
 export * from "./domain/get-moderation-queue";
 export * from "./domain/get-or-update-follows";
+export * from "./domain/get-post-tags";
 export * from "./domain/get-public-posts";
 export * from "./domain/get-tech-following-feed";
 export * from "./domain/jetstream";

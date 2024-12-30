@@ -30,7 +30,9 @@
     "tailwindcss": "^3.4.16"
   },
   "devDependencies": {
+    "@iconify/react": "^5.1.0",
     "@types/express": "^5.0.0",
-    "@types/react": "^19"
+    "@types/react": "^19",
+    "immer": "^10.1.1"
   }
 }
