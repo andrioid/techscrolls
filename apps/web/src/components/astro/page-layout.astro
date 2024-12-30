@@ -4,9 +4,10 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const { mayClassify } = Astro.locals;
 ---
 
 <div class="md:p-14 flex flex-col gap-4">
-  <h1 class="text-3xl font-semibold">{title}</h1>
+  <h1 class="text-3xl font-semibold">{title} {mayClassify ? "֍" : ""}</h1>
   <slot />
 </div>

@@ -16,12 +16,3 @@ export function BskyPostList({
     </div>
   );
 }
-
-function mockPromise(): Promise<boolean> {
-  console.log("promise called");
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 500);
-  });
-}

@@ -1,6 +1,7 @@
 ---
 import { DEFAULT_FEED_ACTOR, feeds, getPublicPosts } from "@andrioid/atproto";
 import Layout from "~astro/layout.astro";
+import PageLayout from "~astro/page-layout.astro";
 import { BskyPostList } from "~react/bluesky/post-list";
 
 const { rkey } = Astro.params;
@@ -18,8 +19,7 @@ const mayClassify = Astro.locals.mayClassify;
 ---
 
 <Layout>
-  <div class="p-14 flex flex-col gap-4">
-    <h1 class="text-3xl font-semibold">{feed.record.displayName}</h1>
+  <PageLayout title={feed.record.displayName}>
     {
       feed.record.description && (
         <p class="text-gray-600">{feed.record.description}</p>
@@ -32,5 +32,5 @@ const mayClassify = Astro.locals.mayClassify;
         mayClassify={mayClassify}
       />
     </div>
-  </div>
+  </PageLayout>
 </Layout>

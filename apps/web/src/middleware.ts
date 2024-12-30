@@ -23,41 +23,40 @@ export const onRequest = defineMiddleware((context, next) => {
 
   if (url.pathname.match(/(^\/admin)/)) {
     // Lock it down a bit
-    if (mayClassify) {
+    if (context.locals.mayClassify) {
       return next();
-    } else {
-      return new Response("Auth required", {
-        status: 401,
-        headers: {
-          "WWW-authenticate": 'Basic realm="Secure Area"',
-        },
-      });
     }
+    return new Response("Auth required", {
+      status: 401,
+      headers: {
+        "WWW-authenticate": 'Basic realm="Secure Area"',
+      },
+    });
   }
 
   return next();
 });
 
 function isAuthorized(context: APIContext): boolean {
-  try {
-    const basicAuth = context.request.headers.get("authorization");
+  const basicAuth = context.request.headers.get("authorization");
 
-    if (basicAuth) {
-      // Get the auth value from string "Basic authValue"
-      const authValue = basicAuth.split(" ")[1] ?? "username:password";
+  if (basicAuth && basicAuth.match(/^basic\ (\w+)/i)) {
+    // Get the auth value from string "Basic authValue"
+    const authValue = basicAuth.split(" ")[1] ?? "username:password";
+    const decoded = atob(authValue);
+    //if (!decoded.match(/:/)) return false;
 
-      // Decode the Base64 encoded string via atob (https://developer.mozilla.org/en-US/docs/Web/API/atob)
-      // Get the username and password. NB: the decoded string is in the form "username:password"
-      const [username, pwd] = atob(authValue).split(":");
+    // Decode the Base64 encoded string via atob (https://developer.mozilla.org/en-US/docs/Web/API/atob)
+    // Get the username and password. NB: the decoded string is in the form "username:password"
+    const [username, pwd] = decoded.split(":");
 
-      // check if the username and password are valid
-      if (username === USER && pwd === PASSWORD) {
-        // forward request
-        return true;
-      }
+    // check if the username and password are valid
+    if (username === USER && pwd === PASSWORD) {
+      // forward request
+      return true;
     }
-  } catch (err) {
-    // ignore
   }
+  console.log("not authorized", basicAuth);
+
   return false;
 }

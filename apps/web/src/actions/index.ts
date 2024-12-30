@@ -44,9 +44,11 @@ export const server = {
       postUri: z.string(),
     }),
     handler: async (input, ctx) => {
-      if (!ctx.locals.mayClassify) {
-        throw new Error("Not authorized to classify");
-      }
+      // TODO: Verify this later when we have proper session
+      // if (!ctx.locals.mayClassify) {
+      //   console.log("mayClassify", ctx.locals.mayClassify);
+      //   return [];
+      // }
       return getPostTags(ctx.locals.at, input.postUri);
     },
   }),
