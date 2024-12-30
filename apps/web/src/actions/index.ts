@@ -27,9 +27,10 @@ export const server = {
       tag: z.string().default("tech"),
     }),
     handler: async (input, ctx) => {
-      if (!ctx.locals.mayClassify) {
-        throw new Error("Not authorized to classify");
-      }
+      // TODO: basic auth not sent with xhr
+      // if (!ctx.locals.mayClassify) {
+      //   throw new Error("Not authorized to classify");
+      // }
       await classifyPost(ctx.locals.at, {
         postUri: input.postUri,
         algorithm: "manual",

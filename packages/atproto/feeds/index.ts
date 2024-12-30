@@ -1,4 +1,7 @@
-import type { AppBskyFeedGenerator } from "@atproto/api";
+import type {
+  AppBskyFeedGenerator,
+  AppBskyFeedGetFeedSkeleton,
+} from "@atproto/api";
 import { config } from "../config";
 import type { AtContext } from "../context";
 import { getTechAllFeed } from "../domain/get-tech-all-feed";
@@ -12,10 +15,12 @@ export type FeedHandlerArgs = {
   limit?: number;
 };
 
+export type FeedHandlerOutput = AppBskyFeedGetFeedSkeleton.Response["data"];
+
 export type FeedDefinition = {
   rkey: string; // feed-id (affects url)
   record: AppBskyFeedGenerator.Record;
-  handler: (args: FeedHandlerArgs) => Promise<Array<string>>;
+  handler: (args: FeedHandlerArgs) => Promise<FeedHandlerOutput>;
 };
 
 export const feeds: Array<FeedDefinition> = [

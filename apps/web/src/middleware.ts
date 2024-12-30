@@ -56,7 +56,6 @@ function isAuthorized(context: APIContext): boolean {
       return true;
     }
   }
-  console.log("not authorized", basicAuth);
 
   return false;
 }

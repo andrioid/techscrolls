@@ -10,10 +10,11 @@ if (!feed) {
   console.log("404");
   return Astro.redirect("/404");
 }
-const postUris = await feed.handler({
+const res = await feed.handler({
   ctx: Astro.locals.at,
   actorDid: DEFAULT_FEED_ACTOR,
 });
+const postUris = res.feed.map((p) => p.post);
 const posts = await getPublicPosts(postUris);
 const mayClassify = Astro.locals.mayClassify;
 ---
