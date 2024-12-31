@@ -22,6 +22,19 @@ jetstream = "jetstream"
   processes = ['app']
 
 [[vm]]
+  processes = ['app']
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[[vm]]
+  processes=['jetstream']
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[[vm]]
+  processes=['classifier']
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1

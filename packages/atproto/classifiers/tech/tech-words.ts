@@ -10,7 +10,6 @@ const keywords = [
   "Encryption",
   "Hash",
   "Protocol",
-  "Thread",
   "Latency",
   "Namespace",
   "Recursion",

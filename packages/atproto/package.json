@@ -28,6 +28,7 @@
     "@skyware/jetstream": "^0.2.1",
     "@tensorflow/tfjs": "4.22.0",
     "@tensorflow/tfjs-node": "4.22.0",
+    "date-fns": "^4.1.0",
     "drizzle-orm": "^0.38.3",
     "lande": "^1.0.10",
     "ml5": "^1.2.1",

@@ -13,6 +13,7 @@ export const createBayesClassiferFn: FnType = async (ctx) => {
   const isTooOld = await isModelOutdated(ctx);
   const loader = isTooOld ? train : loadModelFromDb;
   const m = await loader(ctx);
+  console.log(`[classifier] tfjsbyes ready with ${m.uniqueWords.length} words`);
   // fetch the model and stuff
   return async function tfjsBayes({
     ctx,

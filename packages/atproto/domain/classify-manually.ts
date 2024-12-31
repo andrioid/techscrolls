@@ -28,6 +28,13 @@ export async function classifyPost(
         score,
         tagId: tag,
       })
-      .onConflictDoNothing();
+      .onConflictDoUpdate({
+        target: [postTags.postId, postTags.tagId, postTags.algo],
+        set: {
+          algo: algorithm,
+          score,
+          tagId: tag,
+        },
+      });
   });
 }

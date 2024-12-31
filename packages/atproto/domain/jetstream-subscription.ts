@@ -1,12 +1,8 @@
-import { AtUri } from "@atproto/api";
 import { desc } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { followTable, postTable } from "../db/schema";
-import { createJetStreamListener } from "./jetstream";
-import {
-  queueForClassification,
-  type FeedPostWithUri,
-} from "./queue-for-classification";
+import { JetstreamNew } from "./jetstream-new";
+import { queueForClassification } from "./queue-for-classification";
 
 export const LISTEN_NOTIFY_NEW_SUBSCRIBERS = "atproto.subscriber.update";
 
@@ -36,30 +32,24 @@ export async function listenForPosts(ctx: AtContext) {
       ? Math.floor(new Date(latestPost[0].created).getTime() / 1000).toString()
       : undefined;
 
-  async function handlePostCreated(args: FeedPostWithUri) {
-    const atUrl = new AtUri(args.uri);
-    cursor = Math.floor(
-      new Date(args.record.createdAt).getTime() / 1000
-    ).toString();
-    await queueForClassification(ctx, args);
-  }
-
-  const { updateRequest } = await createJetStreamListener({
+  const js = await JetstreamNew.Create({
     wantedDids: dids,
-    onPostCreated: handlePostCreated,
+    wantedCollections: ["app.bsky.feed.post"],
     cursor: cursor?.toString(),
+  });
+  js.on("post", async (post) => {
+    await queueForClassification(ctx, post);
   });
 
   ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, async () => {
     const newDids = await getDids();
     if (dids.length === newDids.length) {
       console.log("[jetstream] followers changed but same length, ignoring");
-      return;
+      //return;
     }
     console.log("[jetstream] restarting jetstream, new subscribers");
-    await updateRequest({
+    js.setupSockets({
       wantedDids: dids,
-      cursor,
     });
   });
 }
