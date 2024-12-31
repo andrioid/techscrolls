@@ -1,7 +1,28 @@
-FROM oven/bun:1 AS base
-WORKDIR /usr/src/app
+FROM debian:12-slim as base
+RUN apt-get update \
+    && apt-get -y install \
+    sudo curl git gpg ca-certificates build-essential \
+    && rm -rf /var/lig/apt/lists/* \
+    && useradd -u 1000 -m app && mkdir /mise && chown -R 1000:1000 /mise && chown 1000 /usr/local/bin
 
-FROM base AS deps
+# Friends dont let friends run Docker w. root
+USER 1000:1000
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ENV MISE_DATA_DIR="/mise"
+ENV MISE_CONFIG_DIR="/mise"
+ENV MISE_CACHE_DIR="/mise/cache"
+ENV MISE_INSTALL_PATH="/usr/local/bin/mise"
+ENV PATH="/mise/shims:$PATH"
+# ENV MISE_VERSION="..."
+
+
+RUN curl https://mise.run | sh
+
+WORKDIR /home/app
+RUN mise use --verbose -g bun@latest node@lts
+FROM base as deps
+USER 1000:1000
 RUN mkdir -p /tmp/dev
 COPY bun.lockb package.json /tmp/dev/
 COPY apps/web/package.json /tmp/dev/apps/web/package.json
@@ -11,17 +32,18 @@ COPY packages/atproto/package.json /tmp/dev/packages/atproto/package.json
 COPY packages/db/package.json /tmp/dev/packages/db/package.json
 
 RUN cd /tmp/dev && bun install --frozen-lockfile
+RUN npm rebuild @tensorflow/tfjs-node --build-from-source
+
 
 # Astro build
 FROM base AS project
-COPY --from=deps /tmp/dev/node_modules node_modules
-COPY . .
+COPY --from=deps --chown=1000:1000  /tmp/dev/node_modules node_modules
+COPY --chown=1000:1000 . .
 RUN bun run build
 
 # Service
 FROM project as service
 
-USER bun
 EXPOSE 3000/tcp
 
 ENV HOST=0.0.0.0
