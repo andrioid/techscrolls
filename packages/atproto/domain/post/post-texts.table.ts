@@ -10,8 +10,8 @@ export const postTexts = pgTable(
     post_id: text("post_id").references(() => postTable.id, {
       onDelete: "cascade",
     }),
-    text: text("text"),
-    source: text("source").$type<ExtractedTextType>(),
+    text: text("text").notNull(),
+    source: text("source").$type<ExtractedTextType>().notNull(),
   },
   (t) => [
     index("idx_postid").on(t.post_id),

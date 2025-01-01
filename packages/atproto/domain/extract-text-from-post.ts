@@ -12,7 +12,7 @@ export type ExtractedTextType =
   | "image-alt"
   | "embed-record";
 
-type ExtractedText = {
+export type ExtractedText = {
   text: string;
   type: ExtractedTextType;
 };
@@ -42,16 +42,17 @@ export async function extractTextFromPost(
         text: parent[0].value.text,
         type: "reply-parent",
       });
-
-    const root = await ctx.db
-      .select()
-      .from(postRecords)
-      .where(eq(postRecords.postId, post.record.reply.root.uri));
-    if (root[0]?.value?.text)
-      out.push({
-        text: root[0].value.text,
-        type: "reply-root",
-      });
+    if (post.record.reply.root.uri !== post.record.reply.parent.ur) {
+      const root = await ctx.db
+        .select()
+        .from(postRecords)
+        .where(eq(postRecords.postId, post.record.reply.root.uri));
+      if (root[0]?.value?.text)
+        out.push({
+          text: root[0].value.text,
+          type: "reply-root",
+        });
+    }
   }
 
   // 3. Embed record
@@ -67,14 +68,10 @@ export async function extractTextFromPost(
           uri: rec.postId,
           record: rec.value,
         });
-        let embedText = ``;
-        for (const et of extractedTexts) {
-          if (!et || et.text.length === 0) continue;
-          embedText += `### ${et.type}\n${et.text}`;
-        }
-        if (embedText.length > 0) {
+        const embt = embedText(extractedTexts);
+        if (embt.length > 0) {
           out.push({
-            text: embedText,
+            text: embt,
             type: "embed-record",
           });
         }
@@ -93,4 +90,14 @@ export async function extractTextFromPost(
   }
 
   return out;
+}
+
+export function embedText(texts: Array<ExtractedText>): string {
+  let embedText = ``;
+  for (const et of texts) {
+    if (!et || et.text.length === 0) continue;
+    embedText += `### ${et.type}\n${et.text}`;
+  }
+
+  return embedText;
 }

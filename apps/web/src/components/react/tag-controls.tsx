@@ -65,15 +65,26 @@ export function TagControls({ postUri }: { postUri: string }) {
       return acc + sum / tag.scores.length;
     }, 0);
 
-    return totalScores / tags.length;
+    return Math.floor(totalScores / tags.length);
   }, [tags]);
 
   return (
-    <span className="inline-flex font-semibold uppercase items-center gap-2">
+    <span className="inline-flex font-semibold uppercase items-center gap-2 flex-wrap">
       {tags &&
         tags.map((tag) => (
           <Fragment key={tag.tag}>
-            <span className="text-base">{`#${tag.tag} ${avgScore}%`}</span>
+            <span className="text-base">
+              {`#${tag.tag}`}{" "}
+              <span
+                className={twMerge(
+                  avgScore >= 80 && "text-green-700",
+                  avgScore < 80 && "text-orange-700",
+                  avgScore <= 50 && "text-red-700"
+                )}
+              >
+                {avgScore}%
+              </span>
+            </span>
 
             <span className="inline-flex gap-1">
               <button

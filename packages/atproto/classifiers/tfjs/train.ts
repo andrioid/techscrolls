@@ -1,32 +1,59 @@
 import tf from "@tensorflow/tfjs-node";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { AtContext } from "../../context";
-import { postRecords } from "../../domain/post/post-record.table";
+import {
+  embedText,
+  type ExtractedTextType,
+} from "../../domain/extract-text-from-post";
 import { postTags } from "../../domain/post/post-tag.table";
+import { postTexts } from "../../domain/post/post-texts.table";
 import { featureExtractor } from "./feature-extraction";
 import { ModelPersistance } from "./tf-iohandler";
 
 export async function train(ctx: AtContext) {
   // 1. Fetch all of the manual tags for "tech"
-  const res = await ctx.db
+  const allTrainingPosts = ctx.db
     .select({
-      value: postRecords.value,
+      postId: postTags.postId,
       tag: postTags.tagId,
       score: postTags.score,
     })
     .from(postTags)
-    .innerJoin(postRecords, eq(postTags.postId, postRecords.postId))
-    .where(and(eq(postTags.algo, "manual"), eq(postTags.tagId, "tech")));
+    .where(and(eq(postTags.algo, "manual"), eq(postTags.tagId, "tech")))
+    .as("allTrainingPosts");
+
+  const res = await ctx.db
+    .select({
+      tag: allTrainingPosts.tag,
+      score: allTrainingPosts.score,
+      texts: sql<
+        Array<{
+          text: string;
+          type: ExtractedTextType;
+        }>
+      >`json_agg(
+        json_build_object(
+            'text', ${postTexts.text},
+            'type', ${postTexts.source}
+        )
+      )`,
+    })
+    .from(postTexts)
+    .innerJoin(allTrainingPosts, eq(postTexts.post_id, allTrainingPosts.postId))
+    .groupBy(postTexts.post_id, allTrainingPosts.tag, allTrainingPosts.score);
+
+  // What the f. do I need here, really?
+  // 1. List of { text, tag, score }
 
   const labeledData = res
     .filter((item) => {
-      if (item.value === null) return false;
+      if (item.texts.length === 0) return false;
       return true;
     })
     .map((item) => {
-      const val = item.value as Exclude<typeof item.value, null>;
+      let text = embedText(item.texts);
       return {
-        text: val.text,
+        text,
         label: item.score === 100 ? item.tag : `not:${item.tag}`,
       };
     });
@@ -35,6 +62,10 @@ export async function train(ctx: AtContext) {
   const trainingDataLabels: string[] = labeledData.map((item) => item.label);
 
   const features = featureExtractor(trainingData, trainingDataLabels);
+  if (features.length === 0) {
+    console.log("[classifier] Cannot train, no features found", features);
+    process.exit(1);
+  }
 
   const uniqueWords = Array.from(
     new Set(features.flatMap((item) => item.features))
@@ -49,7 +80,7 @@ export async function train(ctx: AtContext) {
 
   // Convert features to one-hot encoding
   const oneHotEncodedFeatures = features.map((item) => {
-    const encoding = new Array(uniqueWords.length).fill(0);
+    const encoding: Array<number> = new Array(uniqueWords.length).fill(0);
     item.features.forEach((word) => {
       const index = wordIndex[word];
       if (index !== undefined) {

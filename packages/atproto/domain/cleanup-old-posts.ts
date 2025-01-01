@@ -6,8 +6,8 @@ import { postTags } from "./post/post-tag.table";
 import { postTable } from "./post/post.table";
 
 export async function cleanupOldPosts(ctx: AtContext) {
-  // Delete anything older than X (currently 3 days)
-  const postLifeTime = subDays(new Date(), 2);
+  // Delete anything older than X
+  const postLifeTime = subDays(new Date(), 7);
   // Get all posts that don't have a manual tag
   const res = await ctx.db
     .select({ uri: postTable.id })

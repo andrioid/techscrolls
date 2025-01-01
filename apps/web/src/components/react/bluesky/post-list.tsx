@@ -1,17 +1,18 @@
-import type { AppBskyFeedDefs } from "@atproto/api";
 import { PostView } from "~react/bluesky/post-view";
 
 export function BskyPostList({
-  posts,
+  //posts,
+  postUris,
   mayClassify,
 }: {
-  posts: Array<AppBskyFeedDefs.PostView>;
+  //posts: Array<AppBskyFeedDefs.PostView>;
+  postUris: Array<string>;
   mayClassify?: boolean;
 }) {
   return (
     <div className="w-full md:w-auto 5 md:max-w-xl flex flex-col gap-4">
-      {posts.map((post) => (
-        <PostView key={post.uri} view={post} mayClassify={mayClassify} />
+      {postUris.map((p) => (
+        <PostView key={p} uri={p} mayClassify={mayClassify} />
       ))}
     </div>
   );

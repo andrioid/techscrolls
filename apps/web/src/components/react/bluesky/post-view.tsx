@@ -4,50 +4,78 @@ import { PostContent } from "react-bluesky-embed";
 import { twMerge } from "tailwind-merge";
 import { Embed } from "~react/bluesky/embed";
 import { BlueskyLogo } from "~react/bluesky/logo";
+import { PostSkeleton } from "~react/bluesky/post-skeleton";
+import { usePostThread } from "~react/bluesky/use-postthread";
 import { TagControls } from "~react/tag-controls";
 
 export function PostView({
-  view,
+  //view,
+  uri,
   mayClassify,
+  isPrimary = true,
 }: {
-  view: AppBskyFeedDefs.PostView;
+  uri: string;
+  //view: AppBskyFeedDefs.PostView;
   mayClassify?: boolean;
+  isPrimary?: boolean; // skips borders
 }) {
   const [isClassified, setIsClassified] = useState<boolean | undefined>(
     undefined
   );
 
-  if (!view) {
-    console.log("no view", view);
-    return null;
+  const res = usePostThread(uri);
+  if (res === undefined) {
+    return <PostSkeleton />;
   }
+  const thread = res?.thread;
+
+  if (!AppBskyFeedDefs.isThreadViewPost(thread)) {
+    return <p>not threadviewpost</p>;
+  }
+  const view = thread.post;
+  thread.replies;
 
   const authorLink = `https://bsky.app/profile/${view.author.did}`;
-  const atUri = new AtUri(view.uri);
+  const atUri = new AtUri(uri);
   const postLink = `${authorLink}/post/${atUri.rkey}`;
 
   return (
     <div
       className={twMerge(
-        "rounded-md border",
+        isPrimary && "rounded-md border",
         isClassified === true && "border-green-800",
         isClassified === false && "border-red-800"
       )}
     >
+      {AppBskyFeedDefs.isThreadViewPost(thread.parent) && (
+        <div className="bg-slate-50">
+          <PostView uri={thread.parent.post.uri} isPrimary={false} />
+          <hr />
+        </div>
+      )}
+
       <div
         className={twMerge(
           "p-4 flex flex-col gap-4 transition-all",
           isClassified !== undefined && "hidden"
         )}
       >
-        <div className="flex flex-row justify-between">
+        <div
+          className={twMerge(
+            "flex flex-row justify-between",
+            !isPrimary && "text-sm"
+          )}
+        >
           <a href={authorLink} target="_blank">
             <div className="flex flex-row gap-4">
               <img
                 src={view.author.avatar}
-                className="h-12 w-12 rounded-full"
+                className={twMerge(
+                  "h-12 w-12 rounded-full",
+                  !isPrimary && "h-6 w-6"
+                )}
               />
-              <div>
+              <div className={twMerge(!isPrimary && "flex flex-row gap-2")}>
                 <h3 className="font-semibold">
                   {view.author.displayName ?? view.author.handle}
                 </h3>
@@ -56,7 +84,9 @@ export function PostView({
             </div>
           </a>
           <a href={postLink} target="_blank">
-            <BlueskyLogo className="h-8 w-8" />
+            <BlueskyLogo
+              className={twMerge("h-8 w-8", !isPrimary && "h-4 w-4")}
+            />
           </a>
         </div>
 

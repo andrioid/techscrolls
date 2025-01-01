@@ -1,19 +1,28 @@
-import { desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, ilike } from "drizzle-orm";
 import type { AtContext } from "../context";
-import { postRecords } from "./post/post-record.table";
-import { postScores } from "./post/post-scores.view";
+import { postTexts } from "./post/post-texts.table";
 import { postTable } from "./post/post.table";
 
-export async function getModerationPosts(ctx: AtContext) {
+export async function getModerationPosts(
+  ctx: AtContext,
+  options: {
+    query?: string;
+    offset?: number;
+  }
+) {
   return await ctx.db
     .select({
       postId: postTable.id,
-      record: postRecords.value,
     })
     .from(postTable)
-    .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
-    .leftJoin(postScores, eq(postTable.id, postScores.postId))
+    .innerJoin(postTexts, eq(postTable.id, postTexts.post_id))
+    .where(
+      and(
+        options?.query ? ilike(postTexts.text, `%${options.query}%`) : undefined
+      )
+    )
+    .groupBy(postTable.id)
     .orderBy(desc(postTable.created))
-    .where(isNull(postScores.tagId))
+
     .limit(25);
 }

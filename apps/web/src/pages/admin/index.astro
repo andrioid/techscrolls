@@ -1,21 +1,47 @@
 ---
-import { getAdminStats } from "@andrioid/atproto";
+import { getAdminStats, getModerationPosts } from "@andrioid/atproto";
 import Layout from "~astro/layout.astro";
 import PageLayout from "~astro/page-layout.astro";
+import { BskyPostList } from "~react/bluesky/post-list";
 const at = Astro.locals.at;
+const url = new URL(Astro.request.url);
+const query = url.searchParams.get("query");
 
 const dat = await getAdminStats(at);
+const posts = await getModerationPosts(at, {
+  query: query ?? undefined,
+});
 ---
 
 <Layout>
   <PageLayout title="Admin Dashboard">
-    {
-      dat.map((d) => (
-        <div>
-          {d.label}
-          {d.value}
-        </div>
-      ))
-    }
+    <form>
+      <div class="flex flex-row gap-2">
+        <input
+          value={query ?? ""}
+          name="query"
+          type="text"
+          class="rounded-md border py-1.5 px-2"
+        />
+        <button type="submit">Search</button>
+      </div>
+    </form>
+    <div class="flex flex-row gap-4">
+      {
+        dat.map((d) => (
+          <div class="rounded-md border p-3 flex-col flex gap-2 text-center">
+            <div class="text-xs uppercase">{d.label}</div>
+            <span class="font-semibold text-sky-900">{d.value}</span>
+          </div>
+        ))
+      }
+    </div>
+    <BskyPostList
+      client:only="react"
+      postUris={posts.map((p) => p.postId)}
+      mayClassify={true}
+    >
+      <div slot="fallback">Loading</div>
+    </BskyPostList>
   </PageLayout>
 </Layout>
