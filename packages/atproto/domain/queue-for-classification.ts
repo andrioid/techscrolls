@@ -1,8 +1,11 @@
 import { AtUri, type AppBskyFeedPost } from "@atproto/api";
-import lande from "lande";
 import type { AtContext } from "../context";
-import { postRecords, postTable } from "../db/schema";
 import { LISTEN_NOTIFY_POSTQUEUE } from "../scripts/classifier";
+import { extractTextFromPost } from "./extract-text-from-post";
+import { isForeignLanguage } from "./is-foreign-language";
+import { postRecords } from "./post/post-record.table";
+import { postTexts } from "./post/post-texts.table";
+import { postTable } from "./post/post.table";
 
 export type FeedPostWithUri = {
   uri: string;
@@ -18,16 +21,9 @@ export async function queueForClassification(
   if (!post.record.langs?.includes("en")) return;
   const text = post.record.text;
 
-  const langProb = lande(text);
-  // If english isn't the most likely language, we skip it entirely
-  const detectedNonEnglish = (() => {
-    if (text.length < 20) return false;
-    const [firstLang, pb] = langProb[0];
-    if (firstLang !== "eng" && pb > 0.8) return true;
-    return false; // We just don't know
-  })();
-  if (detectedNonEnglish) {
-    console.log("[queue] not english: ", text);
+  const extractedText = await extractTextFromPost(ctx, post);
+  if (isForeignLanguage(extractedText.join("\n"))) {
+    // Don't want to waste resources on text in other languages
     return;
   }
 
@@ -54,6 +50,16 @@ export async function queueForClassification(
           cid: post.cid,
         })
         .onConflictDoNothing();
+      for (const et of extractedText) {
+        await tx
+          .insert(postTexts)
+          .values({
+            post_id: post.uri,
+            source: et.type,
+            text: et.text,
+          })
+          .onConflictDoNothing();
+      }
     });
     ctx.db.$client.notify(
       LISTEN_NOTIFY_POSTQUEUE,

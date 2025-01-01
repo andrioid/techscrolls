@@ -1,6 +1,8 @@
 import { desc, eq, isNull } from "drizzle-orm";
 import type { AtContext } from "../context";
-import { postRecords, postScores, postTable } from "../db/schema";
+import { postRecords } from "./post/post-record.table";
+import { postScores } from "./post/post-scores.view";
+import { postTable } from "./post/post.table";
 
 export async function getModerationPosts(ctx: AtContext) {
   return await ctx.db

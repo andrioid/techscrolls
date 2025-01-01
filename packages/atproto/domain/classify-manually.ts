@@ -1,6 +1,7 @@
 import type { ClassifierTags } from "../classifiers/types";
 import type { AtContext } from "../context";
-import { postTags, tagTable } from "../db/schema";
+import { postTags } from "./post/post-tag.table";
+import { tagTable } from "./tag/tag.table";
 
 export type ClassifyPostArgs = {
   postUri: string;

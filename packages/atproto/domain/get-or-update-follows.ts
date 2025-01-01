@@ -1,8 +1,9 @@
 import { eq } from "drizzle-orm";
 import type { AtContext } from "../context";
-import { followTable, userTable } from "../db/schema";
 import { getAllFollows } from "../helpers/follows";
 import { notifyNewSubscribers } from "./notify-new-subscribers";
+import { followTable } from "./user/user-follows.table";
+import { userTable } from "./user/user.table";
 
 /**
  * Registers the feedUser's followers. Fetches them if necessary.
@@ -25,8 +26,9 @@ export async function getOrUpdateFollows(ctx: AtContext, did: string) {
 
   // Allow follower update every 48h
   const isFollowersStale =
+    existingActor &&
     new Date().getTime() - existingActor[0]?.modified.getTime() >
-    48 * 60 * 60 * 1000;
+      48 * 60 * 60 * 1000;
 
   if (isFollowersStale) console.log("[followers] stale", did);
 

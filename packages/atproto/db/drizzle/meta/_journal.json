@@ -148,6 +148,34 @@
       "when": 1735455955183,
       "tag": "0020_mighty_wraith",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1735734936383,
+      "tag": "0021_mute_exiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1735736116107,
+      "tag": "0022_far_vulture",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1735737818543,
+      "tag": "0023_needy_saracen",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1735742570043,
+      "tag": "0024_lumpy_sentinels",
+      "breakpoints": true
     }
   ]
 }

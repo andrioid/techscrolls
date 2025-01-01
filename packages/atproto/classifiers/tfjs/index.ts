@@ -1,4 +1,6 @@
+import { eq } from "drizzle-orm";
 import type { AtContext } from "../../context";
+import { postTexts } from "../../domain/post/post-texts.table";
 import type { FeedPostWithUri } from "../../domain/queue-for-classification";
 import type { ClassifierFn } from "../types";
 import { classify } from "./classify";
@@ -22,8 +24,18 @@ export const createBayesClassiferFn: FnType = async (ctx) => {
     ctx: AtContext;
     post: FeedPostWithUri;
   }) {
+    const res = await ctx.db
+      .select()
+      .from(postTexts)
+      .where(eq(postTexts.post_id, post.uri));
+    let text = "";
+    for (const etext of res) {
+      text += `### ${etext.source}\n${etext.text}`;
+    }
+
     const cl = await classify({
-      post: post,
+      postUri: post.uri,
+      text,
       model: m.model,
       uniqueWords: m.uniqueWords,
       wordIndex: m.wordIndex,

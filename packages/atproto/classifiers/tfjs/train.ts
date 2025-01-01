@@ -1,7 +1,8 @@
 import tf from "@tensorflow/tfjs-node";
 import { and, eq } from "drizzle-orm";
 import type { AtContext } from "../../context";
-import { postRecords, postTags } from "../../db/schema";
+import { postRecords } from "../../domain/post/post-record.table";
+import { postTags } from "../../domain/post/post-tag.table";
 import { featureExtractor } from "./feature-extraction";
 import { ModelPersistance } from "./tf-iohandler";
 

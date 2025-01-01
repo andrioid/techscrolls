@@ -1,6 +1,8 @@
 import { count, countDistinct, sql } from "drizzle-orm";
 import type { AtContext } from "../context";
-import { followTable, postTable, userTable } from "../db/schema";
+import { postTable } from "./post/post.table";
+import { followTable } from "./user/user-follows.table";
+import { userTable } from "./user/user.table";
 
 export async function getAdminStats(ctx: AtContext) {
   let output: Array<{

@@ -1,12 +1,13 @@
+import { subDays } from "date-fns";
 import { and, eq, inArray, isNull, lte } from "drizzle-orm";
 import type { AtContext } from "../context";
-import { postRecords, postTable, postTags } from "../db/schema";
-
-const DAYS_IN_MS = 1000 * 60 * 60 * 24 * 7;
+import { postRecords } from "./post/post-record.table";
+import { postTags } from "./post/post-tag.table";
+import { postTable } from "./post/post.table";
 
 export async function cleanupOldPosts(ctx: AtContext) {
   // Delete anything older than X (currently 3 days)
-  const postLifeTime = new Date(new Date().getTime() - (DAYS_IN_MS / 7) * 3);
+  const postLifeTime = subDays(new Date(), 2);
   // Get all posts that don't have a manual tag
   const res = await ctx.db
     .select({ uri: postTable.id })

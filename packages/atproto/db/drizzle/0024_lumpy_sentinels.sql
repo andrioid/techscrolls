@@ -1,0 +1,1 @@
+ALTER TABLE "post_texts" ADD CONSTRAINT "uniq_post_source" UNIQUE("post_id","source");

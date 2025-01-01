@@ -8,6 +8,7 @@ type SocketEntry = {
   id: string;
   wss: WebSocket;
   args: JetStreamRequest;
+  query: string;
 };
 
 type PostRecord = AppBskyFeedPost.Record & {
@@ -127,7 +128,8 @@ export class JetstreamNew {
     while (batches.length > 0) {
       const [args] = batches.splice(0, 1);
       console.log("Creating socket");
-      const wss = new WebSocket(this.getInitialQuery());
+      const query = this.getInitialQuery();
+      const wss = new WebSocket(query);
 
       const socketId = crypto.randomUUID();
       wss.addEventListener("open", (ev) => this.handleOpen(socketId, ev));
@@ -137,6 +139,7 @@ export class JetstreamNew {
         id: socketId,
         args,
         wss,
+        query,
       });
     }
   }
@@ -162,7 +165,7 @@ export class JetstreamNew {
   private handleOpen(socketId: string, ev: Event) {
     const connection = this.connections.find((c) => c.id === socketId);
     if (!connection) return;
-    console.log(`[jetstream] ${socketId.slice(-6)}: open`);
+    console.log(`[jetstream] ${socketId.slice(-6)}: open ${connection.query}`);
     connection.wss.send(this.getConfigMessage(connection.args));
   }
 
@@ -194,19 +197,23 @@ export class JetstreamNew {
     const { args } = connection;
     this.connections = this.connections.filter((c) => c.id === socketId);
     setTimeout(() => {
-      console.log(`[jetstream] ${socketId.slice(-6)}: reconnecting`);
-      const wss = new WebSocket(this.getInitialQuery());
+      const newQuery = this.getInitialQuery();
+      console.log(
+        `[jetstream] ${socketId.slice(-6)}: reconnecting with newQuery`
+      );
+      const wss = new WebSocket(newQuery);
       const newConnection = {
         id: socketId,
         wss,
         args,
+        query: newQuery,
       };
       wss.addEventListener("open", (ev) => this.handleOpen(socketId, ev));
       wss.addEventListener("message", (ev) => this.handleMessage(socketId, ev));
       wss.addEventListener("close", (ev) => this.handleClose(socketId, ev));
 
       this.connections.push(newConnection);
-    }, 5000);
+    }, 30 * 60 * 60 * 1000); // 30 minute cool off
   }
 
   public on(

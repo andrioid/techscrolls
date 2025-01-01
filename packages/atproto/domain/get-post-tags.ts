@@ -1,6 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import type { AtContext } from "../context";
-import { postTags, tagTable } from "../db/schema";
+import { postTags } from "./post/post-tag.table";
+import { tagTable } from "./tag/tag.table";
 
 export async function getPostTags(ctx: AtContext, postUri: string) {
   const res = await ctx.db

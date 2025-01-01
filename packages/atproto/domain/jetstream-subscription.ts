@@ -1,8 +1,9 @@
 import { desc } from "drizzle-orm";
 import type { AtContext } from "../context";
-import { followTable, postTable } from "../db/schema";
 import { JetstreamNew } from "./jetstream-new";
+import { postTable } from "./post/post.table";
 import { queueForClassification } from "./queue-for-classification";
+import { followTable } from "./user/user-follows.table";
 
 export const LISTEN_NOTIFY_NEW_SUBSCRIBERS = "atproto.subscriber.update";
 

@@ -1,7 +1,10 @@
 import { and, desc, eq, gt, gte } from "drizzle-orm/expressions";
-import { postScores, postTable } from "../db/schema";
+
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
 import { fromCursor, toCursor } from "../helpers/cursor";
+
+import { postScores } from "./post/post-scores.view";
+import { postTable } from "./post/post.table";
 
 export async function getTechAllFeed(
   args: FeedHandlerArgs

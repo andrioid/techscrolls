@@ -1,8 +1,10 @@
 import { and, desc, eq, gt, gte } from "drizzle-orm/expressions";
-import { followTable, postScores, postTable } from "../db/schema";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
 import { fromCursor, toCursor } from "../helpers/cursor";
 import { getOrUpdateFollows } from "./get-or-update-follows";
+import { postScores } from "./post/post-scores.view";
+import { postTable } from "./post/post.table";
+import { followTable } from "./user/user-follows.table";
 
 export async function getTechFollowingFeed(
   args: FeedHandlerArgs

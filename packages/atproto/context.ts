@@ -32,6 +32,9 @@ export async function createAtContext() {
         });
     },
   });
+  const atpAgentPublic = new AtpAgent({
+    service: "https://public.api.bsky.app",
+  });
   try {
     const existingSession = await db
       .select({
@@ -70,6 +73,7 @@ export async function createAtContext() {
     });
     return {
       atpAgent,
+      atpAgentPublic,
       db,
       dbClient,
     };
