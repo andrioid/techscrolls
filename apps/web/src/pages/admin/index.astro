@@ -6,10 +6,12 @@ import { BskyPostList } from "~react/bluesky/post-list";
 const at = Astro.locals.at;
 const url = new URL(Astro.request.url);
 const query = url.searchParams.get("query");
+const minscore = url.searchParams.get("minscore");
 
 const dat = await getAdminStats(at);
 const posts = await getModerationPosts(at, {
   query: query ?? undefined,
+  minScore: minscore ? Number(minscore) : 50,
 });
 ---
 

@@ -5,7 +5,9 @@ export const config = (() => {
   const fgHostname = process.env["FEEDGEN_HOSTNAME"] ?? "techscrolls.fly.dev";
   const recordName = "testfeed";
   const pgURL =
-    process.env["PG_URL"] ?? "postgres://devuser:devpass@localhost:5432/devdb";
+    process.env["PG_URL"] ??
+    process.env["DATABASE_URL"] ??
+    "postgres://devuser:devpass@localhost:5432/devdb";
 
   if (!identifier || !password)
     throw Error("DID_HANDLE or DID_PASSWORD missing");

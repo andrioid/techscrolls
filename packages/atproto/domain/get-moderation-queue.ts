@@ -1,5 +1,6 @@
-import { and, desc, eq, ilike } from "drizzle-orm";
+import { and, desc, eq, gte, ilike } from "drizzle-orm";
 import type { AtContext } from "../context";
+import { postScores } from "./post/post-scores.view";
 import { postTexts } from "./post/post-texts.table";
 import { postTable } from "./post/post.table";
 
@@ -8,6 +9,7 @@ export async function getModerationPosts(
   options: {
     query?: string;
     offset?: number;
+    minScore?: number;
   }
 ) {
   return await ctx.db
@@ -16,9 +18,15 @@ export async function getModerationPosts(
     })
     .from(postTable)
     .innerJoin(postTexts, eq(postTable.id, postTexts.post_id))
+    .innerJoin(postScores, eq(postTable.id, postScores.postId))
     .where(
       and(
-        options?.query ? ilike(postTexts.text, `%${options.query}%`) : undefined
+        options?.query
+          ? ilike(postTexts.text, `%${options.query}%`)
+          : undefined,
+        options?.minScore
+          ? gte(postScores.avgScore, options?.minScore)
+          : undefined
       )
     )
     .groupBy(postTable.id)

@@ -8,6 +8,9 @@ import { PostSkeleton } from "~react/bluesky/post-skeleton";
 import { usePostThread } from "~react/bluesky/use-postthread";
 import { TagControls } from "~react/tag-controls";
 
+const labelClass =
+  "text-xs border text-gray-700 font-semibold rounded-full py-1.5 px-3";
+
 export function PostView({
   //view,
   uri,
@@ -23,7 +26,9 @@ export function PostView({
     undefined
   );
 
-  const res = usePostThread(uri);
+  const res = usePostThread(uri, {
+    parentHeight: isPrimary ? 2 : 0,
+  });
   if (res === undefined) {
     return <PostSkeleton />;
   }
@@ -66,8 +71,8 @@ export function PostView({
             !isPrimary && "text-sm"
           )}
         >
-          <a href={authorLink} target="_blank">
-            <div className="flex flex-row gap-4">
+          <div className="flex flex-row gap-4">
+            <a href={authorLink} target="_blank">
               <img
                 src={view.author.avatar}
                 className={twMerge(
@@ -75,14 +80,26 @@ export function PostView({
                   !isPrimary && "h-6 w-6"
                 )}
               />
-              <div className={twMerge(!isPrimary && "flex flex-row gap-2")}>
+            </a>
+            <div
+              className={twMerge("flex flex-col", !isPrimary && "flex-row ")}
+            >
+              <a href={authorLink}>
                 <h3 className="font-semibold">
                   {view.author.displayName ?? view.author.handle}
                 </h3>
-                <p className="text-gray-600">@{view.author.handle}</p>
-              </div>
+              </a>
+              <p className="text-gray-600">@{view.author.handle}</p>
+              {view.author.labels && (
+                <div className="mt-2">
+                  {view.author.labels.map((label) => (
+                    <span className={labelClass}>{label.val}</span>
+                  ))}
+                </div>
+              )}
             </div>
-          </a>
+          </div>
+
           <a href={postLink} target="_blank">
             <BlueskyLogo
               className={twMerge("h-8 w-8", !isPrimary && "h-4 w-4")}
@@ -113,6 +130,15 @@ export function PostView({
           >
             Expand
           </button>
+        </div>
+      )}
+      {view.labels && view.labels.length > 0 && (
+        <div className="text-xs">
+          <hr />
+          label
+          {view.labels.map((label) => (
+            <span className={labelClass}>{label.val}</span>
+          ))}
         </div>
       )}
       {mayClassify && (
