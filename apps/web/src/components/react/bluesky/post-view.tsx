@@ -95,7 +95,7 @@ export function PostView({
                     "underline decoration-wavy decoration-orange-200"
                 )}
               >
-                <h3 className="font-semibold">
+                <h3 className="font-semibold truncate">
                   {view.author.displayName ?? view.author.handle ?? "N/A"}
                 </h3>
               </a>
