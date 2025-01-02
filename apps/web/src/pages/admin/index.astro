@@ -7,12 +7,21 @@ const at = Astro.locals.at;
 const url = new URL(Astro.request.url);
 const query = url.searchParams.get("query");
 const minscore = url.searchParams.get("minscore");
+const page = url.searchParams.get("page")
+  ? Number(url.searchParams.get("page"))
+  : 1;
 
 const dat = await getAdminStats(at);
 const posts = await getModerationPosts(at, {
-  query: query ?? undefined,
+  query: query ? query : "",
   minScore: minscore ? Number(minscore) : 50,
+  page: page,
 });
+const nurl = new URL(url);
+const nextPageNumber = page + 1;
+nurl.searchParams.set("page", `${nextPageNumber}`);
+console.log("next page", nextPageNumber, page);
+const nextPage = nurl.toString();
 ---
 
 <Layout>
@@ -25,6 +34,8 @@ const posts = await getModerationPosts(at, {
           type="text"
           class="rounded-md border py-1.5 px-2"
         />
+        <input type="hidden" name="minscore" value={minscore} />
+        <input type="hidden" name="page" value={page} />
         <button type="submit">Search</button>
       </div>
     </form>
@@ -45,5 +56,6 @@ const posts = await getModerationPosts(at, {
     >
       <div slot="fallback">Loading</div>
     </BskyPostList>
+    <a href={nextPage}>Next page</a>
   </PageLayout>
 </Layout>

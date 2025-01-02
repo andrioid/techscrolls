@@ -4,14 +4,18 @@ import { postScores } from "./post/post-scores.view";
 import { postTexts } from "./post/post-texts.table";
 import { postTable } from "./post/post.table";
 
+const PER_PAGE = 25;
+
 export async function getModerationPosts(
   ctx: AtContext,
   options: {
     query?: string;
-    offset?: number;
+    page?: number;
     minScore?: number;
   }
 ) {
+  const offset = options?.page ? (options.page - 1) * PER_PAGE : 0;
+
   return await ctx.db
     .select({
       postId: postTable.id,
@@ -31,6 +35,6 @@ export async function getModerationPosts(
     )
     .groupBy(postTable.id)
     .orderBy(desc(postTable.created))
-
-    .limit(25);
+    .limit(PER_PAGE)
+    .offset(offset);
 }

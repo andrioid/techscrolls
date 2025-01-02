@@ -44,6 +44,9 @@ export function PostView({
   const atUri = new AtUri(uri);
   const postLink = `${authorLink}/post/${atUri.rkey}`;
 
+  const authorLabelString =
+    view.author?.labels && view.author.labels.map((l) => l.val).join(", ");
+
   return (
     <div
       className={twMerge(
@@ -84,19 +87,19 @@ export function PostView({
             <div
               className={twMerge("flex flex-col", !isPrimary && "flex-row ")}
             >
-              <a href={authorLink}>
+              <a
+                href={authorLink}
+                title={authorLabelString}
+                className={twMerge(
+                  authorLabelString &&
+                    "underline decoration-wavy decoration-orange-200"
+                )}
+              >
                 <h3 className="font-semibold">
-                  {view.author.displayName ?? view.author.handle}
+                  {view.author.displayName ?? view.author.handle ?? "N/A"}
                 </h3>
               </a>
               <p className="text-gray-600">@{view.author.handle}</p>
-              {view.author.labels && (
-                <div className="mt-2">
-                  {view.author.labels.map((label) => (
-                    <span className={labelClass}>{label.val}</span>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 

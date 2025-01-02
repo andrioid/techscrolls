@@ -5,4 +5,17 @@ import Layout from "~astro/layout.astro";
 //return Astro.redirect("/feed"); // TODO: When session is ready
 ---
 
-<Layout> Nothing here yet </Layout>
+<Layout>
+  <div
+    class="flex-1 bg-[url('/tech-scroll-cover.webp')] bg-yellow-100 bg-repeat bg-top h-full w-full items-center p-12"
+  >
+    <div
+      class="bg-white rounded-md p-4 shadow-md border flex flex-row justify-between items-center"
+    >
+      <span class="text-xl font-medium">Technical Scrolls</span>
+      <a href="admin/"
+        ><span class="text-xl font-medium hover:text-sky-800">Login</span></a
+      >
+    </div>
+  </div>
+</Layout>
