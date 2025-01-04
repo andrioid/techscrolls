@@ -20,6 +20,7 @@ const dat = await getAdminStats(at);
 const posts = await getModerationPosts(at, {
   query: query ? query : "",
   minScore: minscore,
+  maxScore: maxscore,
   page: page,
 });
 const nurl = new URL(url);
