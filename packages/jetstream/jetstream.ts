@@ -142,7 +142,7 @@ export class Jetstream {
 
     switch (msg.commit.collection) {
       case "app.bsky.feed.post":
-        console.log("[jetstream post", msg);
+        //console.log("[jetstream post", msg);
         for (const listener of this.listeners.filter(
           (l) => l.event === "post"
         )) {
@@ -150,12 +150,15 @@ export class Jetstream {
         }
         break;
       case "app.bsky.feed.repost":
-        console.log("[jetstream repost]", msg);
+        //console.log("[jetstream repost]", msg);
         break;
       default:
+        /*
         console.debug(
           `[jetstream] ${msg.commit.operation} "${msg.commit.collection}" ignored`
         );
+        */
+        break;
     }
   }
 
