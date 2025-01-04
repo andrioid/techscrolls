@@ -136,7 +136,7 @@ export class Jetstream {
     //console.log(`[jetstream] ${socketId.slice(-6)}: msg`, msg);
 
     if (msg.kind !== "commit") return; // only kind supported atm
-    //if (msg.commit.operation !== "create") return;
+    if (msg.commit.operation !== "create") return;
 
     // TODO: Broke these types being smart - fix tomorrow
 
@@ -146,6 +146,10 @@ export class Jetstream {
         for (const listener of this.listeners.filter(
           (l) => l.event === "post"
         )) {
+          if (!msg.commit.record) {
+            console.warn("Received a post event without record");
+            continue;
+          }
           await listener.cb(toFeedPostWithUri(msg as CommitEvent<CommitPost>));
         }
         break;

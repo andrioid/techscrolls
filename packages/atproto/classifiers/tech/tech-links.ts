@@ -20,5 +20,5 @@ const notInterested = {
 } as const;
 
 const techLinkMatcher = new RegExp(
-  /^https:\/\/(www\.)?(github\.com|developer\.mozilla.org|stackoverflow\.com|serverfault\.com|superuser\.com)/i
+  /^https:\/\/(www\.)?(github\.com|developer\.mozilla.org|stackoverflow\.com|serverfault\.com|superuser\.com|codepen.io|stackblitz.com)/i
 );
