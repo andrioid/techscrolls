@@ -6,6 +6,7 @@ import { postTable } from "./post/post.table";
 
 const PER_PAGE = 25;
 
+// TODO: This should in fact follow the same interface as the feed handlers
 export async function getModerationPosts(
   ctx: AtContext,
   options: {

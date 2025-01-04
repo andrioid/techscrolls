@@ -6,7 +6,9 @@ import { BskyPostList } from "~react/bluesky/post-list";
 const at = Astro.locals.at;
 const url = new URL(Astro.request.url);
 const query = url.searchParams.get("query");
-const minscore = url.searchParams.get("minscore");
+const minscore = url.searchParams.get("minscore")
+  ? Number(url.searchParams.get("minscore"))
+  : 50;
 const page = url.searchParams.get("page")
   ? Number(url.searchParams.get("page"))
   : 1;
@@ -14,14 +16,14 @@ const page = url.searchParams.get("page")
 const dat = await getAdminStats(at);
 const posts = await getModerationPosts(at, {
   query: query ? query : "",
-  minScore: minscore ? Number(minscore) : 50,
+  minScore: minscore,
   page: page,
 });
 const nurl = new URL(url);
 const nextPageNumber = page + 1;
 nurl.searchParams.set("page", `${nextPageNumber}`);
-console.log("next page", nextPageNumber, page);
 const nextPage = nurl.toString();
+const scoreOptions = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 ---
 
 <Layout>
@@ -29,14 +31,32 @@ const nextPage = nurl.toString();
     <form>
       <div class="flex flex-row gap-2">
         <input
+          placeholder="Search for post texts"
           value={query ?? ""}
           name="query"
           type="text"
           class="rounded-md border py-1.5 px-2"
         />
-        <input type="hidden" name="minscore" value={minscore} />
+
         <input type="hidden" name="page" value={page} />
-        <button type="submit">Search</button>
+        <select
+          name="minscore"
+          aria-valuemax="100"
+          aria-valuemin="1"
+          class="border rounded-md py-1.5 px-3 bg-gray-100"
+        >
+          {
+            scoreOptions.map((score) => (
+              <option selected={minscore === score} value={score}>
+                {score}%
+              </option>
+            ))
+          }
+        </select>
+        <button
+          class="py-1.5 px-3 border rounded-md hover:text-sky-800"
+          type="submit">Search</button
+        >
       </div>
     </form>
     <div class="flex flex-row gap-4">
@@ -56,6 +76,12 @@ const nextPage = nurl.toString();
     >
       <div slot="fallback">Loading</div>
     </BskyPostList>
-    <a href={nextPage}>Next page</a>
+    <div>
+      <a href={nextPage}
+        ><button class="py-1.5 px-3 rounded-md bg-gray-100 hover:text-sky-800"
+          >Next page</button
+        ></a
+      >
+    </div>
   </PageLayout>
 </Layout>
