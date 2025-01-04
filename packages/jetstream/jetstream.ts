@@ -1,65 +1,28 @@
-import type { AppBskyFeedPost } from "@atproto/api";
 import zstd from "@bokuweb/zstd-wasm";
 import fs from "node:fs";
 import path from "node:path";
-import type { FeedPostWithUri } from "./queue-for-classification";
-
-type SocketEntry = {
-  id: string;
-  wss: WebSocket;
-  args: JetStreamRequest;
-  query: string;
-};
-
-type PostRecord = AppBskyFeedPost.Record & {
-  reply?: {
-    parent?: {
-      cid: string;
-      uri: string;
-    };
-    root?: {
-      cid: string;
-      uri: string;
-    };
-  };
-};
-
-type StreamCollection = {
-  did: string;
-  time_us: number;
-  kind: "commit";
-  commit: {
-    cid: string;
-    collection: "app.bsky.feed.post";
-    rev: string;
-    operation: "create";
-    rkey: string;
-    record: PostRecord;
-  };
-};
-
-type JetStreamRequest = {
-  wantedCollections?: Readonly<Array<string>>;
-  wantedDids?: Readonly<Array<string>>;
-  /** Typically the unixtime of the last received post */
-  cursor?: Readonly<string>;
-};
+import type {
+  CommitEvent,
+  CommitPost,
+  CommitTypes,
+  FeedPostWithUri,
+  JetStreamRequest,
+  Listener,
+  SocketEntry,
+} from "./types";
 
 // MAX DIDS defined here: https://github.com/bluesky-social/jetstream/tree/main
 const MAX_DIDS_PER_SOCKET = 10000;
 const JETSTREAM_BASE_URL = "wss://jetstream2.us-east.bsky.network/subscribe";
 
-export class JetstreamNew {
+export class Jetstream {
   private connections: Array<SocketEntry> = [];
   private decoder: TextDecoder = new TextDecoder();
   private zDict: Buffer = fs.readFileSync(
-    path.join(__dirname, "../zstd_dictionary.dat")
+    path.join(__dirname, "./zstd_dictionary.dat")
   );
   private args: JetStreamRequest;
-  private listeners: Array<{
-    event: "post";
-    cb: (msg: FeedPostWithUri) => Promise<void>;
-  }> = [];
+  private listeners: Array<Listener> = [];
 
   private constructor(args: JetStreamRequest) {
     this.args = args;
@@ -68,7 +31,7 @@ export class JetstreamNew {
 
   static async Create(args: JetStreamRequest) {
     await zstd.init();
-    const instance = new JetstreamNew(args);
+    const instance = new Jetstream(args);
     return instance;
   }
 
@@ -79,10 +42,8 @@ export class JetstreamNew {
       Uint8Array.from(this.zDict)
     );
 
-    const data = JSON.parse(
-      this.decoder.decode(uncompressed)
-    ) as StreamCollection;
-    return data;
+    const data = JSON.parse(this.decoder.decode(uncompressed));
+    return data as CommitEvent<CommitTypes>;
   }
 
   /** Go through existing sockets if any and reconfigure
@@ -172,21 +133,29 @@ export class JetstreamNew {
   private async handleMessage(socketId: string, ev: MessageEvent<Buffer>) {
     const msg = await this.decodeMessage(ev.data);
     this.args.cursor = msg.time_us.toString();
-    // TODO: Update this.args.cursor so that reconnects dont try to grab everything again
-    //console.log(`[jetstream] ${socketId.slice(-6)}: msg`);
+    //console.log(`[jetstream] ${socketId.slice(-6)}: msg`, msg);
 
-    if (
-      msg.kind === "commit" &&
-      msg.commit.operation === "create" &&
-      msg.commit.collection === "app.bsky.feed.post"
-    ) {
-      for (const listener of this.listeners) {
-        await listener.cb({
-          uri: `at://${msg.did}/app.bsky.feed.post/${msg.commit.rkey}`,
-          record: msg.commit.record,
-          cid: msg.commit.cid,
-        });
-      }
+    if (msg.kind !== "commit") return; // only kind supported atm
+    //if (msg.commit.operation !== "create") return;
+
+    // TODO: Broke these types being smart - fix tomorrow
+
+    switch (msg.commit.collection) {
+      case "app.bsky.feed.post":
+        console.log("[jetstream post", msg);
+        for (const listener of this.listeners.filter(
+          (l) => l.event === "post"
+        )) {
+          await listener.cb(toFeedPostWithUri(msg as CommitEvent<CommitPost>));
+        }
+        break;
+      case "app.bsky.feed.repost":
+        console.log("[jetstream repost]", msg);
+        break;
+      default:
+        console.debug(
+          `[jetstream] ${msg.commit.operation} "${msg.commit.collection}" ignored`
+        );
     }
   }
 
@@ -216,13 +185,17 @@ export class JetstreamNew {
     }, 30 * 60 * 60 * 1000); // 30 minute cool off
   }
 
-  public on(
-    event: (typeof this.listeners)[number]["event"],
-    cb: (msg: FeedPostWithUri) => Promise<void>
-  ) {
-    this.listeners.push({
-      event: event,
-      cb,
-    });
+  public on(listener: Listener) {
+    this.listeners.push(listener);
   }
+}
+
+export function toFeedPostWithUri(
+  ev: CommitEvent<CommitPost>
+): FeedPostWithUri {
+  return {
+    uri: `at://${ev.did}/app.bsky.feed.post/${ev.commit.rkey}`,
+    record: ev.commit.record,
+    cid: ev.commit.cid,
+  };
 }

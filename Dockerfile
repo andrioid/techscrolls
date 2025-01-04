@@ -21,6 +21,8 @@ RUN curl https://mise.run | sh
 
 WORKDIR /home/app
 RUN mise use --verbose -g bun@latest node@lts
+
+# Deps
 FROM base as deps
 USER 1000:1000
 RUN mkdir -p /tmp/dev
@@ -30,9 +32,10 @@ COPY apps/jetstream/package.json /tmp/dev/apps/jetstream/package.json
 COPY apps/classifier/package.json /tmp/dev/apps/classifier/package.json
 COPY packages/atproto/package.json /tmp/dev/packages/atproto/package.json
 COPY packages/db/package.json /tmp/dev/packages/db/package.json
+COPY packages/jetstream/package.json /tmp/dev/packages/jetstream/package.json
 
 RUN cd /tmp/dev && bun install --frozen-lockfile
-RUN npm rebuild @tensorflow/tfjs-node --build-from-source
+#RUN npm rebuild @tensorflow/tfjs-node --build-from-source
 
 
 # Astro build

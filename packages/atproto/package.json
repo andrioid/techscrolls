@@ -23,9 +23,8 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "@andrioid/jetstream": "workspace:*",
     "@atproto/api": "^0.13.23",
-    "@bokuweb/zstd-wasm": "^0.0.22",
-    "@skyware/jetstream": "^0.2.1",
     "@tensorflow/tfjs": "4.22.0",
     "@tensorflow/tfjs-node": "4.22.0",
     "date-fns": "^4.1.0",
@@ -34,7 +33,6 @@
     "ml5": "^1.2.1",
     "natural": "^8.0.1",
     "postgres": "^3.4.5",
-    "stopwords-iso": "^1.1.0",
-    "zstddec": "^0.1.0"
+    "stopwords-iso": "^1.1.0"
   }
 }

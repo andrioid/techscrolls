@@ -1,6 +1,6 @@
+import { Jetstream } from "@andrioid/jetstream";
 import { desc } from "drizzle-orm";
 import type { AtContext } from "../context";
-import { JetstreamNew } from "./jetstream-new";
 import { postTable } from "./post/post.table";
 import { queueForClassification } from "./queue-for-classification";
 import { followTable } from "./user/user-follows.table";
@@ -33,13 +33,16 @@ export async function listenForPosts(ctx: AtContext) {
       ? Math.floor(new Date(latestPost[0].created).getTime()).toString()
       : undefined;
 
-  const js = await JetstreamNew.Create({
+  const js = await Jetstream.Create({
     wantedDids: dids,
-    wantedCollections: ["app.bsky.feed.post"],
+    wantedCollections: ["app.bsky.feed.post", "app.bsky.feed.repost"],
     cursor: cursor?.toString(),
   });
-  js.on("post", async (post) => {
-    await queueForClassification(ctx, post);
+  js.on({
+    event: "post",
+    cb: async (msg) => {
+      await queueForClassification(ctx, msg);
+    },
   });
 
   ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, async () => {
