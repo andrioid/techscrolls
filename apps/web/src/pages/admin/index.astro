@@ -9,6 +9,9 @@ const query = url.searchParams.get("query");
 const minscore = url.searchParams.get("minscore")
   ? Number(url.searchParams.get("minscore"))
   : 50;
+const maxscore = url.searchParams.get("maxscore")
+  ? Number(url.searchParams.get("maxscore"))
+  : 100;
 const page = url.searchParams.get("page")
   ? Number(url.searchParams.get("page"))
   : 1;
@@ -30,33 +33,53 @@ const scoreOptions = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
   <PageLayout title="Admin Dashboard">
     <form>
       <div class="flex flex-row gap-2">
-        <input
-          placeholder="Search for post texts"
-          value={query ?? ""}
-          name="query"
-          type="text"
-          class="rounded-md border py-1.5 px-2"
-        />
+        <div class="flex flex-row gap-4 items-center">
+          <input
+            placeholder="Search for post texts"
+            value={query ?? ""}
+            name="query"
+            type="text"
+            class="rounded-md border py-1.5 px-2"
+          />
 
-        <input type="hidden" name="page" value={page} />
-        <select
-          name="minscore"
-          aria-valuemax="100"
-          aria-valuemin="1"
-          class="border rounded-md py-1.5 px-3 bg-gray-100"
-        >
-          {
-            scoreOptions.map((score) => (
-              <option selected={minscore === score} value={score}>
-                {score}%
-              </option>
-            ))
-          }
-        </select>
-        <button
-          class="py-1.5 px-3 border rounded-md hover:text-sky-800"
-          type="submit">Search</button
-        >
+          <input type="hidden" name="page" value={page} />
+          <span>
+            <select
+              name="minscore"
+              aria-valuemax="100"
+              aria-valuemin="1"
+              class="border rounded-md py-1.5 px-3 bg-gray-100"
+            >
+              {
+                scoreOptions.map((score) => (
+                  <option selected={minscore === score} value={score}>
+                    {score}%
+                  </option>
+                ))
+              }
+            </select>
+            -
+            <select
+              name="maxscore"
+              aria-valuemax="100"
+              aria-valuemin="1"
+              class="border rounded-md py-1.5 px-3 bg-gray-100"
+            >
+              {
+                scoreOptions.map((score) => (
+                  <option selected={maxscore === score} value={score}>
+                    {score}%
+                  </option>
+                ))
+              }
+            </select>
+          </span>
+
+          <button
+            class="py-1.5 px-3 border rounded-md hover:text-sky-800"
+            type="submit">Search</button
+          >
+        </div>
       </div>
     </form>
     <div class="flex flex-row gap-4">

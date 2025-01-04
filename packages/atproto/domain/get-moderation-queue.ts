@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, ilike } from "drizzle-orm";
+import { and, desc, eq, gte, ilike, lte } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { postScores } from "./post/post-scores.view";
 import { postTexts } from "./post/post-texts.table";
@@ -13,6 +13,7 @@ export async function getModerationPosts(
     query?: string;
     page?: number;
     minScore?: number;
+    maxScore?: number;
   }
 ) {
   const offset = options?.page ? (options.page - 1) * PER_PAGE : 0;
@@ -31,6 +32,9 @@ export async function getModerationPosts(
           : undefined,
         options?.minScore
           ? gte(postScores.avgScore, options?.minScore)
+          : undefined,
+        options?.maxScore
+          ? lte(postScores.avgScore, options?.maxScore)
           : undefined
       )
     )
