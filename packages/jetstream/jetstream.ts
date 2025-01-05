@@ -19,7 +19,7 @@ export class Jetstream {
   private connections: Array<SocketEntry> = [];
   private decoder: TextDecoder = new TextDecoder();
   private zDict: Buffer = fs.readFileSync(
-    path.join(__dirname, "./zstd_dictionary.dat")
+    path.join(import.meta.dirname, "./zstd_dictionary.dat")
   );
   private args: JetStreamRequest;
   private listeners: Array<Listener> = [];

@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch --env-file=../../.env index.ts",
-    "prod": "bun index.ts"
+    "prod": "bun index.ts",
+    "prod:node": "node --experimental-strip-types index.ts"
   },
   "dependencies": {
     "@andrioid/atproto": "workspace:*"

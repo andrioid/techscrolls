@@ -7,7 +7,6 @@ export * from "./domain/get-or-update-follows";
 export * from "./domain/get-post-tags";
 export * from "./domain/get-public-posts";
 export * from "./domain/get-tech-following-feed";
-export * from "./domain/jetstream";
 export * from "./domain/jetstream-subscription";
 export * from "./domain/queue-for-classification";
 export * from "./feeds";
