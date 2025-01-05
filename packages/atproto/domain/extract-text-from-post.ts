@@ -1,4 +1,9 @@
-import { AppBskyEmbedImages, AppBskyEmbedRecord } from "@atproto/api";
+import {
+  AppBskyEmbedExternal,
+  AppBskyEmbedImages,
+  AppBskyEmbedRecord,
+  AppBskyEmbedVideo,
+} from "@atproto/api";
 import { eq } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { postRecords } from "./post/post-record.table";
@@ -10,7 +15,9 @@ export type ExtractedTextType =
   | "reply-root"
   | "reply-parent"
   | "image-alt"
-  | "embed-record";
+  | "video-alt"
+  | "embed-record"
+  | "embed-external";
 
 export type ExtractedText = {
   text: string;
@@ -79,6 +86,8 @@ export async function extractTextFromPost(
     }
   }
 
+  // 4. Images alt text
+  // - Future: Use an image classifier
   if (AppBskyEmbedImages.isMain(post.record.embed)) {
     for (const image of post.record.embed.images) {
       if (!image.alt || image.alt.length < 10) continue;
@@ -87,6 +96,26 @@ export async function extractTextFromPost(
         type: "image-alt",
       });
     }
+  }
+
+  // 5. Links
+  if (AppBskyEmbedExternal.isMain(post.record.embed)) {
+    let text = post.record.embed.external.title;
+    if (post.record.embed.external.description) {
+      text += `\n${post.record.embed.external.description}`;
+    }
+    out.push({
+      type: "embed-external",
+      text,
+    });
+  }
+
+  // 6. Video links
+  if (AppBskyEmbedVideo.isMain(post.record.embed) && post.record.embed.alt) {
+    out.push({
+      type: "video-alt",
+      text: post.record.embed.alt,
+    });
   }
 
   return out;
