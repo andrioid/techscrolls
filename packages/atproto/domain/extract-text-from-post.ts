@@ -49,7 +49,7 @@ export async function extractTextFromPost(
         text: parent[0].value.text,
         type: "reply-parent",
       });
-    if (post.record.reply.root.uri !== post.record.reply.parent.ur) {
+    if (post.record.reply.root.uri !== post.record.reply.parent.uri) {
       const root = await ctx.db
         .select()
         .from(postRecords)

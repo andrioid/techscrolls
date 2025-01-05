@@ -36,14 +36,26 @@ export class Jetstream {
   }
 
   private async decodeMessage(buffer: Buffer) {
+    if (buffer.length === 0) {
+      throw new Error("Received an empty buffer");
+    }
     const uncompressed = zstd.decompressUsingDict(
       zstd.createDCtx(),
       Uint8Array.from(buffer),
       Uint8Array.from(this.zDict)
     );
+    if (uncompressed.length === 0) throw new Error("Empty message");
+    const decoded = this.decoder.decode(uncompressed);
 
-    const data = JSON.parse(this.decoder.decode(uncompressed));
-    return data as CommitEvent<CommitTypes>;
+    try {
+      const data = JSON.parse(decoded);
+      return data as CommitEvent<CommitTypes>;
+    } catch (err) {
+      console.log("should be json", decoded);
+      throw new Error("Failed to pase Jetstream message", {
+        cause: err,
+      });
+    }
   }
 
   /** Go through existing sockets if any and reconfigure
