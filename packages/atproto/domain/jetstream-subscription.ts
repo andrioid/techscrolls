@@ -44,6 +44,15 @@ export async function listenForPosts(ctx: AtContext) {
       await queueForClassification(ctx, msg);
     },
   });
+  js.on({
+    event: "repost",
+    cb: async (msg) => {
+      // 1. Classify the referenced post, if not already
+      // 2a. Somehow introduce reposts as posts in the table
+      // 2b. Introduce a new table and read that too
+      // 2c. Ignore the repost all together, but start following the author
+    },
+  });
 
   ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, async () => {
     const newDids = await getDids();

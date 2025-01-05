@@ -1,10 +1,12 @@
-import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const postTable = pgTable(
   "post",
   {
-    id: text().primaryKey(), // bluesky post id
+    id: text().primaryKey(), // aturi
     authorId: text("author_id").notNull(),
+    collection: text("collection").default("app.bsky.feed.post").notNull(),
+    contentFlags: integer("content_flags"), // bitmask for content types
     created: timestamp({
       withTimezone: true,
     })
