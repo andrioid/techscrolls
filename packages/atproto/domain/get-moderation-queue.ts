@@ -24,7 +24,7 @@ export async function getModerationPosts(
     })
     .from(postTable)
     .innerJoin(postTexts, eq(postTable.id, postTexts.post_id))
-    .innerJoin(postScores, eq(postTable.id, postScores.postId))
+    .leftJoin(postScores, eq(postTable.id, postScores.postId))
     .where(
       and(
         options?.query

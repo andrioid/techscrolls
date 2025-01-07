@@ -19,12 +19,28 @@ export async function queueRePost(
     .select()
     .from(postTable)
     .where(eq(postTable.id, postUri));
-  if (existingPost) return;
-  // 2. Fetch post via API, since jetstream doesn't include it
-  console.log("[atproto] fetching post", postUri);
+  if (existingPost) {
+    // Update lastMentioned
+    await ctx.db
+      .update(postTable)
+      .set({
+        lastMentioned: new Date(),
+      })
+      .where(eq(postTable.id, existingPost.id));
+    return;
+  }
+  // 2. Let's store the posturi, and fetch it later
 
   // Plan B: Let's add the post author to follows instead of trying to treat these as users
   await ctx.db.transaction(async (tx) => {
+    await tx
+      .insert(postTable)
+      .values({
+        id: postUri,
+        authorId: atUri.hostname,
+      })
+      .onConflictDoNothing();
+
     const placeHolderDid = "did:web:this-service-placeholder";
     await tx
       .insert(didTable)

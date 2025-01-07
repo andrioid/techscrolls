@@ -225,6 +225,13 @@
       "when": 1736266381350,
       "tag": "0031_perpetual_hellion",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1736272095966,
+      "tag": "0032_fancy_starbolt",
+      "breakpoints": true
     }
   ]
 }

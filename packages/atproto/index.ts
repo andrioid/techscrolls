@@ -1,6 +1,7 @@
 export { AtUri } from "@atproto/api";
 export * from "./context";
 export * from "./domain/classify-manually";
+export * from "./domain/fetch-missing-post-records";
 export * from "./domain/get-admin-stats";
 export * from "./domain/get-moderation-queue";
 export * from "./domain/get-or-update-follows";
