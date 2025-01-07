@@ -30,7 +30,6 @@ export async function getTechAllFeed(
     .where(
       and(
         gte(postScores.avgScore, 75), // TODO 80
-        gt(postTable.flags, 0),
         or(
           sql`(${postTable.flags} & (${PostFlags.Replies})) = 0`,
           actorDid ? eq(followTable.followedBy, actorDid) : undefined
