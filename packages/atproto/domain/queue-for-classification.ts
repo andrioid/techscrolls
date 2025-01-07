@@ -13,6 +13,7 @@ export type FeedPostWithUri = {
   record: AppBskyFeedPost.Record;
 };
 
+// TODO: This should probably receive the full jetstream event
 export async function queueForClassification(
   ctx: AtContext,
   post: FeedPostWithUri
@@ -29,6 +30,8 @@ export async function queueForClassification(
 
   const uri = new AtUri(post.uri);
   const authorId = uri.hostname;
+  // TODO: Post Flags for the database
+
   try {
     await ctx.db.transaction(async (tx) => {
       await tx
@@ -38,6 +41,8 @@ export async function queueForClassification(
           id: post.uri,
           created: new Date(post.record.createdAt),
           modified: new Date(post.record.createdAt),
+          collection: "app.bsky.feed.post",
+          flags: 0,
         })
         .onConflictDoNothing();
       // TODO: Maybe store author in a table later for scoring

@@ -190,6 +190,34 @@
       "when": 1735749507222,
       "tag": "0026_nifty_jimmy_woo",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1736085165021,
+      "tag": "0027_faulty_madame_masque",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1736086460696,
+      "tag": "0028_normal_valeria_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1736086502447,
+      "tag": "0029_wonderful_quasimodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1736086520878,
+      "tag": "0030_last_texas_twister",
+      "breakpoints": true
     }
   ]
 }

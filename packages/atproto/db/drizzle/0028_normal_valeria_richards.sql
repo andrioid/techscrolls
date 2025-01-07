@@ -1,0 +1,1 @@
+ALTER TABLE "post" RENAME COLUMN "content_flags" TO "flags";
