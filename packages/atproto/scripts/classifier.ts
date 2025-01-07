@@ -1,3 +1,4 @@
+import type { FeedPostWithUri } from "@andrioid/jetstream";
 import { subHours } from "date-fns";
 import { and, eq, gt } from "drizzle-orm";
 import { mutedWordsClassifier } from "../classifiers/tech/muted-words";
@@ -11,7 +12,6 @@ import { cleanupOldPosts } from "../domain/cleanup-old-posts";
 import { postRecords } from "../domain/post/post-record.table";
 import { postTags } from "../domain/post/post-tag.table";
 import { postTable } from "../domain/post/post.table";
-import type { FeedPostWithUri } from "../domain/queue-post";
 
 export const LISTEN_NOTIFY_POSTQUEUE = "atproto.postqueue";
 

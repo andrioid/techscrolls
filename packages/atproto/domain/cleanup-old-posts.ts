@@ -18,7 +18,9 @@ export async function cleanupOldPosts(ctx: AtContext) {
       postTags,
       and(eq(postTable.id, postTags.postId), eq(postTags.algo, "manual"))
     )
-    .where(and(lte(postTable.created, postLifeTime), isNull(postTags.tagId)));
+    .where(
+      and(lte(postTable.lastMentioned, postLifeTime), isNull(postTags.tagId))
+    );
 
   console.log(`[cleanup] Deleting ${res.length} old posts`);
   await ctx.db.delete(postTable).where(
