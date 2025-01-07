@@ -3,23 +3,30 @@ import type { AtContext } from "../context";
 import { getAllFollows } from "../helpers/follows";
 import { notifyNewSubscribers } from "./notify-new-subscribers";
 import { followTable } from "./user/user-follows.table";
-import { userTable } from "./user/user.table";
+import { didTable } from "./user/user.table";
 
 /**
  * Registers the feedUser's followers. Fetches them if necessary.
  * If we already have a list, then we won't update (TODO)
  */
-export async function getOrUpdateFollows(ctx: AtContext, did: string) {
+export async function getOrUpdateFollows(
+  ctx: AtContext,
+  did: string,
+  options?: {
+    addedBy: string;
+  }
+) {
   const existingActor = await ctx.db
     .select()
-    .from(userTable)
-    .where(eq(userTable.did, did));
+    .from(didTable)
+    .where(eq(didTable.did, did));
 
   // TODO: Refresh once in a while
   if (existingActor.length === 0) {
     console.log("feed follower does not exist, adding", did);
-    await ctx.db.insert(userTable).values({
+    await ctx.db.insert(didTable).values({
       did: did,
+      addedBy: options?.addedBy ?? "feed",
     });
   }
   //console.log("actor exists", existingActor);
@@ -50,11 +57,11 @@ export async function getOrUpdateFollows(ctx: AtContext, did: string) {
       }))
     );
     await tx
-      .update(userTable)
+      .update(didTable)
       .set({
         modified: new Date(),
       })
-      .where(eq(userTable.did, did));
+      .where(eq(didTable.did, did));
   });
   await notifyNewSubscribers(ctx);
   return follows.map((f) => f.did);

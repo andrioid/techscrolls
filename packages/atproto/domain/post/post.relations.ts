@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { tagTable } from "../tag/tag.table";
-import { userTable } from "../user/user.table";
+import { didTable } from "../user/user.table";
 import { postRecords } from "./post-record.table";
 import { postTags } from "./post-tag.table";
 import { postTable } from "./post.table";
@@ -17,9 +17,9 @@ export const postsToTagsRelations = relations(postTags, ({ one }) => ({
 }));
 
 export const postRelations = relations(postTable, ({ one, many }) => ({
-  author: one(userTable, {
+  author: one(didTable, {
     fields: [postTable.authorId],
-    references: [userTable.did],
+    references: [didTable.did],
   }),
   // TODO: add followedby
   unprocessed: one(postRecords, {

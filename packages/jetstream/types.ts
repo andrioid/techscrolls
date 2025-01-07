@@ -55,7 +55,7 @@ export type Listener =
     }
   | {
       event: "post";
-      cb: (msg: FeedPostWithUri) => Promise<void>;
+      cb: (msg: CommitEvent<CommitPost>) => Promise<void>;
     }
   | {
       event: "repost";

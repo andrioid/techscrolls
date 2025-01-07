@@ -8,6 +8,6 @@ export * from "./domain/get-post-tags";
 export * from "./domain/get-public-posts";
 export * from "./domain/get-tech-following-feed";
 export * from "./domain/jetstream-subscription";
-export * from "./domain/queue-for-classification";
+export * from "./domain/queue-post";
 export * from "./feeds";
 export * from "./helpers/jwt";

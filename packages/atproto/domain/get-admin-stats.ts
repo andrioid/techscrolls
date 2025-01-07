@@ -2,7 +2,7 @@ import { count, countDistinct, sql } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { postTable } from "./post/post.table";
 import { followTable } from "./user/user-follows.table";
-import { userTable } from "./user/user.table";
+import { didTable } from "./user/user.table";
 
 export async function getAdminStats(ctx: AtContext) {
   let output: Array<{
@@ -28,9 +28,9 @@ export async function getAdminStats(ctx: AtContext) {
   const noUsers = await ctx.db
     .select({
       label: sql<string>`'Number of users'`,
-      value: count(userTable),
+      value: count(didTable),
     })
-    .from(userTable);
+    .from(didTable);
 
   return [...noFollows, ...noPosts, ...noUsers];
 }

@@ -1,5 +1,5 @@
 import type { AtContext } from "../context";
-import type { FeedPostWithUri } from "../domain/queue-for-classification";
+import type { FeedPostWithUri } from "../domain/queue-post";
 
 export type ClassifierFn = (args: {
   ctx: AtContext;

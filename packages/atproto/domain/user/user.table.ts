@@ -1,7 +1,7 @@
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-export const userTable = pgTable(
-  "user",
+export const didTable = pgTable(
+  "did",
   {
     did: text("did").primaryKey(),
     created: timestamp("created", {
@@ -14,6 +14,7 @@ export const userTable = pgTable(
     })
       .defaultNow()
       .notNull(),
+    addedBy: text("added_by").notNull().default("feed"),
   },
   () => []
 );

@@ -47,9 +47,12 @@ export async function createAtContext() {
         .existingSession as unknown as AtpSessionData;
       console.log("[atproto] attempting to reuse session");
       const res = await atpAgent.resumeSession(sdata);
-
-      //process.exit(1);
     } else {
+      console.log(
+        "[atproto] creating a new session",
+        config.identifier,
+        config.password
+      );
       await atpAgent.login({
         identifier: config.identifier,
         password: config.password,
@@ -58,12 +61,18 @@ export async function createAtContext() {
 
     const ctx = {
       atpAgent,
-      db: drizzle(process.env["PG_URL"] ?? "fail"),
+      atpAgentPublic,
+      db,
+      dbClient,
     };
 
     return ctx;
   } catch (err) {
+    if (err instanceof Error) {
+      console.error(err.message, err.cause);
+    }
     // Last ditch attempt
+
     console.log(
       "[atproto] encountered problem with normal login flow, last ditch"
     );

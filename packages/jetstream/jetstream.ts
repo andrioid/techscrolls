@@ -1,9 +1,11 @@
+import type { AppBskyFeedPost } from "@atproto/api";
 import zstd from "@bokuweb/zstd-wasm";
 import fs from "node:fs";
 import path from "node:path";
 import type {
   CommitEvent,
   CommitPost,
+  CommitRepost,
   CommitTypes,
   FeedPostWithUri,
   JetStreamRequest,
@@ -162,11 +164,20 @@ export class Jetstream {
             console.warn("Received a post event without record");
             continue;
           }
-          await listener.cb(toFeedPostWithUri(msg as CommitEvent<CommitPost>));
+          await listener.cb(msg as CommitEvent<CommitPost>);
         }
         break;
       case "app.bsky.feed.repost":
         //console.log("[jetstream repost]", msg);
+        for (const listener of this.listeners.filter(
+          (l) => l.event === "repost"
+        )) {
+          if (!msg.commit.record) {
+            console.warn("Received a post event without record");
+            continue;
+          }
+          await listener.cb(msg as CommitEvent<CommitRepost>);
+        }
         break;
       default:
         /*
@@ -209,12 +220,20 @@ export class Jetstream {
   }
 }
 
-export function toFeedPostWithUri(
-  ev: CommitEvent<CommitPost>
-): FeedPostWithUri {
+export function toFeedPostWithUri({
+  did,
+  rkey,
+  record,
+  cid,
+}: {
+  record: AppBskyFeedPost.Record;
+  rkey: string;
+  did: string;
+  cid: string;
+}): FeedPostWithUri {
   return {
-    uri: `at://${ev.did}/app.bsky.feed.post/${ev.commit.rkey}`,
-    record: ev.commit.record,
-    cid: ev.commit.cid,
+    uri: `at://${did}/app.bsky.feed.post/${rkey}`,
+    record,
+    cid,
   };
 }

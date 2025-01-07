@@ -1,12 +1,12 @@
 import { index, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
-import { userTable } from "./user.table";
+import { didTable } from "./user.table";
 
 export const followTable = pgTable(
-  "follow",
+  "did_follow",
   {
     followedBy: text("followed_by")
       .notNull()
-      .references(() => userTable.did),
+      .references(() => didTable.did),
     follows: text("follows").notNull(),
   },
   (t) => [

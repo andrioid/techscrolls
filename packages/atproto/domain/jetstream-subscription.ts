@@ -1,8 +1,10 @@
 import { Jetstream } from "@andrioid/jetstream";
+import { subMinutes } from "date-fns";
 import { desc } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { postTable } from "./post/post.table";
-import { queueForClassification } from "./queue-for-classification";
+import { queuePost } from "./queue-post";
+import { queueRePost } from "./queue-repost";
 import { followTable } from "./user/user-follows.table";
 
 export const LISTEN_NOTIFY_NEW_SUBSCRIBERS = "atproto.subscriber.update";
@@ -41,12 +43,13 @@ export async function listenForPosts(ctx: AtContext) {
   js.on({
     event: "post",
     cb: async (msg) => {
-      await queueForClassification(ctx, msg);
+      await queuePost(ctx, msg);
     },
   });
   js.on({
     event: "repost",
     cb: async (msg) => {
+      await queueRePost(ctx, msg);
       // 1. Classify the referenced post, if not already
       // 2a. Somehow introduce reposts as posts in the table
       // 2b. Introduce a new table and read that too
@@ -54,15 +57,20 @@ export async function listenForPosts(ctx: AtContext) {
     },
   });
 
+  let lastStarted = new Date();
   ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, async () => {
-    const newDids = await getDids();
-    if (dids.length === newDids.length) {
-      console.log("[jetstream] followers changed but same length, ignoring");
-      //return;
+    const fifteenMinutesAgo = subMinutes(new Date(), 15);
+    if (fifteenMinutesAgo > lastStarted) {
+      console.log(
+        "[jetstream] ignoring requests to restart, just getting warmed up"
+      );
+      return;
     }
+
+    const newDids = await getDids();
     console.log("[jetstream] restarting jetstream, new subscribers");
     js.setupSockets({
-      wantedDids: dids,
+      wantedDids: newDids,
     });
   });
 }

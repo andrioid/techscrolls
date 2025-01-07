@@ -5,7 +5,7 @@ import {
   type ExtractedText,
 } from "../../domain/extract-text-from-post";
 import { postTexts } from "../../domain/post/post-texts.table";
-import type { FeedPostWithUri } from "../../domain/queue-for-classification";
+import type { FeedPostWithUri } from "../../domain/queue-post";
 import type { ClassifierFn } from "../types";
 import { classify } from "./classify";
 import { isModelOutdated } from "./is-model-outdated";

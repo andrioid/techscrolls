@@ -218,6 +218,13 @@
       "when": 1736086520878,
       "tag": "0030_last_texas_twister",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1736266381350,
+      "tag": "0031_perpetual_hellion",
+      "breakpoints": true
     }
   ]
 }
