@@ -10,9 +10,7 @@ export const postRecords = pgTable(
     postId: text("post_id")
       .primaryKey()
       .references(() => postTable.id, { onDelete: "cascade" }),
-    type: text({
-      enum: ["AppBskyFeedPost.Record"],
-    }).notNull(),
+    type: text().notNull(),
     cid: text().notNull(),
     value: jsonb().$type<AppBskyFeedPost.Record>(),
   },

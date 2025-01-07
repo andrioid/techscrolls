@@ -1,19 +1,24 @@
-import { and, desc, eq, gt, gte } from "drizzle-orm/expressions";
+import { and, desc, eq, gt, gte, or } from "drizzle-orm/expressions";
 
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
 import { fromCursor, toCursor } from "../helpers/cursor";
 
+import { sql } from "drizzle-orm";
+import { PostFlags } from "./post/post-flags";
 import { postScores } from "./post/post-scores.view";
 import { postTable } from "./post/post.table";
+import { followTable } from "./user/user-follows.table";
 
 export async function getTechAllFeed(
   args: FeedHandlerArgs
 ): Promise<FeedHandlerOutput> {
-  const { ctx, cursor } = args;
+  const { ctx, cursor, actorDid } = args;
 
+  // TODO: Only want posts here and possibly sort by latest activity
   const posts = await ctx.db
     .select({ id: postTable.id, created: postTable.created })
     .from(postTable)
+    .leftJoin(followTable, eq(postTable.authorId, followTable.follows))
     .innerJoin(
       postScores,
       and(
@@ -22,7 +27,16 @@ export async function getTechAllFeed(
         cursor ? gt(postTable.created, fromCursor(cursor)) : undefined
       )
     )
-    .where(gte(postScores.avgScore, 80))
+    .where(
+      and(
+        gte(postScores.avgScore, 75), // TODO 80
+        gt(postTable.flags, 0),
+        or(
+          sql`(${postTable.flags} & (${PostFlags.Replies})) = 0`,
+          actorDid ? eq(followTable.followedBy, actorDid) : undefined
+        )
+      )
+    )
     .orderBy(desc(postTable.created))
 
     .limit(30);

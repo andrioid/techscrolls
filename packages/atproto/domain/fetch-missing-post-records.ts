@@ -2,6 +2,7 @@ import { AppBskyFeedPost } from "@atproto/api";
 import { eq, isNull } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { getPublicPosts } from "./get-public-posts";
+import { postRecordFlags } from "./post-record-flags";
 import { postRecords } from "./post/post-record.table";
 import { postTable } from "./post/post.table";
 
@@ -29,6 +30,11 @@ export async function fetchMissingPostRecords(ctx: AtContext) {
       );
       return;
     }
+    // This update should never be called on a post we dont have
+    await ctx.db
+      .update(postTable)
+      .set({ flags: postRecordFlags(post.record) })
+      .where(eq(postTable.id, post.uri));
 
     await ctx.db
       .insert(postRecords)

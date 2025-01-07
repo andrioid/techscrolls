@@ -4,6 +4,8 @@ import type { AtContext } from "../context";
 import { LISTEN_NOTIFY_POSTQUEUE } from "../scripts/classifier";
 import { extractTextFromPost } from "./extract-text-from-post";
 import { isForeignLanguage } from "./is-foreign-language";
+import { postRecordFlags } from "./post-record-flags";
+import { PostFlags } from "./post/post-flags";
 import { postRecords } from "./post/post-record.table";
 import { postTexts } from "./post/post-texts.table";
 import { postTable } from "./post/post.table";
@@ -17,6 +19,11 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
   if (isForeignLanguage(extractedText.join("\n"))) {
     return;
   }
+
+  let flags: number = 0;
+  flags |= PostFlags.Body;
+  if (post.record.reply) flags |= PostFlags.Replies;
+
   await ctx.db.transaction(async (tx) => {
     if (!post.record) {
       throw new Error("Missing post record");
@@ -30,7 +37,7 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
         created: new Date(post.record.createdAt),
         modified: new Date(post.record.createdAt),
         collection: "app.bsky.feed.post",
-        flags: 0,
+        flags: postRecordFlags(post.record),
       })
       .onConflictDoNothing();
     await tx
