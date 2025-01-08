@@ -29,6 +29,7 @@ export async function getTechAllFeed(
     )
     .where(
       and(
+        gt(postTable.flags, 0),
         gte(postScores.avgScore, 75), // TODO 80
         or(
           sql`(${postTable.flags} & (${PostFlags.Replies})) = 0`,
