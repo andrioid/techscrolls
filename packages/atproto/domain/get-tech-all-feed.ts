@@ -21,14 +21,11 @@ export async function getTechAllFeed(
     .leftJoin(followTable, eq(postTable.authorId, followTable.follows))
     .innerJoin(
       postScores,
-      and(
-        eq(postScores.postId, postTable.id),
-        eq(postScores.tagId, "tech"),
-        cursor ? gt(postTable.created, fromCursor(cursor)) : undefined
-      )
+      and(eq(postScores.postId, postTable.id), eq(postScores.tagId, "tech"))
     )
     .where(
       and(
+        cursor ? gt(postTable.created, fromCursor(cursor)) : undefined,
         gt(postTable.flags, 0),
         gte(postScores.avgScore, 75), // TODO 80
         or(
@@ -38,6 +35,7 @@ export async function getTechAllFeed(
       )
     )
     .orderBy(desc(postTable.created))
+    .groupBy(postTable.id)
 
     .limit(30);
 

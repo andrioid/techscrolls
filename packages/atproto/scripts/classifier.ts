@@ -26,8 +26,10 @@ export async function classifier() {
     mutedWordsClassifier,
     techWordsRegExp,
     techLinkClassifier,
-    await createBayesClassiferFn(ctx),
   ];
+
+  const bayes = await createBayesClassiferFn(ctx);
+  if (bayes) classifiers.push(bayes);
 
   const res = await ctx.db
     .select()

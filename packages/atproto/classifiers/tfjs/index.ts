@@ -5,17 +5,23 @@ import {
   type ExtractedText,
 } from "../../domain/extract-text-from-post";
 import { postTexts } from "../../domain/post/post-texts.table";
-import type { FeedPostWithUri } from "../../domain/queue-post";
 import type { ClassifierFn } from "../types";
 import { classify } from "./classify";
 import { isModelOutdated } from "./is-model-outdated";
 import { train } from "./train";
+import type { FeedPostWithUri } from "@andrioid/jetstream";
+import { trainingSetSize } from "../../domain/training-set-size";
 
-type FnType = (ctx: AtContext) => Promise<ClassifierFn>;
+type FnType = (ctx: AtContext) => Promise<ClassifierFn | undefined>;
+const MINIMUM_POST_COUNT = 50;
 
 export const createBayesClassiferFn: FnType = async (ctx) => {
   // 1. Check if current model is too old
-  const isTooOld = await isModelOutdated(ctx);
+  const sizeOfSet = await trainingSetSize(ctx);
+  if (sizeOfSet < MINIMUM_POST_COUNT) {
+    console.log("[classifier] not enough training data, aborting tfjsbayes");
+    return;
+  }
   //const loader = isTooOld ? train : loadModelFromDb;
   const loader = train;
   const m = await loader(ctx);

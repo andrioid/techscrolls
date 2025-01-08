@@ -1,5 +1,5 @@
+import type { FeedPostWithUri } from "@andrioid/jetstream";
 import type { AtContext } from "../context";
-import type { FeedPostWithUri } from "../domain/queue-post";
 
 export type ClassifierFn = (args: {
   ctx: AtContext;
