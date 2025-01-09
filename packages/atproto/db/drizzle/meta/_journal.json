@@ -232,6 +232,13 @@
       "when": 1736272095966,
       "tag": "0032_fancy_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1736451976658,
+      "tag": "0033_delete phantom follows",
+      "breakpoints": true
     }
   ]
 }
