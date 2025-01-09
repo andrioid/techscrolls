@@ -2,27 +2,15 @@ import { Jetstream } from "@andrioid/jetstream";
 import { subMinutes } from "date-fns";
 import { desc } from "drizzle-orm";
 import type { AtContext } from "../context";
+import { getDids } from "./jetstream-did-list";
 import { postTable } from "./post/post.table";
 import { queuePost } from "./queue-post";
 import { queueRePost } from "./queue-repost";
-import { followTable } from "./user/user-follows.table";
 
 export const LISTEN_NOTIFY_NEW_SUBSCRIBERS = "atproto.subscriber.update";
 
 export async function listenForPosts(ctx: AtContext) {
-  async function getDids(): Promise<Readonly<Array<string>>> {
-    const wantedDids = await ctx.db
-      .selectDistinct({ did: followTable.follows })
-      .from(followTable);
-
-    const dids = wantedDids.map((d) => d.did);
-    if (dids.length === 0) {
-      console.warn("aborting jetstream connection, no dids requested");
-      return [];
-    }
-    return [...dids];
-  }
-  const dids = await getDids();
+  const dids = await getDids(ctx);
 
   const latestPost = await ctx.db
     .select()
@@ -40,10 +28,21 @@ export async function listenForPosts(ctx: AtContext) {
     wantedCollections: ["app.bsky.feed.post", "app.bsky.feed.repost"],
     cursor: cursor?.toString(),
   });
+
+  let postCounter = 0;
+  const initialMem = process.memoryUsage().rss;
+
   js.on({
     event: "post",
     cb: async (msg) => {
       await queuePost(ctx, msg);
+      postCounter++;
+      const mem = process.memoryUsage().rss;
+      console.log(
+        `[jetstream] queued ${postCounter}`,
+        mem,
+        Number((mem / initialMem) * 100).toFixed(2)
+      );
     },
   });
   js.on({
@@ -67,7 +66,7 @@ export async function listenForPosts(ctx: AtContext) {
       return;
     }
 
-    const newDids = await getDids();
+    const newDids = await getDids(ctx);
     console.log("[jetstream] restarting jetstream, new subscribers");
     js.setupSockets({
       wantedDids: newDids,

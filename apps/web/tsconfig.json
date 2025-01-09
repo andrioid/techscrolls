@@ -6,6 +6,8 @@
       "~astro/*": ["./src/components/astro/*"],
       "~/*": ["./*"],
     },
+    "verbatimModuleSyntax": true
+    
   },
   
   "extends": "astro/tsconfigs/strict",

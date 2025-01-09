@@ -6,7 +6,10 @@ import { config } from "./config";
 import { appData } from "./db/schema";
 
 export async function createAtContext() {
-  const dbClient = postgres(config.pgURL);
+  const dbClient = postgres(config.pgURL, {
+    idle_timeout: 20,
+    max_lifetime: 60 * 30,
+  });
   const db = drizzle({
     client: dbClient,
   });

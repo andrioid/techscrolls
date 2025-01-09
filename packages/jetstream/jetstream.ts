@@ -152,8 +152,6 @@ export class Jetstream {
     if (msg.kind !== "commit") return; // only kind supported atm
     if (msg.commit.operation !== "create") return;
 
-    // TODO: Broke these types being smart - fix tomorrow
-
     switch (msg.commit.collection) {
       case "app.bsky.feed.post":
         //console.log("[jetstream post", msg);

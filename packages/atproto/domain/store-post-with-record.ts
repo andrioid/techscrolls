@@ -66,5 +66,4 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
       uri: post.uri,
     })
   );
-  console.log(`[queue] ${post.uri} stored`);
 }

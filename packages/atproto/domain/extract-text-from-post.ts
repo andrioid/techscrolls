@@ -1,3 +1,4 @@
+import type { FeedPostWithUri } from "@andrioid/jetstream";
 import {
   AppBskyEmbedExternal,
   AppBskyEmbedImages,
@@ -7,7 +8,6 @@ import {
 import { eq } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { postRecords } from "./post/post-record.table";
-import type { FeedPostWithUri } from "./queue-post";
 
 export type ExtractedTextType =
   | "body"

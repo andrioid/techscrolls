@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch --env-file=../../.env index.ts",
+    "debug": "bun --inspect --env-file=../../.env index.ts",
     "prod": "bun index.ts",
     "prod:node": "node --experimental-strip-types index.ts",
     "prod:deno": "deno run --allow-env --allow-read --allow-ffi --allow-net --unstable-sloppy-imports --env-file=../../.env index.ts"
