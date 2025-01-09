@@ -35,7 +35,7 @@ export async function classifier() {
     .from(postTable)
     .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
     .leftJoin(postTags, eq(postTable.id, postTags.postId))
-    .where(and(gt(postTable.created, subHours(new Date(), 6))));
+    .where(and(gt(postTable.created, subHours(new Date(), 2))));
   // TODO: Only process unprocessed posts
 
   console.log("[classifier] processing older posts", res.length);
