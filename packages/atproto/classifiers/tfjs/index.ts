@@ -1,3 +1,4 @@
+import type { FeedPostWithUri } from "@andrioid/jetstream";
 import { eq } from "drizzle-orm";
 import type { AtContext } from "../../context";
 import {
@@ -5,12 +6,12 @@ import {
   type ExtractedText,
 } from "../../domain/extract-text-from-post";
 import { postTexts } from "../../domain/post/post-texts.table";
+import { trainingSetSize } from "../../domain/training-set-size";
 import type { ClassifierFn } from "../types";
 import { classify } from "./classify";
 import { isModelOutdated } from "./is-model-outdated";
+import { loadModelFromDb } from "./loadModelFromDb";
 import { train } from "./train";
-import type { FeedPostWithUri } from "@andrioid/jetstream";
-import { trainingSetSize } from "../../domain/training-set-size";
 
 type FnType = (ctx: AtContext) => Promise<ClassifierFn | undefined>;
 const MINIMUM_POST_COUNT = 50;
@@ -22,8 +23,7 @@ export const createBayesClassiferFn: FnType = async (ctx) => {
     console.log("[classifier] not enough training data, aborting tfjsbayes");
     return;
   }
-  //const loader = isTooOld ? train : loadModelFromDb;
-  const loader = train;
+  const loader = (await isModelOutdated(ctx)) ? train : loadModelFromDb;
   const m = await loader(ctx);
   console.log(`[classifier] tfjsbyes ready with ${m.uniqueWords.length} words`);
   // fetch the model and stuff
