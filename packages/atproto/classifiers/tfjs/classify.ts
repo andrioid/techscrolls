@@ -17,7 +17,6 @@ export async function classify({
   // Predict for a new sample (testing)
   if (!text || !postUri) return;
   const inputEncoding = encodeText(text, uniqueWords, wordIndex);
-
   const prediction = model.predict(tf.tensor2d([inputEncoding])) as tf.Tensor;
   const arr = (await prediction.array()) as number[][];
   const prob = Math.round(arr[0][0] * 100);

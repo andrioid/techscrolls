@@ -1,5 +1,5 @@
 import { subHours } from "date-fns";
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, isNull } from "drizzle-orm";
 import { mutedWordsClassifier } from "../classifiers/tech/muted-words";
 import { techLinkClassifier } from "../classifiers/tech/tech-links";
 import { techWordsRegExp } from "../classifiers/tech/tech-words";
@@ -35,7 +35,12 @@ export async function classifier() {
     .from(postTable)
     .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
     .leftJoin(postTags, eq(postTable.id, postTags.postId))
-    .where(and(gt(postTable.created, subHours(new Date(), 2))));
+    .where(
+      and(
+        gt(postTable.created, subHours(new Date(), 2)),
+        isNull(postTags.postId)
+      )
+    );
   // TODO: Only process unprocessed posts
 
   console.log("[classifier] processing older posts", res.length);
