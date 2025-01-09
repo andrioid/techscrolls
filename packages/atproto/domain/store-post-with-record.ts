@@ -64,8 +64,6 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
     LISTEN_NOTIFY_POSTQUEUE,
     JSON.stringify({
       uri: post.uri,
-      cid: post.cid,
-      record: post.record,
     })
   );
   console.log(`[queue] ${post.uri} stored`);

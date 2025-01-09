@@ -30,20 +30,26 @@ export async function fetchMissingPostRecords(ctx: AtContext) {
       );
       return;
     }
+    if (!AppBskyFeedPost.isRecord(post.record)) {
+      console.warn("[record-fetcher] record does not match feed post");
+      continue;
+    }
     // This update should never be called on a post we dont have
-    await ctx.db
-      .update(postTable)
-      .set({ flags: postRecordFlags(post.record) })
-      .where(eq(postTable.id, post.uri));
+    await ctx.db.transaction(async (tx) => {
+      await tx
+        .update(postTable)
+        .set({ flags: postRecordFlags(post.record as AppBskyFeedPost.Record) })
+        .where(eq(postTable.id, post.uri));
 
-    await ctx.db
-      .insert(postRecords)
-      .values({
-        cid: post.cid,
-        postId: post.uri,
-        type: "AppBskyFeedPost.Record",
-        value: post.record,
-      })
-      .onConflictDoNothing();
+      await tx
+        .insert(postRecords)
+        .values({
+          cid: post.cid,
+          postId: post.uri,
+          type: "AppBskyFeedPost.Record",
+          value: post.record as AppBskyFeedPost.Record,
+        })
+        .onConflictDoNothing();
+    });
   }
 }

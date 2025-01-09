@@ -1,4 +1,3 @@
-import type { FeedPostWithUri } from "@andrioid/jetstream";
 import { subHours } from "date-fns";
 import { and, eq, gt } from "drizzle-orm";
 import { mutedWordsClassifier } from "../classifiers/tech/muted-words";
@@ -65,8 +64,17 @@ export async function classifier() {
   // 2. Listen/Notify from Postgres
   console.log("[classifier] listening for new posts...");
   await ctx.db.$client.listen(LISTEN_NOTIFY_POSTQUEUE, async (payload) => {
-    const p = JSON.parse(payload) as FeedPostWithUri;
+    const jsonP = JSON.parse(payload) as { uri: string };
     const t0 = performance.now();
+
+    const [p] = await ctx.db
+      .select({
+        uri: postTable.id,
+        cid: postRecords.cid,
+        record: postRecords.value,
+      })
+      .from(postTable)
+      .where(eq(postTable.id, jsonP.uri));
 
     for (const cf of classifiers) {
       if (!p.record) continue;

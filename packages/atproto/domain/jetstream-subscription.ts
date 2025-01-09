@@ -30,7 +30,7 @@ export async function listenForPosts(ctx: AtContext) {
     .orderBy(desc(postTable.created))
     .limit(1);
 
-  let cursor: string | undefined =
+  const cursor: string | undefined =
     latestPost.length > 0
       ? Math.floor(new Date(latestPost[0].created).getTime()).toString()
       : undefined;
