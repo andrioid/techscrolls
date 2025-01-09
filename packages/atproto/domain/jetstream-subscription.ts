@@ -10,7 +10,7 @@ import { followTable } from "./user/user-follows.table";
 export const LISTEN_NOTIFY_NEW_SUBSCRIBERS = "atproto.subscriber.update";
 
 export async function listenForPosts(ctx: AtContext) {
-  async function getDids() {
+  async function getDids(): Promise<Readonly<Array<string>>> {
     const wantedDids = await ctx.db
       .selectDistinct({ did: followTable.follows })
       .from(followTable);
@@ -20,7 +20,7 @@ export async function listenForPosts(ctx: AtContext) {
       console.warn("aborting jetstream connection, no dids requested");
       return [];
     }
-    return dids;
+    return [...dids];
   }
   const dids = await getDids();
 

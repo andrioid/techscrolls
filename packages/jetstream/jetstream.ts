@@ -20,8 +20,8 @@ const JETSTREAM_BASE_URL = "wss://jetstream2.us-east.bsky.network/subscribe";
 export class Jetstream {
   private connections: Array<SocketEntry> = [];
   private decoder: TextDecoder = new TextDecoder();
-  private zDict: Buffer = fs.readFileSync(
-    path.join(import.meta.dirname, "./zstd_dictionary.dat")
+  private zDict = Uint8Array.from(
+    fs.readFileSync(path.join(import.meta.dirname, "./zstd_dictionary.dat"))
   );
   private args: JetStreamRequest;
   private listeners: Array<Listener> = [];
@@ -44,7 +44,7 @@ export class Jetstream {
     const uncompressed = zstd.decompressUsingDict(
       zstd.createDCtx(),
       Uint8Array.from(buffer),
-      Uint8Array.from(this.zDict)
+      this.zDict
     );
     if (uncompressed.length === 0) throw new Error("Empty message");
     const decoded = this.decoder.decode(uncompressed);
@@ -54,7 +54,7 @@ export class Jetstream {
       return data as CommitEvent<CommitTypes>;
     } catch (err) {
       console.log("should be json", decoded);
-      throw new Error("Failed to pase Jetstream message", {
+      throw new Error("Failed to parse Jetstream message", {
         cause: err,
       });
     }

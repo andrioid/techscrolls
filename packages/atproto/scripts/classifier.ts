@@ -102,5 +102,4 @@ export async function classifier() {
       process.exit(42);
     }
   });
-  //while (true) {} // listen doesn't wait
 }

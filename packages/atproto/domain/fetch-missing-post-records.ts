@@ -34,11 +34,15 @@ export async function fetchMissingPostRecords(ctx: AtContext) {
       console.warn("[record-fetcher] record does not match feed post");
       continue;
     }
+    const record = post.record as AppBskyFeedPost.Record;
     // This update should never be called on a post we dont have
     await ctx.db.transaction(async (tx) => {
       await tx
         .update(postTable)
-        .set({ flags: postRecordFlags(post.record as AppBskyFeedPost.Record) })
+        .set({
+          flags: postRecordFlags(record),
+          created: new Date(record.createdAt),
+        })
         .where(eq(postTable.id, post.uri));
 
       await tx
@@ -47,7 +51,7 @@ export async function fetchMissingPostRecords(ctx: AtContext) {
           cid: post.cid,
           postId: post.uri,
           type: "AppBskyFeedPost.Record",
-          value: post.record as AppBskyFeedPost.Record,
+          value: record,
         })
         .onConflictDoNothing();
     });
