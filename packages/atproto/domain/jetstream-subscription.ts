@@ -1,7 +1,13 @@
-import { Jetstream } from "@andrioid/jetstream";
+import {
+  Jetstream,
+  type CommitEvent,
+  type CommitPost,
+  type CommitRepost,
+} from "@andrioid/jetstream";
 import { subMinutes } from "date-fns";
 import { desc } from "drizzle-orm";
 import type { AtContext } from "../context";
+import { prettyBytes } from "../helpers/pretty-bytes";
 import { getDids } from "./jetstream-did-list";
 import { postTable } from "./post/post.table";
 import { queuePost } from "./queue-post";
@@ -32,32 +38,22 @@ export async function listenForPosts(ctx: AtContext) {
   let postCounter = 0;
   const initialMem = process.memoryUsage().rss;
 
-  js.on({
-    event: "post",
-    cb: async (msg) => {
-      await queuePost(ctx, msg);
-      postCounter++;
-      const mem = process.memoryUsage().rss;
-      console.log(
-        `[jetstream] queued ${postCounter}`,
-        mem,
-        Number((mem / initialMem) * 100).toFixed(2)
-      );
-    },
-  });
-  js.on({
-    event: "repost",
-    cb: async (msg) => {
-      await queueRePost(ctx, msg);
-      // 1. Classify the referenced post, if not already
-      // 2a. Somehow introduce reposts as posts in the table
-      // 2b. Introduce a new table and read that too
-      // 2c. Ignore the repost all together, but start following the author
-    },
-  });
+  async function handlePost(msg: CommitEvent<CommitPost>) {
+    await queuePost(ctx, msg);
+    postCounter++;
+    const mem = process.memoryUsage().rss;
+    console.log(
+      `[jetstream] queued ${postCounter} ${prettyBytes(mem)} ${Number(
+        (mem / initialMem) * 100
+      ).toFixed(2)}%`
+    );
+  }
 
-  let lastStarted = new Date();
-  ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, async () => {
+  async function handleRepost(msg: CommitEvent<CommitRepost>) {
+    await queueRePost(ctx, msg);
+  }
+
+  async function handleNotify() {
     const fifteenMinutesAgo = subMinutes(new Date(), 15);
     if (fifteenMinutesAgo > lastStarted) {
       console.log(
@@ -71,5 +67,17 @@ export async function listenForPosts(ctx: AtContext) {
     js.setupSockets({
       wantedDids: newDids,
     });
+  }
+
+  js.on({
+    event: "post",
+    cb: handlePost,
   });
+  js.on({
+    event: "repost",
+    cb: handleRepost,
+  });
+
+  let lastStarted = new Date();
+  await ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, handleNotify);
 }
