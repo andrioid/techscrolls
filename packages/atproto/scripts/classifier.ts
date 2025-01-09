@@ -73,6 +73,7 @@ export async function classifier() {
         record: postRecords.value,
       })
       .from(postTable)
+      .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
       .where(eq(postTable.id, jsonP.uri));
 
     for (const cf of classifiers) {
