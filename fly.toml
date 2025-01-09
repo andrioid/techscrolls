@@ -29,12 +29,12 @@ jetstream = "jetstream"
 
 [[vm]]
   processes=['jetstream']
-  memory = '1gb'
+  memory = '2gb'
   cpu_kind = 'shared'
   cpus = 1
 
 [[vm]]
   processes=['classifier']
-  memory = '1gb'
+  memory = '2gb'
   cpu_kind = 'shared'
   cpus = 1

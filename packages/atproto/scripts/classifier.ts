@@ -62,8 +62,7 @@ export async function classifier() {
     }
   }
   // 2. Listen/Notify from Postgres
-  console.log("[classifier] listening for new posts...");
-  await ctx.db.$client.listen(LISTEN_NOTIFY_POSTQUEUE, async (payload) => {
+  async function handleNewPosts(payload: string) {
     const jsonP = JSON.parse(payload) as { uri: string };
     const t0 = performance.now();
 
@@ -101,5 +100,7 @@ export async function classifier() {
       // Time to rest. Fly will launch another one.
       process.exit(42);
     }
-  });
+  }
+  console.log("[classifier] listening for new posts...");
+  await ctx.db.$client.listen(LISTEN_NOTIFY_POSTQUEUE, handleNewPosts);
 }
