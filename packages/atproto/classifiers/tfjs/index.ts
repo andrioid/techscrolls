@@ -51,7 +51,7 @@ export const createBayesClassiferFn: FnType = async (ctx) => {
       wordIndex: m.wordIndex,
     });
     return {
-      score: cl?.score ?? null,
+      score: cl?.score !== undefined ? cl.score : null,
       tag: "tech",
     };
   };
