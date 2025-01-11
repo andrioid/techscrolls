@@ -15,8 +15,6 @@ export async function getTechFollowingFeed(
 
   await getOrUpdateFollows(ctx, actorDid);
 
-  const orderByPrimary = "lastMentioned";
-
   // Subquery for reposts
   const sqReposts = ctx.db
     .select({
@@ -54,7 +52,7 @@ export async function getTechFollowingFeed(
       )
     )
     .leftJoin(sqReposts, eq(sqReposts.postId, postTable.id))
-    .where(gte(postScores.avgScore, 80)) // TODO: Raise this to 80
+    .where(gte(postScores.avgScore, 70))
     .orderBy(desc(sqReposts.repostUri ? sqReposts.created : postTable.created))
     .limit(limit);
 

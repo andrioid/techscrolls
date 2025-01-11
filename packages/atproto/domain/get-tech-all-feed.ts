@@ -1,3 +1,4 @@
+import type { AppBskyFeedGetFeedSkeleton } from "@atproto/api";
 import { and, desc, eq, gt, gte, or } from "drizzle-orm/expressions";
 
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
@@ -12,7 +13,7 @@ import { followTable } from "./user/user-follows.table";
 export async function getTechAllFeed(
   args: FeedHandlerArgs
 ): Promise<FeedHandlerOutput> {
-  const { ctx, cursor, actorDid } = args;
+  const { ctx, cursor, actorDid, limit = 50 } = args;
 
   // TODO: Only want posts here and possibly sort by latest activity
   const posts = await ctx.db
@@ -31,7 +32,7 @@ export async function getTechAllFeed(
       and(
         cursor ? gt(postTable.lastMentioned, fromCursor(cursor)) : undefined,
         gt(postTable.flags, 0),
-        gte(postScores.avgScore, 75), // TODO 80
+        gte(postScores.avgScore, 70), // TODO 80
         or(
           sql`(${postTable.flags} & (${PostFlags.Replies})) = 0`,
           actorDid ? eq(followTable.followedBy, actorDid) : undefined
@@ -41,7 +42,7 @@ export async function getTechAllFeed(
     .orderBy(desc(postTable.lastMentioned))
     .groupBy(postTable.id)
 
-    .limit(30);
+    .limit(limit);
 
   return {
     feed: posts.map((post) => {
@@ -54,5 +55,5 @@ export async function getTechAllFeed(
       posts.length > 0
         ? toCursor(posts[posts.length - 1].lastMentioned)
         : undefined,
-  };
+  } satisfies AppBskyFeedGetFeedSkeleton.Response["data"][number];
 }
