@@ -1,5 +1,4 @@
-import { subHours } from "date-fns";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { mutedWordsClassifier } from "../classifiers/tech/muted-words";
 import { techLinkClassifier } from "../classifiers/tech/tech-links";
 import { techWordsRegExp } from "../classifiers/tech/tech-words";
@@ -7,19 +6,15 @@ import { createBayesClassiferFn } from "../classifiers/tfjs";
 import type { ClassifierFn } from "../classifiers/types";
 import { createAtContext } from "../context";
 import { classifyPost } from "../domain/classify-manually";
-import { cleanupOldPosts } from "../domain/cleanup-old-posts";
 import { postRecords } from "../domain/post/post-record.table";
 import { postTags } from "../domain/post/post-tag.table";
-import { postTable } from "../domain/post/post.table";
 
 export const LISTEN_NOTIFY_POSTQUEUE = "atproto.postqueue";
+const POSTS_PER_CLASSIFIER_RUN = 500;
 
-export async function classifier() {
-  const birthDay = new Date(); // We'll let it rest a bit after a while
-
+export async function classifier(postUri?: Array<string>) {
   // 1. Process existing records in batches
   const ctx = await createAtContext();
-  await cleanupOldPosts(ctx);
 
   const classifiers: Array<ClassifierFn> = [
     mutedWordsClassifier,
@@ -27,86 +22,77 @@ export async function classifier() {
     techLinkClassifier,
   ];
 
+  // If not enough training data, the bayes classifier is skipped
   const bayes = await createBayesClassiferFn(ctx);
   if (bayes) classifiers.push(bayes);
 
-  const res = await ctx.db
-    .select()
-    .from(postTable)
-    .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
-    .leftJoin(postTags, eq(postTable.id, postTags.postId))
-    .where(
-      and(
-        gt(postTable.created, subHours(new Date(), 2)),
-        isNull(postTags.postId)
-      )
-    );
-  // TODO: Only process unprocessed posts
-
-  console.log("[classifier] processing older posts", res.length);
-
-  for (const pr of res) {
-    for (const cf of classifiers) {
-      const record = pr.post_record.value;
-      if (!record) continue;
-      const res = await cf({
-        ctx,
-        post: {
-          uri: pr.post.id,
-          record: record,
-          cid: pr.post_record.cid,
-        },
-      });
-      if (res.score === null) continue;
-      await classifyPost(ctx, {
-        algorithm: cf.name,
-        postUri: pr.post.id,
-        score: res.score as number,
-        tag: res.tag,
-      });
+  for (const classifier of classifiers) {
+    if (!classifier.name) {
+      console.warn("Classifier has no name, ignoring");
+      continue;
     }
-  }
-  // 2. Listen/Notify from Postgres
-  async function handleNewPosts(payload: string) {
-    const jsonP = JSON.parse(payload) as { uri: string };
-    const t0 = performance.now();
-
-    const [p] = await ctx.db
+    // TODO: Pagination, so we only handle 100 posts at a time
+    const unclassifiedPosts = await ctx.db
       .select({
-        uri: postTable.id,
-        cid: postRecords.cid,
+        postId: postRecords.postId,
         record: postRecords.value,
+        cid: postRecords.cid,
       })
-      .from(postTable)
-      .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
-      .where(eq(postTable.id, jsonP.uri));
+      .from(postRecords)
+      .leftJoin(
+        postTags,
+        and(
+          eq(postRecords.postId, postTags.postId),
+          eq(postTags.algo, classifier.name)
+        )
+      )
+      .where(
+        and(
+          isNull(postTags.postId),
+          // If specified, otherwise ignore
+          postUri ? inArray(postRecords.postId, postUri) : undefined
+        )
+      )
+      .groupBy(postRecords.postId, postTags.algo);
 
-    for (const cf of classifiers) {
-      if (!p.record) continue;
-      const res = await cf({
+    console.log(
+      `[classifier: ${classifier.name}] ${unclassifiedPosts.length} pending classification`
+    );
+    if (unclassifiedPosts.length === 0) {
+      continue;
+    }
+    const t0 = performance.now();
+    let ignoreCount = 0;
+    let classifiedCount = 0;
+    for (const pr of unclassifiedPosts) {
+      if (!pr.record) continue;
+      const res = await classifier({
         ctx,
         post: {
-          uri: p.uri,
-          record: p.record,
-          cid: p.cid,
+          uri: pr.postId,
+          record: pr.record,
+          cid: pr.cid,
         },
       });
-      if (res.score === null) continue;
+      if (res.score === null) {
+        ignoreCount++;
+        continue;
+      }
+      classifiedCount++;
       await classifyPost(ctx, {
-        algorithm: cf.name,
-        postUri: p.uri,
+        algorithm: classifier.name,
+        postUri: pr.postId,
         score: res.score as number,
         tag: res.tag,
       });
     }
     const t1 = performance.now();
-
-    console.log(`[classifier] ${p.uri} in ${(t1 - t0).toFixed(2)} ms`);
-    if (new Date().getTime() - birthDay.getTime() > 2 * 60 * 60 * 1000) {
-      // Time to rest. Fly will launch another one.
-      process.exit(42);
-    }
+    console.log(
+      `[classifier ${
+        classifier.name
+      }] Classified ${classifiedCount}, ignored ${ignoreCount} in ${(
+        t1 - t0
+      ).toFixed(2)} ms`
+    );
   }
-  console.log("[classifier] listening for new posts...");
-  await ctx.db.$client.listen(LISTEN_NOTIFY_POSTQUEUE, handleNewPosts);
 }

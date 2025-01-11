@@ -11,7 +11,9 @@ export const repostTable = pgTable(
     repostUri: text("repost_uri").primaryKey(),
     postId: text("post_id")
       .notNull()
-      .references(() => postTable.id),
+      .references(() => postTable.id, {
+        onDelete: "cascade", // delete if post goes away
+      }),
     authorId: text("author_id"),
     created: timestamp({
       withTimezone: true,

@@ -20,7 +20,7 @@ export const createBayesClassiferFn: FnType = async (ctx) => {
   // 1. Check if current model is too old
   const sizeOfSet = await trainingSetSize(ctx);
   if (sizeOfSet < MINIMUM_POST_COUNT) {
-    console.log("[classifier] not enough training data, aborting tfjsbayes");
+    console.log("[classifier] not enough training data, not running tfjsbayes");
     return;
   }
   const loader = (await isModelOutdated(ctx)) ? train : loadModelFromDb;

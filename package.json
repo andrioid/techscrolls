@@ -11,6 +11,7 @@
     "migrate": "bun run --cwd packages/atproto db:migrate",
     "classifier": "bun run migrate && bun run --cwd apps/classifier prod",
     "jetstream": "bun run migrate && bun run --cwd apps/jetstream prod",
+    "worker": "bun run migrate && bun run --cwd apps/worker prod",
     "verify:types": "bun --filter '*' verify:types"
   },
   "devDependencies": {

@@ -8,7 +8,7 @@ primary_region = 'arn'
 
 [processes]
 app = "web"
-classifier = "classifier"
+worker = "worker"
 jetstream = "jetstream"
 
 [build]
@@ -34,7 +34,7 @@ jetstream = "jetstream"
   cpus = 1
 
 [[vm]]
-  processes=['classifier']
-  memory = '2gb'
+  processes=['worker']
+  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1

@@ -30,10 +30,13 @@ COPY bun.lockb package.json /tmp/dev/
 COPY apps/web/package.json /tmp/dev/apps/web/package.json
 COPY apps/jetstream/package.json /tmp/dev/apps/jetstream/package.json
 COPY apps/classifier/package.json /tmp/dev/apps/classifier/package.json
+COPY apps/worker/package.json /tmp/dev/apps/worker/package.json
 COPY packages/atproto/package.json /tmp/dev/packages/atproto/package.json
 COPY packages/db/package.json /tmp/dev/packages/db/package.json
 COPY packages/jetstream/package.json /tmp/dev/packages/jetstream/package.json
 
+# NOTE: If access denied below, then remove the bun lockfile, install and try gain
+RUN cd /tmp/dev
 RUN cd /tmp/dev && bun install --frozen-lockfile
 #RUN npm rebuild @tensorflow/tfjs-node --build-from-source
 
