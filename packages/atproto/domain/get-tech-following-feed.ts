@@ -53,7 +53,7 @@ export async function getTechFollowingFeed(
     )
     .leftJoin(sqReposts, eq(sqReposts.postId, postTable.id))
     .where(gte(postScores.avgScore, 70))
-    .orderBy(desc(sqReposts.repostUri ? sqReposts.created : postTable.created))
+    .orderBy(desc(sqReposts.created), desc(postTable.created))
     .limit(limit);
 
   return {

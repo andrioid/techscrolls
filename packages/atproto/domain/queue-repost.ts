@@ -24,8 +24,11 @@ export async function queueRePost(
     .where(eq(postTable.id, originalUri));
 
   // 0. Store the repost
-  const repostUri = `at://${postMsg.did}/${postMsg.commit.collection}/${postMsg.commit.rkey}`;
-  const repostAtUri = new AtUri(repostUri);
+  const repostUri = AtUri.make(
+    postMsg.did,
+    postMsg.commit.collection,
+    postMsg.commit.rkey
+  );
 
   if (existingPost) {
     // Update lastMentioned
@@ -53,7 +56,7 @@ export async function queueRePost(
   await ctx.db
     .insert(repostTable)
     .values({
-      repostUri: repostUri,
+      repostUri: repostUri.toString(),
       authorId: postMsg.did,
       postId: originalUri,
     })
