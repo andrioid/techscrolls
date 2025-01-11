@@ -1,4 +1,5 @@
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { subHours } from "date-fns";
+import { and, eq, gte, inArray, isNull } from "drizzle-orm";
 import { mutedWordsClassifier } from "../classifiers/tech/muted-words";
 import { techLinkClassifier } from "../classifiers/tech/tech-links";
 import { techWordsRegExp } from "../classifiers/tech/tech-words";
@@ -8,6 +9,7 @@ import { createAtContext } from "../context";
 import { classifyPost } from "../domain/classify-manually";
 import { postRecords } from "../domain/post/post-record.table";
 import { postTags } from "../domain/post/post-tag.table";
+import { postTable } from "../domain/post/post.table";
 
 export const LISTEN_NOTIFY_POSTQUEUE = "atproto.postqueue";
 const POSTS_PER_CLASSIFIER_RUN = 500;
@@ -31,7 +33,7 @@ export async function classifier(postUri?: Array<string>) {
       console.warn("Classifier has no name, ignoring");
       continue;
     }
-    // TODO: Pagination, so we only handle 100 posts at a time
+    // TODO: Pagination, so we only handle LIMIT posts at a time
     const unclassifiedPosts = await ctx.db
       .select({
         postId: postRecords.postId,
@@ -39,6 +41,7 @@ export async function classifier(postUri?: Array<string>) {
         cid: postRecords.cid,
       })
       .from(postRecords)
+      .innerJoin(postTable, eq(postRecords.postId, postTable.id))
       .leftJoin(
         postTags,
         and(
@@ -48,6 +51,7 @@ export async function classifier(postUri?: Array<string>) {
       )
       .where(
         and(
+          gte(postTable.lastMentioned, subHours(new Date(), 24)),
           isNull(postTags.postId),
           // If specified, otherwise ignore
           postUri ? inArray(postRecords.postId, postUri) : undefined
