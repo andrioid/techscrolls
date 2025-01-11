@@ -1,3 +1,4 @@
+import type { AppBskyFeedGetFeedSkeleton } from "@atproto/api";
 import { and, desc, eq, gt, gte } from "drizzle-orm/expressions";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
 import { fromCursor, toCursor } from "../helpers/cursor";
@@ -59,12 +60,16 @@ export async function getTechFollowingFeed(
 
   return {
     feed: posts.map((p) => {
-      const reason = undefined;
+      const reason = p.repost
+        ? {
+            repost: p.repost,
+          }
+        : undefined;
       return {
         post: p.id,
         reason,
         feedContext: "tech-following",
-      };
+      } satisfies AppBskyFeedGetFeedSkeleton.Response["data"][number];
     }),
     cursor:
       posts.length > 0 ? toCursor(posts[posts.length - 1].date) : undefined,

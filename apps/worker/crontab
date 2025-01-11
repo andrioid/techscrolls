@@ -1,6 +1,6 @@
 0 5 * * * cleanup
-0,15,30,45 * * * * fetch-missing-post-records
-5,20,35,50 * * * * classify-unclassified-posts
+0,10,20,30,40,50 * * * * fetch-missing-post-records
+5,15,25,35,45,55 * * * * classify-unclassified-posts
 
 # dev only
 #*/5 * * * * classify-unclassified-posts
