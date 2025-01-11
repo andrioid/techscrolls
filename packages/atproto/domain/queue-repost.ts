@@ -32,7 +32,7 @@ export async function queueRePost(
     await ctx.db
       .update(postTable)
       .set({
-        lastMentioned: new Date(),
+        lastMentioned: new Date(postMsg.commit.record.createdAt),
       })
       .where(eq(postTable.id, existingPost.id));
     return;
