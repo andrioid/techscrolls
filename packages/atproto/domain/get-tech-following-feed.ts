@@ -1,4 +1,5 @@
 import type { AppBskyFeedGetFeedSkeleton } from "@atproto/api";
+import { max } from "drizzle-orm";
 import { and, desc, eq, gt, gte } from "drizzle-orm/expressions";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
 import { fromCursor, toCursor } from "../helpers/cursor";
@@ -15,22 +16,8 @@ export async function getTechFollowingFeed(
 
   await getOrUpdateFollows(ctx, actorDid);
 
-  // Subquery for reposts
-  const sqReposts = ctx.db
-    .select({
-      postId: repostTable.postId,
-      repostUri: repostTable.repostUri,
-      created: repostTable.created,
-    })
-    .from(repostTable)
-    .innerJoin(followTable, eq(repostTable.authorId, followTable.follows))
-    .where(eq(followTable.followedBy, actorDid))
-    .orderBy(desc(repostTable.created))
-    .limit(1)
-    .as("sqReposts");
-
   const fls = ctx.db
-    .select()
+    .select({ follows: followTable.follows })
     .from(followTable)
     .where(eq(followTable.followedBy, actorDid))
     .as("fls");
@@ -38,22 +25,35 @@ export async function getTechFollowingFeed(
   const posts = await ctx.db
     .select({
       id: postTable.id,
-      repost: sqReposts.repostUri,
-      date: sqReposts.repostUri ? sqReposts.created : postTable.created,
+      repost: repostTable.repostUri,
+      date: repostTable.created ?? postTable.created,
     })
     .from(postTable)
     .innerJoin(fls, eq(postTable.authorId, fls.follows))
     .innerJoin(
       postScores,
+      and(eq(postScores.postId, postTable.id), eq(postScores.tagId, "tech"))
+    )
+    .leftJoin(
+      repostTable,
       and(
-        eq(postScores.postId, postTable.id),
-        eq(postScores.tagId, "tech"),
-        cursor ? gt(postTable.created, fromCursor(cursor)) : undefined
+        eq(repostTable.postId, postTable.id),
+        cursor ? gt(repostTable.created, fromCursor(cursor)) : undefined
       )
     )
-    .leftJoin(sqReposts, eq(sqReposts.postId, postTable.id))
-    .where(gte(postScores.avgScore, 70))
-    .orderBy(desc(sqReposts.created), desc(postTable.created))
+    .where(
+      and(
+        gte(postScores.avgScore, 70),
+        cursor
+          ? gt(
+              max(repostTable.created) ?? postTable.created,
+              fromCursor(cursor)
+            )
+          : undefined
+      )
+    )
+    .groupBy(postTable.id, repostTable.repostUri)
+    .orderBy(desc(repostTable.created), desc(postTable.created))
     .limit(limit);
 
   return {
