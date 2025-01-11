@@ -5,7 +5,6 @@ export const postTable = pgTable(
   {
     id: text().primaryKey(), // aturi
     authorId: text("author_id").notNull(),
-    collection: text("collection").default("app.bsky.feed.post").notNull(),
     flags: integer("flags").notNull().default(0), // See PostFlags
     created: timestamp({
       withTimezone: true,

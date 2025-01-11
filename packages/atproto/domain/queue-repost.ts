@@ -2,23 +2,31 @@ import { type CommitEvent, type CommitRepost } from "@andrioid/jetstream";
 import { AtUri } from "@atproto/api";
 import { eq } from "drizzle-orm";
 import type { AtContext } from "../context";
+import { repostTable } from "./post/post-reposts.table";
 import { postTable } from "./post/post.table";
-import { followTable } from "./user/user-follows.table";
-import { didTable } from "./user/user.table";
 
 // TODO: This should probably receive the full jetstream event
 export async function queueRePost(
   ctx: AtContext,
   postMsg: CommitEvent<CommitRepost>
 ) {
-  const postUri = postMsg.commit.record.subject.uri;
-  const atUri = new AtUri(postUri);
+  const originalUri = postMsg.commit.record.subject.uri;
+  const originalAtUri = new AtUri(originalUri);
 
-  // 1. If we already have this post, abort (for now - maybe add a surfaced_date)
+  // - TODO
+  // - Create a table for reposts
+  // - Remove collection for post table, we are not going to use it
+
+  // 1. If we already have this post, set lastMentioned
   const [existingPost] = await ctx.db
     .select()
     .from(postTable)
-    .where(eq(postTable.id, postUri));
+    .where(eq(postTable.id, originalUri));
+
+  // 0. Store the repost
+  const repostUri = `at://${postMsg.did}/${postMsg.commit.collection}/${postMsg.commit.rkey}`;
+  const repostAtUri = new AtUri(repostUri);
+
   if (existingPost) {
     // Update lastMentioned
     await ctx.db
@@ -30,55 +38,24 @@ export async function queueRePost(
     return;
   }
   // 2. Let's store the posturi, and fetch it later
-
-  // Plan B: Let's add the post author to follows instead of trying to treat these as users
+  // TODO: Here we should use the worker queue and batch these requests
   await ctx.db.transaction(async (tx) => {
     await tx
       .insert(postTable)
       .values({
-        id: postUri,
-        authorId: atUri.hostname,
-      })
-      .onConflictDoNothing();
-
-    const placeHolderDid = "did:web:this-service-placeholder";
-    await tx
-      .insert(didTable)
-      .values({
-        did: placeHolderDid,
-        addedBy: "repost",
-      })
-      .onConflictDoNothing();
-    await tx
-      .insert(followTable)
-      .values({
-        followedBy: "did:web:this-service-placeholder",
-        follows: atUri.hostname,
+        id: originalUri,
+        authorId: originalAtUri.hostname,
       })
       .onConflictDoNothing();
   });
-  return;
-  /*
-  const res = await ctx.atpAgentPublic.getPosts({
-    uris: [postMsg.commit.record.subject.uri],
-  });
-  if (!res.success) {
-    throw new Error("Failed to get post:" + postUri);
-  }
 
-  if (!res.data.posts && res.data.posts !== 1) return;
-  const post = res.data.posts[0];
-  if (!AppBskyFeedPost.isRecord(post.record)) {
-    console.warn("found post, but it's not a feedpost record");
-    return;
-  }
-  await storePost(ctx, {
-    cid: post.cid,
-    record: post.record,
-    uri: post.uri,
-  });
-
-  // 3. Add the post author to our user table (maybe)
-  // This got me rate-limited very fast
-  */
+  // 3. Store the repost post individually with the repost collection
+  await ctx.db
+    .insert(repostTable)
+    .values({
+      repostUri: repostUri,
+      authorId: postMsg.did,
+      postId: originalUri,
+    })
+    .onConflictDoNothing();
 }

@@ -16,7 +16,11 @@ export async function getTechAllFeed(
 
   // TODO: Only want posts here and possibly sort by latest activity
   const posts = await ctx.db
-    .select({ id: postTable.id, created: postTable.created })
+    .select({
+      id: postTable.id,
+      created: postTable.created,
+      lastMentioned: postTable.lastMentioned,
+    })
     .from(postTable)
     .leftJoin(followTable, eq(postTable.authorId, followTable.follows))
     .innerJoin(
@@ -25,7 +29,7 @@ export async function getTechAllFeed(
     )
     .where(
       and(
-        cursor ? gt(postTable.created, fromCursor(cursor)) : undefined,
+        cursor ? gt(postTable.lastMentioned, fromCursor(cursor)) : undefined,
         gt(postTable.flags, 0),
         gte(postScores.avgScore, 75), // TODO 80
         or(
@@ -34,14 +38,21 @@ export async function getTechAllFeed(
         )
       )
     )
-    .orderBy(desc(postTable.created))
+    .orderBy(desc(postTable.lastMentioned))
     .groupBy(postTable.id)
 
     .limit(30);
 
   return {
-    feed: posts.map((post) => ({ post: post.id })),
+    feed: posts.map((post) => {
+      return {
+        post: post.id,
+        feedContext: "tech-all",
+      };
+    }),
     cursor:
-      posts.length > 0 ? toCursor(posts[posts.length - 1].created) : undefined,
+      posts.length > 0
+        ? toCursor(posts[posts.length - 1].lastMentioned)
+        : undefined,
   };
 }

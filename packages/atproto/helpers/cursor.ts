@@ -1,4 +1,5 @@
-export function toCursor(d: Date): string {
+export function toCursor(d: Date | null): string | undefined {
+  if (!d) return;
   // Convert date to unixtime string, in seconds
   return Math.floor(d.getTime() / 1000).toString();
 }

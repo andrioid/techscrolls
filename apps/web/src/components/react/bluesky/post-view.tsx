@@ -1,4 +1,6 @@
+import type { FeedHandlerOutput } from "@andrioid/atproto";
 import { AppBskyFeedDefs, AppBskyFeedPost, AtUri } from "@atproto/api";
+import { Icon } from "@iconify/react/dist/iconify.js";
 import { useState } from "react";
 import { PostContent } from "react-bluesky-embed";
 import { twMerge } from "tailwind-merge";
@@ -16,10 +18,14 @@ export function PostView({
   uri,
   mayClassify,
   isPrimary = true,
+  reason,
+  feedContext,
 }: {
   uri: string;
   //view: AppBskyFeedDefs.PostView;
   mayClassify?: boolean;
+  reason?: FeedHandlerOutput["feed"][number]["reason"];
+  feedContext?: string;
   isPrimary?: boolean; // skips borders
 }) {
   const [isClassified, setIsClassified] = useState<boolean | undefined>(
@@ -115,6 +121,12 @@ export function PostView({
         <div className="flex flex-row justify-between items-center">
           <div className="text-sm text-gray-600">
             {new Date(view.indexedAt).toLocaleString()}
+            {reason && (
+              <span className="ml-4 inline-flex gap-2">
+                <Icon icon="tabler:view-360-arrow" className="ml-2 h-4 w-4" />
+                Repost
+              </span>
+            )}
           </div>
           <a
             href={postLink}

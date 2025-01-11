@@ -2,6 +2,7 @@ import { and, desc, eq, gt, gte } from "drizzle-orm/expressions";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
 import { fromCursor, toCursor } from "../helpers/cursor";
 import { getOrUpdateFollows } from "./get-or-update-follows";
+import { repostTable } from "./post/post-reposts.table";
 import { postScores } from "./post/post-scores.view";
 import { postTable } from "./post/post.table";
 import { followTable } from "./user/user-follows.table";
@@ -9,9 +10,25 @@ import { followTable } from "./user/user-follows.table";
 export async function getTechFollowingFeed(
   args: FeedHandlerArgs
 ): Promise<FeedHandlerOutput> {
-  const { ctx, actorDid, cursor } = args;
+  const { ctx, actorDid, cursor, limit = 50 } = args;
 
   await getOrUpdateFollows(ctx, actorDid);
+
+  const orderByPrimary = "lastMentioned";
+
+  // Subquery for reposts
+  const sqReposts = ctx.db
+    .select({
+      postId: repostTable.postId,
+      repostUri: repostTable.repostUri,
+      created: repostTable.created,
+    })
+    .from(repostTable)
+    .innerJoin(followTable, eq(repostTable.authorId, followTable.follows))
+    .where(eq(followTable.followedBy, actorDid))
+    .orderBy(desc(repostTable.created))
+    .limit(1)
+    .as("sqReposts");
 
   const fls = ctx.db
     .select()
@@ -20,7 +37,11 @@ export async function getTechFollowingFeed(
     .as("fls");
 
   const posts = await ctx.db
-    .select({ id: postTable.id, created: postTable.created })
+    .select({
+      id: postTable.id,
+      repost: sqReposts.repostUri,
+      date: sqReposts.repostUri ? sqReposts.created : postTable.created,
+    })
     .from(postTable)
     .innerJoin(fls, eq(postTable.authorId, fls.follows))
     .innerJoin(
@@ -31,15 +52,21 @@ export async function getTechFollowingFeed(
         cursor ? gt(postTable.created, fromCursor(cursor)) : undefined
       )
     )
+    .leftJoin(sqReposts, eq(sqReposts.postId, postTable.id))
     .where(gte(postScores.avgScore, 80)) // TODO: Raise this to 80
-    .orderBy(desc(postTable.created))
-    .limit(50);
+    .orderBy(desc(sqReposts.repostUri ? sqReposts.created : postTable.created))
+    .limit(limit);
 
   return {
-    feed: posts.map((p) => ({
-      post: p.id,
-    })),
+    feed: posts.map((p) => {
+      const reason = undefined;
+      return {
+        post: p.id,
+        reason,
+        feedContext: "tech-following",
+      };
+    }),
     cursor:
-      posts.length > 0 ? toCursor(posts[posts.length - 1].created) : undefined,
+      posts.length > 0 ? toCursor(posts[posts.length - 1].date) : undefined,
   };
 }

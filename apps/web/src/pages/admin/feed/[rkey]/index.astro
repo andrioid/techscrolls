@@ -2,7 +2,7 @@
 import { DEFAULT_FEED_ACTOR, feeds, getPublicPosts } from "@andrioid/atproto";
 import Layout from "~astro/layout.astro";
 import PageLayout from "~astro/page-layout.astro";
-import { BskyPostList } from "~react/bluesky/post-list";
+import { BskyFeedPostList } from "~react/bluesky/feed-post-list";
 
 const { rkey } = Astro.params;
 const feed = feeds.find((f) => f.rkey === rkey);
@@ -27,9 +27,9 @@ const mayClassify = Astro.locals.mayClassify;
       )
     }
     <div class="max-w-2xl flex flex-col gap-4">
-      <BskyPostList
+      <BskyFeedPostList
         client:only="react"
-        postUris={postUris}
+        posts={res.feed}
         mayClassify={mayClassify}
       />
     </div>

@@ -31,10 +31,7 @@ export async function listenForPosts(ctx: AtContext) {
 
   const js = await Jetstream.Create({
     wantedDids: dids,
-    wantedCollections: [
-      "app.bsky.feed.post",
-      //"app.bsky.feed.repost"
-    ],
+    wantedCollections: ["app.bsky.feed.post", "app.bsky.feed.repost"],
     cursor: cursor?.toString(),
   });
 
@@ -76,12 +73,11 @@ export async function listenForPosts(ctx: AtContext) {
     event: "post",
     cb: handlePost,
   });
-  /*
+
   js.on({
     event: "repost",
     cb: handleRepost,
   });
-  */
 
   let lastStarted = new Date();
   await ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, handleNotify);

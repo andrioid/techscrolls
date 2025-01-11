@@ -36,7 +36,6 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
         id: post.uri,
         created: new Date(post.record.createdAt),
         modified: new Date(post.record.createdAt),
-        collection: "app.bsky.feed.post",
         flags: postRecordFlags(post.record),
       })
       .onConflictDoNothing();
