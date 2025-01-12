@@ -1,9 +1,12 @@
 import { AppBskyFeedPost } from "@atproto/api";
 import { eq, isNull } from "drizzle-orm";
 import type { AtContext } from "../context";
+import { extractTextFromPost } from "./extract-text-from-post";
 import { getPublicPosts } from "./get-public-posts";
+import { isForeignLanguage } from "./is-foreign-language";
 import { postRecordFlags } from "./post-record-flags";
 import { postRecords } from "./post/post-record.table";
+import { postTexts } from "./post/post-texts.table";
 import { postTable } from "./post/post.table";
 
 export async function fetchMissingPostRecords(ctx: AtContext) {
@@ -35,6 +38,13 @@ export async function fetchMissingPostRecords(ctx: AtContext) {
       continue;
     }
     const record = post.record as AppBskyFeedPost.Record;
+
+    // Text extraction of missing posts
+    const extractedText = await extractTextFromPost(ctx, post.uri, post.record);
+    if (isForeignLanguage(extractedText.join("\n"))) {
+      return;
+    }
+
     // This update should never be called on a post we dont have
     await ctx.db.transaction(async (tx) => {
       await tx
@@ -54,6 +64,17 @@ export async function fetchMissingPostRecords(ctx: AtContext) {
           value: record,
         })
         .onConflictDoNothing();
+
+      for (const et of extractedText) {
+        await tx
+          .insert(postTexts)
+          .values({
+            post_id: post.uri,
+            source: et.type,
+            text: et.text,
+          })
+          .onConflictDoNothing();
+      }
     });
   }
 }

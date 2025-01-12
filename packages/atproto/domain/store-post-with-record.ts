@@ -15,7 +15,7 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
   const authorId = uri.hostname;
   const text = post.record?.text;
 
-  const extractedText = await extractTextFromPost(ctx, post);
+  const extractedText = await extractTextFromPost(ctx, post.uri, post.record);
   if (isForeignLanguage(extractedText.join("\n"))) {
     return;
   }
