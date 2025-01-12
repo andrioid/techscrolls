@@ -35,6 +35,6 @@ jetstream = "jetstream"
 
 [[vm]]
   processes=['worker']
-  memory = '1gb'
+  memory = '2gb'
   cpu_kind = 'shared'
   cpus = 1

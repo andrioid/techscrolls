@@ -12,6 +12,7 @@ export async function createAtContext() {
   });
   const db = drizzle({
     client: dbClient,
+    logger: false,
   });
 
   await db.execute("select 1"); // Make sure we're connected to DB
