@@ -1,12 +1,7 @@
-import {
-  createAtContext,
-  fetchMissingPostRecords,
-  listenForPosts,
-} from "@andrioid/atproto";
+import { createAtContext, listenForPosts } from "@andrioid/atproto";
 
 async function main() {
   const atContext = await createAtContext();
-  await fetchMissingPostRecords(atContext);
   await listenForPosts(atContext);
 }
 
