@@ -34,6 +34,7 @@ COPY apps/worker/package.json /tmp/dev/apps/worker/package.json
 COPY packages/atproto/package.json /tmp/dev/packages/atproto/package.json
 COPY packages/db/package.json /tmp/dev/packages/db/package.json
 COPY packages/jetstream/package.json /tmp/dev/packages/jetstream/package.json
+COPY packages/tfjs/package.json /tmp/dev/packages/tfjs/package.json
 
 # NOTE: If access denied below, then remove the bun lockfile, install and try gain
 RUN cd /tmp/dev
