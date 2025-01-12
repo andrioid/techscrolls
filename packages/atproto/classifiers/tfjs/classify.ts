@@ -15,7 +15,10 @@ export async function classify({
   wordIndex: Record<string, number>;
 }) {
   // Predict for a new sample (testing)
-  if (!text || !postUri) return;
+  if (!text || !postUri) {
+    console.warn("[classifier] classify called without text or posturi");
+    return;
+  }
   const inputEncoding = encodeText(text, uniqueWords, wordIndex);
   const prediction = model.predict(tf.tensor2d([inputEncoding])) as tf.Tensor;
   const arr = (await prediction.array()) as number[][];
@@ -27,5 +30,4 @@ export async function classify({
     tag: "tech",
     score: prob,
   };
-  // nothing interesting
 }
