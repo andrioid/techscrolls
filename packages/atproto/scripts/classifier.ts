@@ -14,6 +14,7 @@ import { postTable } from "../domain/post/post.table";
 export const LISTEN_NOTIFY_POSTQUEUE = "atproto.postqueue";
 const POSTS_PER_CLASSIFIER_RUN = 500;
 
+// TODO: Need to move this and all of its deps to a new package. TFJS SUUUUCKS
 export async function classifier(postUri?: Array<string>) {
   // 1. Process existing records in batches
   const ctx = await createAtContext();

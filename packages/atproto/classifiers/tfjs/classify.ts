@@ -15,8 +15,12 @@ export async function classify({
   wordIndex: Record<string, number>;
 }) {
   // Predict for a new sample (testing)
-  if (!text || !postUri) {
-    console.warn("[classifier] classify called without text or posturi");
+  if (!text) {
+    console.warn("[classifier] classify called without text");
+    return;
+  }
+  if (!postUri) {
+    console.warn("[classifier] classify called without posturi");
     return;
   }
   const inputEncoding = encodeText(text, uniqueWords, wordIndex);
