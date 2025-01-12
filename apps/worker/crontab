@@ -1,7 +1,4 @@
-0 5 * * * cleanup
-0,10,20,30,40,50 * * * * fetch-missing-post-records
-5,15,25,35,45,55 * * * * classify-unclassified-posts
-
-# dev only
-#*/5 * * * * classify-unclassified-posts
-
+0 5 * * * cleanup ?max=1
+0,30 * * * * fetch-missing-post-records ?max=1
+15,45 * * * * classify-unclassified-posts ?max=1
+0 */2 * * * train-classifier ?max=1

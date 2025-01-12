@@ -9,9 +9,7 @@ import { postTexts } from "../../domain/post/post-texts.table";
 import { trainingSetSize } from "../../domain/training-set-size";
 import type { ClassifierFn } from "../types";
 import { classify } from "./classify";
-import { isModelOutdated } from "./is-model-outdated";
 import { loadModelFromDb } from "./loadModelFromDb";
-import { train } from "./train";
 
 type FnType = (ctx: AtContext) => Promise<ClassifierFn | undefined>;
 const MINIMUM_POST_COUNT = 50;
@@ -23,8 +21,8 @@ export const createBayesClassiferFn: FnType = async (ctx) => {
     console.log("[classifier] not enough training data, not running tfjsbayes");
     return;
   }
-  const loader = (await isModelOutdated(ctx)) ? train : loadModelFromDb;
-  const m = await loader(ctx);
+
+  const m = await loadModelFromDb(ctx);
   console.log(`[classifier] tfjsbyes ready with ${m.uniqueWords.length} words`);
   // fetch the model and stuff
   return async function tfjsBayes({
