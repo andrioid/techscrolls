@@ -36,6 +36,7 @@
     "ml5": "^1.2.1",
     "natural": "^8.0.1",
     "postgres": "^3.4.5",
-    "stopwords-iso": "^1.1.0"
+    "stopwords-iso": "^1.1.0",
+    "graphile-worker": "^0.16.6"
   }
 }
