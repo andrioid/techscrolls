@@ -1,3 +1,4 @@
+/*
 import { desc } from "drizzle-orm";
 import { union } from "drizzle-orm/pg-core";
 import type { FeedHandlerArgs } from "..";
@@ -12,5 +13,5 @@ export function followingAllQuery(args: FeedHandlerArgs) {
     .orderBy(desc(postTable.lastMentioned));
   return combinedQuery;
 }
-
+*/
 // TODO: Read up on WITH clause and CTEs

@@ -1,5 +1,6 @@
 import { config } from "@andrioid/atproto/config";
 import { WorkerPreset } from "graphile-worker";
+import path from "node:path";
 
 const preset: GraphileConfig.Preset = {
   extends: [WorkerPreset],
@@ -9,7 +10,8 @@ const preset: GraphileConfig.Preset = {
     pollInterval: 2000,
     preparedStatements: true,
     schema: "graphile_worker",
-    crontabFile: "crontab",
+    crontabFile: path.join(import.meta.dirname, "./crontab"),
+    taskDirectory: path.join(import.meta.dirname, "./tasks"),
     concurrentJobs: 1,
     fileExtensions: [".ts"],
   },

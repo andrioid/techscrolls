@@ -1,18 +1,6 @@
-import { run } from "graphile-worker";
-import preset from "./graphile.config";
+import { workerProcess } from "@andrioid/atproto/worker/main";
 
-async function main() {
-  const runner = await run({ preset });
-
-  runner.events.on("job:complete", () => {
-    // Trigger Bun's GC manually after a job finishes
-    Bun.gc(false);
-  });
-
-  await runner.promise;
-}
-
-main().catch((err) => {
+workerProcess().catch((err) => {
   console.error(err);
   process.exit(1);
 });

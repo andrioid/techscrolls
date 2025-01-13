@@ -8,8 +8,7 @@
     "prod": "bun index.ts"
   },
   "dependencies": {
-    "@andrioid/atproto": "workspace:*",
-    "graphile-worker": "^0.16.6"
+    "@andrioid/atproto": "workspace:*"
   },
   "devDependencies": {},
   "peerDependencies": {
