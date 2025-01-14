@@ -1,4 +1,8 @@
-import { type AppBskyFeedGetFeedSkeleton } from "@atproto/api";
+import { AtUri } from "@atproto/api";
+import type {
+  SkeletonFeedPost,
+  SkeletonReasonRepost,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import { max } from "drizzle-orm";
 import { and, desc, eq, gt, gte } from "drizzle-orm/expressions";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
@@ -59,17 +63,21 @@ export async function getTechFollowingFeed(
 
   return {
     feed: posts.map((p) => {
-      const reason = p.repost
-        ? {
-            $type: "app.bsky.feed.defs#skeletonReasonRepost",
-            repost: p.repost,
-          }
-        : undefined;
+      let reason: SkeletonReasonRepost | undefined = undefined;
+      if (p.repost) {
+        const a = new AtUri(p.repost);
+        a.collection = "";
+        a.rkey = "";
+        reason = {
+          repost: a.toString(),
+        };
+      }
+
       return {
         post: p.id,
         reason,
         feedContext: "tech-following",
-      } satisfies AppBskyFeedGetFeedSkeleton.Response["data"][number];
+      } satisfies SkeletonFeedPost;
     }),
     cursor:
       posts.length > 0 ? toCursor(posts[posts.length - 1].date) : undefined,
