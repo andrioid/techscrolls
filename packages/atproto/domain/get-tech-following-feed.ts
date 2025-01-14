@@ -1,4 +1,3 @@
-import { AtUri } from "@atproto/api";
 import type {
   SkeletonFeedPost,
   SkeletonReasonRepost,
@@ -65,18 +64,15 @@ export async function getTechFollowingFeed(
     feed: posts.map((p) => {
       let reason: SkeletonReasonRepost | undefined = undefined;
       if (p.repost) {
-        const a = new AtUri(p.repost);
-        a.collection = "";
-        a.rkey = "";
         reason = {
-          repost: a.toString(),
+          repost: p.repost,
         };
       }
 
       return {
         post: p.id,
         reason,
-        feedContext: "tech-following",
+        feedContext: p.repost ? p.repost : "tech-following",
       } satisfies SkeletonFeedPost;
     }),
     cursor:
