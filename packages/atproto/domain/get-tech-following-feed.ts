@@ -2,8 +2,8 @@ import type {
   SkeletonFeedPost,
   SkeletonReasonRepost,
 } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
-import { max } from "drizzle-orm";
-import { and, desc, eq, gt, gte } from "drizzle-orm/expressions";
+import { max, min } from "drizzle-orm";
+import { and, desc, eq, gt, gte, isNotNull, or } from "drizzle-orm/expressions";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
 import { fromCursor, toCursor } from "../helpers/cursor";
 import { addJob } from "../worker/add-job";
@@ -18,7 +18,6 @@ export async function getTechFollowingFeed(
   const { ctx, actorDid, cursor, limit = 50 } = args;
 
   await addJob("update-followers", { did: actorDid });
-  //await getOrUpdateFollows(ctx, actorDid);
 
   const fls = ctx.db
     .select({ follows: followTable.follows })
@@ -26,38 +25,42 @@ export async function getTechFollowingFeed(
     .where(eq(followTable.followedBy, actorDid))
     .as("fls");
 
+  const rpls = ctx.db
+    .select({
+      created: repostTable.created,
+      repostAuthor: repostTable.authorId,
+      subjectPostUri: repostTable.postId,
+      repostUri: repostTable.repostUri,
+    })
+    .from(repostTable)
+    .innerJoin(fls, eq(repostTable.authorId, fls.follows))
+    .as("rpls");
+
   const posts = await ctx.db
     .select({
       id: postTable.id,
-      repost: repostTable.repostUri,
-      date: repostTable.created ?? postTable.created,
+      repost: rpls.repostUri,
+      date: max(rpls.created) ?? postTable.created,
     })
     .from(postTable)
-    .innerJoin(fls, eq(postTable.authorId, fls.follows))
+    .leftJoin(fls, eq(postTable.authorId, fls.follows))
+    .leftJoin(rpls, eq(postTable.id, rpls.subjectPostUri))
     .innerJoin(
       postScores,
       and(eq(postScores.postId, postTable.id), eq(postScores.tagId, "tech"))
     )
-    .leftJoin(
-      repostTable,
-      and(
-        eq(repostTable.postId, postTable.id),
-        cursor ? gt(repostTable.created, fromCursor(cursor)) : undefined
-      )
-    )
     .where(
       and(
+        or(isNotNull(fls.follows), isNotNull(rpls.subjectPostUri)),
+        //isNotNull(rpls.created),
         gte(postScores.avgScore, 70),
         cursor
-          ? gt(
-              max(repostTable.created) ?? postTable.created,
-              fromCursor(cursor)
-            )
+          ? gt(max(rpls.created) ?? postTable.created, fromCursor(cursor))
           : undefined
       )
     )
-    .groupBy(postTable.id, repostTable.repostUri)
-    .orderBy(desc(repostTable.created), desc(postTable.created))
+    .groupBy(postTable.id, rpls.repostUri)
+    .orderBy(desc(min(rpls.created)), desc(postTable.created))
     .limit(limit);
 
   return {
