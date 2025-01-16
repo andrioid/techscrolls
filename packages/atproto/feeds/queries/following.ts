@@ -1,3 +1,4 @@
+import { AtUri } from "@atproto/api";
 import type {
   SkeletonFeedPost,
   SkeletonReasonRepost,
@@ -62,8 +63,11 @@ export async function followingFeedHandler(
     feed: posts.map((p) => {
       let reason: SkeletonReasonRepost | undefined = undefined;
       if (p.repost) {
+        const a = new AtUri(p.repost);
+        a.collection = "";
+        a.rkey = "";
         reason = {
-          repost: p.repost,
+          repost: a.toString(),
         };
       }
       return {
