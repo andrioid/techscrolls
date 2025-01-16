@@ -1,4 +1,3 @@
-import { AtUri } from "@atproto/api";
 import type {
   SkeletonFeedPost,
   SkeletonReasonRepost,
@@ -63,11 +62,10 @@ export async function followingFeedHandler(
     feed: posts.map((p) => {
       let reason: SkeletonReasonRepost | undefined = undefined;
       if (p.repost) {
-        const a = new AtUri(p.repost);
-        const b = AtUri.make(a.hostname);
-        reason = {
-          repost: b.toString(),
-        };
+        // TODO: Why doesn't this work?!
+        // reason = {
+        //   repost: p.repost,
+        // };
       }
       return {
         post: p.id,
