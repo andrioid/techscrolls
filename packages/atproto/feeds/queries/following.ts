@@ -64,10 +64,9 @@ export async function followingFeedHandler(
       let reason: SkeletonReasonRepost | undefined = undefined;
       if (p.repost) {
         const a = new AtUri(p.repost);
-        a.collection = "";
-        a.rkey = "";
+        const b = AtUri.make(a.hostname);
         reason = {
-          repost: a.toString(),
+          repost: b.toString(),
         };
       }
       return {
