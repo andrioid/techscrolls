@@ -51,6 +51,6 @@ export async function followingFeedHandler(
           }
         : undefined,
     })),
-    cursor: Math.floor(Number(cursor) + Number(limit)).toString(),
+    //cursor: Math.floor(Number(cursor) + Number(limit)).toString(),
   };
 }
