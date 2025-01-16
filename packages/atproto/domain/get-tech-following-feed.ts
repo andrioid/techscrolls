@@ -51,8 +51,9 @@ export async function getTechFollowingFeed(
     )
     .where(
       and(
+        // Either this is posted by someone we follow, or reposted by someone we follow
         or(isNotNull(fls.follows), isNotNull(rpls.subjectPostUri)),
-        //isNotNull(rpls.created),
+        // Minimum post-score
         gte(postScores.avgScore, 70),
         cursor
           ? gt(max(rpls.created) ?? postTable.created, fromCursor(cursor))

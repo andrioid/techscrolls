@@ -127,6 +127,7 @@ export function PostView({
                 Repost
               </span>
             )}
+            {feedContext && <div className="text-blue-400">{feedContext}</div>}
           </div>
           <a
             href={postLink}

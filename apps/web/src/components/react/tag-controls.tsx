@@ -1,25 +1,39 @@
 import { Icon } from "@iconify/react";
 import { actions } from "astro:actions";
 import { produce } from "immer";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { PillBadge } from "~react/pill-badge";
 
 const buttonClass =
   "rounded-md border p-1 hover:bg-gray-50 hover:text-sky-800 hover:border-sky-800";
 
+type TagType = Exclude<
+  Awaited<ReturnType<typeof actions.getTagsForPost>>["data"],
+  undefined
+>[number] & {
+  avgScore?: number;
+};
+
 export function TagControls({ postUri }: { postUri: string }) {
-  const [tags, setTags] = useState<
-    Exclude<
-      Awaited<ReturnType<typeof actions.getTagsForPost>>["data"],
-      undefined
-    >
-  >([]);
+  const [tags, setTags] = useState<Array<TagType>>([]);
 
   useEffect(() => {
     actions.getTagsForPost({ postUri }).then((tags) => {
       if (tags.error) return [];
-      setTags(tags.data);
+      setTags(
+        tags.data.map((tag) => {
+          return {
+            ...tag,
+            avgScore:
+              tag.scores.length > 0
+                ? tag.scores.reduce((acc, curr) => {
+                    return acc + curr.score;
+                  }, 0) / tag.scores.length
+                : 0,
+          };
+        })
+      );
     });
   }, []);
 
@@ -58,55 +72,54 @@ export function TagControls({ postUri }: { postUri: string }) {
     // TODO: Show that it's tagged now
   }
 
-  const avgScore = useMemo(() => {
-    const totalScores = tags.reduce((acc, tag) => {
-      const sum = tag.scores.reduce((sum, score) => sum + score.score, 0);
-      if (sum === 0) return acc;
-      return acc + sum / tag.scores.length;
-    }, 0);
-
-    return Math.floor(totalScores / tags.length);
-  }, [tags]);
-
   return (
-    <span className="inline-flex font-semibold uppercase items-center gap-2 flex-wrap">
+    <div className="font-semibold uppercase flex flex-col gap-2">
       {tags &&
-        tags.map((tag) => (
-          <Fragment key={tag.tag}>
-            <span className="text-base">
-              {`#${tag.tag}`}{" "}
-              <span
-                className={twMerge(
-                  avgScore >= 80 && "text-green-700",
-                  avgScore < 80 && "text-orange-700",
-                  avgScore <= 50 && "text-red-700"
-                )}
-              >
-                {avgScore}%
-              </span>
-            </span>
+        tags
+          .filter((tag) => tag.avgScore !== undefined)
+          .map((tag) => (
+            <div
+              className="flex flex-row gap-2 items-center text-base"
+              key={tag.tag}
+            >
+              <div className="flex flex-col gap-1">
+                <span>
+                  {`#${tag.tag}`}{" "}
+                  <span
+                    className={twMerge(
+                      tag.avgScore! >= 80 && "text-green-700",
+                      tag.avgScore! < 80 && "text-orange-700",
+                      tag.avgScore! <= 50 && "text-red-700"
+                    )}
+                  >
+                    {tag.avgScore}%
+                  </span>
+                </span>
 
-            <span className="inline-flex gap-1">
-              <button
-                className={twMerge(buttonClass)}
-                onClick={() => handleClassified(tag.tag, true)}
-              >
-                <Icon icon="tabler:tag" className="h-5 w-5" />
-              </button>
-              <button
-                className={twMerge(buttonClass)}
-                onClick={() => handleClassified(tag.tag, false)}
-              >
-                <Icon icon="tabler:tag-off" className="h-5 w-5" />
-              </button>
-            </span>
-            {tag.scores.map((cl) => (
-              <PillBadge label={cl.algo} key={cl.algo}>
-                {cl.score} %
-              </PillBadge>
-            ))}
-          </Fragment>
-        ))}
-    </span>
+                <span className="inline-flex items-center gap-1">
+                  <button
+                    className={twMerge(buttonClass)}
+                    onClick={() => handleClassified(tag.tag, true)}
+                  >
+                    <Icon icon="tabler:tag" className="h-5 w-5" />
+                  </button>
+                  <button
+                    className={twMerge(buttonClass)}
+                    onClick={() => handleClassified(tag.tag, false)}
+                  >
+                    <Icon icon="tabler:tag-off" className="h-5 w-5" />
+                  </button>
+                </span>
+              </div>
+              <span>
+                {tag.scores.map((cl) => (
+                  <PillBadge label={cl.algo} key={cl.algo}>
+                    {cl.score} %
+                  </PillBadge>
+                ))}
+              </span>
+            </div>
+          ))}
+    </div>
   );
 }

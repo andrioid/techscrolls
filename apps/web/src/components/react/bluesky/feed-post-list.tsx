@@ -17,6 +17,7 @@ export function BskyFeedPostList({
           uri={p.post}
           mayClassify={mayClassify}
           reason={p.reason}
+          feedContext={p.feedContext}
         />
       ))}
     </div>

@@ -3,7 +3,7 @@ import type { FeedHandlerArgs } from "..";
 import { repostTable } from "../../domain/post/post-reposts.table";
 import { postScores } from "../../domain/post/post-scores.view";
 import { postTable } from "../../domain/post/post.table";
-import { followingSubQuery } from "./following";
+import { followingSubQuery } from "./sq-following";
 
 export function followingPostsQuery(args: FeedHandlerArgs) {
   const { ctx, actorDid, limit = 30 } = args;

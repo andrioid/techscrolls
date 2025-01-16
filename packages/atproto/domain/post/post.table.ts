@@ -5,7 +5,10 @@ export const postTable = pgTable(
   {
     id: text().primaryKey(), // aturi
     authorId: text("author_id").notNull(),
+    // TODO: Might delete flags again
     flags: integer("flags").notNull().default(0), // See PostFlags
+    replyRoot: text("root_uri"),
+    replyParent: text("parent_uri"),
     created: timestamp({
       withTimezone: true,
     })

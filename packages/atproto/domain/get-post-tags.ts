@@ -27,6 +27,7 @@ export async function getPostTags(ctx: AtContext, postUri: string) {
     .groupBy(tagTable.id);
 
   if (res.length === 0) return [];
+  console.log("res", res);
   return res.map((tag) => ({
     ...tag,
     scores: tag.scores.filter((scores) => scores.algo !== null),

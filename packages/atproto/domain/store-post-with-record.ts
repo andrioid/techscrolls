@@ -1,7 +1,6 @@
 import type { FeedPostWithUri } from "@andrioid/jetstream";
 import { AtUri } from "@atproto/api";
 import type { AtContext } from "../context";
-import { LISTEN_NOTIFY_POSTQUEUE } from "../scripts/classifier";
 import { extractTextFromPost } from "./extract-text-from-post";
 import { isForeignLanguage } from "./is-foreign-language";
 import { postRecordFlags } from "./post-record-flags";
@@ -37,6 +36,8 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
         created: new Date(post.record.createdAt),
         modified: new Date(post.record.createdAt),
         flags: postRecordFlags(post.record),
+        replyParent: post.record.reply?.parent?.uri,
+        replyRoot: post.record.reply?.root?.uri,
       })
       .onConflictDoNothing();
     await tx
@@ -59,10 +60,4 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
         .onConflictDoNothing();
     }
   });
-  ctx.db.$client.notify(
-    LISTEN_NOTIFY_POSTQUEUE,
-    JSON.stringify({
-      uri: post.uri,
-    })
-  );
 }

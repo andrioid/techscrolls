@@ -1,11 +1,15 @@
 ---
-import { getAdminStats, getModerationPosts } from "@andrioid/atproto";
+import { DEFAULT_FEED_ACTOR, feeds, getAdminStats } from "@andrioid/atproto";
+import { undefined } from "astro:schema";
 import Layout from "~astro/layout.astro";
 import PageLayout from "~astro/page-layout.astro";
-import { BskyPostList } from "~react/bluesky/post-list";
+import { BskyFeedPostList } from "~react/bluesky/feed-post-list";
 const at = Astro.locals.at;
 const url = new URL(Astro.request.url);
-const query = url.searchParams.get("query");
+const query =
+  url.searchParams.get("query") !== null
+    ? (url.searchParams.get("query") as string)
+    : "";
 const minscore =
   url.searchParams.get("minscore") !== null
     ? Number(url.searchParams.get("minscore"))
@@ -14,79 +18,37 @@ const maxscore =
   url.searchParams.get("maxscore") !== null
     ? Number(url.searchParams.get("maxscore"))
     : undefined;
-const page = url.searchParams.get("page")
-  ? Number(url.searchParams.get("page"))
+const offset = url.searchParams.get("offset")
+  ? Number(url.searchParams.get("offset"))
   : 1;
+const limit = 30;
+const rkey = url.searchParams.get("rkey") ?? "tech-mod";
 
 const dat = await getAdminStats(at);
-const posts = await getModerationPosts(at, {
-  query: query ?? undefined,
-  minScore: minscore,
-  maxScore: maxscore,
-  page: page,
+const feed = feeds.find((f) => f.rkey === rkey);
+if (!feed) {
+  throw new Error("No handler found for selected feed");
+}
+
+const feedRes = await feed.handler({
+  ctx: Astro.locals.at,
+  actorDid: DEFAULT_FEED_ACTOR,
+  cursor: offset.toString(),
+  search: query,
 });
+
+const posts = feedRes.feed;
+
 const nurl = new URL(url);
-const nextPageNumber = page + 1;
-nurl.searchParams.set("page", `${nextPageNumber}`);
+const nextOffset = `${offset + limit - 1}`;
+const prevOffset = `${offset ? offset - limit : 0}`;
+nurl.searchParams.set("offset", `${nextOffset}`);
 const nextPage = nurl.toString();
 const scoreOptions = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 ---
 
 <Layout>
   <PageLayout title="Admin Dashboard">
-    <form>
-      <div class="flex flex-row gap-2">
-        <div class="flex flex-row gap-4 items-center">
-          <input
-            placeholder="Search for post texts"
-            value={query ?? ""}
-            name="query"
-            type="text"
-            class="rounded-md border py-1.5 px-2"
-          />
-
-          <input type="hidden" name="page" value={page} />
-          <span>
-            <select
-              name="minscore"
-              aria-valuemax="100"
-              aria-valuemin="1"
-              class="border rounded-md py-1.5 px-3 bg-gray-100"
-            >
-              <option value={null}></option>
-              {
-                scoreOptions.map((score) => (
-                  <option selected={minscore === score} value={score}>
-                    {score}%
-                  </option>
-                ))
-              }
-            </select>
-            -
-            <select
-              name="maxscore"
-              aria-valuemax="100"
-              aria-valuemin="1"
-              class="border rounded-md py-1.5 px-3 bg-gray-100"
-            >
-              <option value={null}></option>
-              {
-                scoreOptions.map((score) => (
-                  <option selected={maxscore === score} value={score}>
-                    {score}%
-                  </option>
-                ))
-              }
-            </select>
-          </span>
-
-          <button
-            class="py-1.5 px-3 border rounded-md hover:text-sky-800"
-            type="submit">Search</button
-          >
-        </div>
-      </div>
-    </form>
     <div class="flex flex-row gap-4">
       {
         dat.map((d) => (
@@ -97,13 +59,75 @@ const scoreOptions = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
         ))
       }
     </div>
-    <BskyPostList
-      client:only="react"
-      postUris={posts.map((p) => p.postId)}
-      mayClassify={true}
-    >
+    <form>
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-row gap-2">
+          <select name="rkey" class="rounded-md border py-1.5 px-2 min-w-48">
+            {
+              feeds.map((f) => (
+                <option selected={rkey === f.rkey} value={f.rkey}>
+                  {f.record.displayName}
+                </option>
+              ))
+            }
+          </select>
+        </div>
+        <div class="flex flex-row gap-2">
+          <div class="flex flex-row gap-4 items-center">
+            <input
+              placeholder="Search for post texts"
+              value={query ?? ""}
+              name="query"
+              type="text"
+              class="rounded-md border py-1.5 px-2"
+            />
+
+            <input type="hidden" name="offset" value={offset} />
+            <span>
+              <select
+                name="minscore"
+                aria-valuemax="100"
+                aria-valuemin="1"
+                class="border rounded-md py-1.5 px-3 bg-gray-100"
+              >
+                <option value={null}></option>
+                {
+                  scoreOptions.map((score) => (
+                    <option selected={minscore === score} value={score}>
+                      {score}%
+                    </option>
+                  ))
+                }
+              </select>
+              -
+              <select
+                name="maxscore"
+                aria-valuemax="100"
+                aria-valuemin="1"
+                class="border rounded-md py-1.5 px-3 bg-gray-100"
+              >
+                <option value={null}></option>
+                {
+                  scoreOptions.map((score) => (
+                    <option selected={maxscore === score} value={score}>
+                      {score}%
+                    </option>
+                  ))
+                }
+              </select>
+            </span>
+
+            <button
+              class="py-1.5 px-3 border rounded-md hover:text-sky-800"
+              type="submit">Search</button
+            >
+          </div>
+        </div>
+      </div>
+    </form>
+    <BskyFeedPostList client:only="react" posts={posts} mayClassify={true}>
       <div slot="fallback">Loading</div>
-    </BskyPostList>
+    </BskyFeedPostList>
     <div>
       <a href={nextPage}
         ><button class="py-1.5 px-3 rounded-md bg-gray-100 hover:text-sky-800"

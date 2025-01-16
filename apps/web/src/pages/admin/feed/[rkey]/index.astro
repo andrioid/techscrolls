@@ -1,5 +1,5 @@
 ---
-import { DEFAULT_FEED_ACTOR, feeds, getPublicPosts } from "@andrioid/atproto";
+import { DEFAULT_FEED_ACTOR, feeds } from "@andrioid/atproto";
 import Layout from "~astro/layout.astro";
 import PageLayout from "~astro/page-layout.astro";
 import { BskyFeedPostList } from "~react/bluesky/feed-post-list";
@@ -15,7 +15,6 @@ const res = await feed.handler({
   actorDid: DEFAULT_FEED_ACTOR,
 });
 const postUris = res.feed.map((p) => p.post);
-const posts = await getPublicPosts(postUris);
 const mayClassify = Astro.locals.mayClassify;
 ---
 

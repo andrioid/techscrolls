@@ -9,8 +9,8 @@ const run = async () => {
   const ctx = await createAtContext();
   const agent = ctx.atpAgent;
 
-  for (const feed of feeds) {
-    await agent.api.com.atproto.repo.putRecord({
+  for (const feed of feeds.filter((f) => !f.private)) {
+    await agent.com.atproto.repo.putRecord({
       repo: agent.session?.did ?? "",
       collection: "app.bsky.feed.generator",
       ...feed,

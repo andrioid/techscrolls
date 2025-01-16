@@ -4,11 +4,13 @@ import type {
 } from "@atproto/api";
 import { config } from "../config";
 import type { AtContext } from "../context";
+import { getModerationPosts } from "../domain/get-moderation-queue";
 import { getTechAllFeed } from "../domain/get-tech-all-feed";
-import { getTechFollowingFeed } from "../domain/get-tech-following-feed";
+import type { PostFlags } from "../domain/post/post-flags";
 import type { repostTable } from "../domain/post/post-reposts.table";
 import type { postTable } from "../domain/post/post.table";
 import { repostsOnlyFeed } from "./only-reposts";
+import { followingFeedHandler } from "./queries/following";
 
 export const DEFAULT_FEED_ACTOR = "did:plc:rrrwbar3wv576qpsymwey5p5";
 export type FeedHandlerArgs = {
@@ -16,6 +18,14 @@ export type FeedHandlerArgs = {
   actorDid: string;
   cursor?: string;
   limit?: number;
+  // Additional options for local admin interface and maybe feed settings
+  flags?: PostFlags;
+  tagFilters?: Array<{
+    tag: string;
+    minScore?: number;
+    maxScore?: number;
+  }>;
+  search?: string;
 };
 
 export const FeedDefaultLimit = 30;
@@ -31,6 +41,7 @@ export type FeedHandlerOutput = AppBskyFeedGetFeedSkeleton.Response["data"];
 export type FeedDefinition = {
   rkey: string; // feed-id (affects url)
   record: AppBskyFeedGenerator.Record;
+  private: boolean;
   handler: (args: FeedHandlerArgs) => Promise<FeedHandlerOutput>;
 };
 
@@ -39,33 +50,47 @@ export const feeds: Array<FeedDefinition> = [
     rkey: "tech-following",
     record: {
       did: config.feedGenDid,
-      displayName: "Following Tech",
+      displayName: "📜 Following",
       description:
         "Posts from your following; filtered for anything that isn't considered tech related.",
       //avatar: avatarRef,
       createdAt: new Date("2024-12-19").toISOString(),
     },
-    handler: getTechFollowingFeed,
+    handler: followingFeedHandler,
+    private: false,
   },
   {
     rkey: "tech-all",
     record: {
       did: config.feedGenDid,
-      displayName: "Technical Scrolls",
-      description: "Curated tech posts from across the network.",
+      displayName: "📜 Trending",
+      description: "Curated posts on the subject of technology.",
       //avatar: avatarRef,
       createdAt: new Date("2024-12-19").toISOString(),
     },
     handler: getTechAllFeed,
+    private: false,
   },
   {
     rkey: "tech-reposts",
     record: {
       did: config.feedGenDid,
-      displayName: "Tech Reposts",
+      displayName: "📜 Reposts",
       description: "Experimental",
       createdAt: new Date("2025-01-11").toISOString(),
     },
     handler: repostsOnlyFeed,
+    private: true,
+  },
+  {
+    rkey: "tech-mod",
+    record: {
+      did: config.feedGenDid,
+      displayName: "📜 Moderator queue",
+      description: "Posts that might need classifying",
+      createdAt: new Date("2025-01-16").toISOString(),
+    },
+    handler: getModerationPosts,
+    private: true,
   },
 ];

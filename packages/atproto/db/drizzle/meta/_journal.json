@@ -253,6 +253,13 @@
       "when": 1736589724753,
       "tag": "0035_curved_sentry",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1737040143209,
+      "tag": "0036_flashy_star_brand",
+      "breakpoints": true
     }
   ]
 }
