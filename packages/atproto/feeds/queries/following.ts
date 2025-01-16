@@ -44,7 +44,7 @@ export async function followingFeedHandler(
   return {
     feed: posts.map((p) => ({
       post: p.id,
-      feedContext: `${p.repostDate?.toISOString()}`,
+      feedContext: p.repostDate ? `${p.repostDate?.toISOString()}` : undefined,
       reason: p.repost
         ? {
             repost: p.repost,
