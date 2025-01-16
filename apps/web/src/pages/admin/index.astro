@@ -32,7 +32,8 @@ if (!feed) {
 const feedRes = await feed.handler({
   ctx: Astro.locals.at,
   actorDid: DEFAULT_FEED_ACTOR,
-  cursor: offset.toString(),
+  cursor: new Date("2025-01-16").toISOString(),
+  //cursor: offset.toString(),
   search: query,
 });
 

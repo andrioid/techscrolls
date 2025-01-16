@@ -1,6 +1,7 @@
-import { and, desc, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, gt, isNotNull, isNull, or, sql } from "drizzle-orm";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "..";
 import { postTable } from "../../domain/post/post.table";
+import { fromCursor, toCursor } from "../../helpers/cursor";
 import { followingSubQuery } from "./sq-following";
 import { repostSubquery } from "./sq-reposts";
 import { sqScores } from "./sq-scores";
@@ -11,15 +12,16 @@ const PER_PAGE = 30;
 export async function followingFeedHandler(
   args: FeedHandlerArgs
 ): Promise<FeedHandlerOutput> {
-  const { ctx, limit = PER_PAGE, cursor = "0", search } = args;
+  const { ctx, limit = PER_PAGE, cursor, search } = args;
   const fls = followingSubQuery(args);
   const rpls = repostSubquery(args);
   const sqs = sqScores(ctx.db);
 
+  const dateField = sql<Date>`GREATEST(${rpls.created}, ${postTable.created})`;
   const posts = await ctx.db
     .select({
       id: postTable.id,
-      date: sql<Date>`GREATEST(${rpls.created}, ${postTable.created})`,
+      date: dateField,
       repost: rpls.repostUri,
       repostDate: rpls.created,
     })
@@ -28,15 +30,17 @@ export async function followingFeedHandler(
     .leftJoin(rpls, and(eq(rpls.subjectPostUri, postTable.id)))
     .innerJoin(sqs, eq(sqs.postId, postTable.id))
     .where(
-      or(
-        // Posts that we follow
-        and(isNotNull(fls.follows), isNull(rpls.created)),
-        // Reposts by people we follow
-        and(isNotNull(rpls.created))
-        // TODO: Limit score
+      and(
+        or(
+          // Posts that we follow
+          and(isNotNull(fls.follows), isNull(rpls.created)),
+          // Reposts by people we follow
+          and(isNotNull(rpls.created))
+        ),
+        cursor ? gt(dateField, fromCursor(cursor)) : undefined
       )
     )
-    .orderBy(desc(sql<Date>`GREATEST(${rpls.created}, ${postTable.created})`))
+    .orderBy(desc(dateField))
     .limit(limit)
     .groupBy(postTable.id, rpls.created, rpls.repostUri)
     .offset(Number(cursor));
@@ -51,6 +55,7 @@ export async function followingFeedHandler(
           }
         : undefined,
     })),
-    //cursor: Math.floor(Number(cursor) + Number(limit)).toString(),
+    cursor:
+      posts.length > 0 ? toCursor(posts[posts.length - 1].date) : undefined,
   };
 }
