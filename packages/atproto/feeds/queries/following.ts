@@ -17,7 +17,7 @@ export async function followingFeedHandler(
   const rpls = repostSubquery(args);
   const sqs = sqScores(ctx.db);
 
-  const dateField = sql<Date>`GREATEST(${rpls.created}, ${postTable.created})`;
+  const dateField = sql<string>`GREATEST(${rpls.created}, ${postTable.created})`;
   const posts = await ctx.db
     .select({
       id: postTable.id,
@@ -45,6 +45,15 @@ export async function followingFeedHandler(
     .groupBy(postTable.id, rpls.created, rpls.repostUri)
     .offset(Number(cursor));
 
+  let newCursor: string | undefined;
+  if (posts.length > 0) {
+    const lastPost = posts[posts.length - 1];
+    if (!lastPost.date) {
+      throw new Error("wat!");
+    }
+    newCursor = toCursor(new Date(lastPost.date));
+  }
+
   return {
     feed: posts.map((p) => ({
       post: p.id,
@@ -55,7 +64,6 @@ export async function followingFeedHandler(
           }
         : undefined,
     })),
-    cursor:
-      posts.length > 0 ? toCursor(posts[posts.length - 1].date) : undefined,
+    cursor: newCursor,
   };
 }
