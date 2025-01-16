@@ -1,3 +1,7 @@
+import type {
+  SkeletonFeedPost,
+  SkeletonReasonRepost,
+} from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import { and, desc, eq, gt, isNotNull, isNull, or, sql } from "drizzle-orm";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "..";
 import { postTable } from "../../domain/post/post.table";
@@ -55,15 +59,18 @@ export async function followingFeedHandler(
   }
 
   return {
-    feed: posts.map((p) => ({
-      post: p.id,
-      //feedContext: p.repostDate ? `${p.repostDate?.toISOString()}` : undefined,
-      // reason: p.repost
-      //   ? {
-      //       repost: p.repost,
-      //     }
-      //   : undefined,
-    })),
+    feed: posts.map((p) => {
+      let reason: SkeletonReasonRepost | undefined = undefined;
+      if (p.repost) {
+        reason = {
+          repost: p.repost,
+        };
+      }
+      return {
+        post: p.id,
+        reason,
+      } satisfies SkeletonFeedPost;
+    }),
     cursor: newCursor,
   };
 }
