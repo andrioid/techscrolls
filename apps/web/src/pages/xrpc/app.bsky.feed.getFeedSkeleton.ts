@@ -15,6 +15,8 @@ export const GET: APIRoute = async ({ request: req, locals }) => {
     return HTTPError("no feed requested");
   }
   const cursor = url.searchParams.get("cursor");
+  const limit = url.searchParams.get("limit");
+
   const feedUri = new AtUri(feedParam);
   // pathname looks like this: /app.bsky.feed.generator/tech-following
   const rkeyMatch = feedUri.pathname.match(/\/([^/]+)$/);
@@ -31,6 +33,7 @@ export const GET: APIRoute = async ({ request: req, locals }) => {
     ctx,
     actorDid: actor,
     cursor: cursor ?? undefined,
+    limit: limit ? Number(limit) : undefined,
   });
 
   return Response.json({

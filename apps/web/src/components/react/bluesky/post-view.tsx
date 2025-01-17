@@ -49,6 +49,8 @@ export function PostView({
   const authorLink = `https://bsky.app/profile/${view.author.did}`;
   const atUri = new AtUri(uri);
   const postLink = `${authorLink}/post/${atUri.rkey}`;
+  const repost = reason?.repost as string | undefined;
+  const repostDid = repost?.replace(/^[a-z]+:\/\//i, "");
 
   const authorLabelString =
     view.author?.labels && view.author.labels.map((l) => l.val).join(", ");
@@ -124,7 +126,12 @@ export function PostView({
             {reason && (
               <span className="ml-4 inline-flex gap-2">
                 <Icon icon="tabler:view-360-arrow" className="ml-2 h-4 w-4" />
-                Repost
+                <a
+                  target="_blank"
+                  href={`https://atproto-browser.vercel.app/at/${repostDid}`}
+                >
+                  Repost
+                </a>
               </span>
             )}
             {feedContext && <div className="text-blue-400">{feedContext}</div>}
