@@ -1,7 +1,5 @@
-import type {
-  SkeletonFeedPost,
-  SkeletonReasonRepost,
-} from "@atproto/api/dist/client/types/app/bsky/feed/defs";
+import { AtUri, type AppBskyFeedGetFeedSkeleton } from "@atproto/api";
+import type { SkeletonReasonRepost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import { and, desc, eq, gt, isNotNull, isNull, or, sql } from "drizzle-orm";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "..";
 import { postTable } from "../../domain/post/post.table";
@@ -63,15 +61,17 @@ export async function followingFeedHandler(
       let reason: SkeletonReasonRepost | undefined = undefined;
       if (p.repost) {
         // TODO: Why doesn't this work?!
+        const a = AtUri.make("andri.dk"); // Test. I repost all the things
+
         reason = {
-          repost: p.repost,
+          repost: a.toString(),
         };
       }
       return {
         post: p.id,
         reason,
-      } satisfies SkeletonFeedPost;
+      };
     }),
     cursor: newCursor,
-  };
+  } satisfies AppBskyFeedGetFeedSkeleton.OutputSchema;
 }

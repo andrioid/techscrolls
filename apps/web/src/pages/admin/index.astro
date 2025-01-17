@@ -20,7 +20,9 @@ const maxscore =
 const offset = url.searchParams.get("offset")
   ? Number(url.searchParams.get("offset"))
   : 1;
-const limit = 30;
+const limit = url.searchParams.get("limit")
+  ? Number(url.searchParams.get("limit"))
+  : 30;
 const rkey = url.searchParams.get("rkey") ?? "tech-mod";
 
 const dat = await getAdminStats(at);
@@ -34,6 +36,7 @@ const feedRes = await feed.handler({
   actorDid: DEFAULT_FEED_ACTOR,
   //cursor: new Date("2025-01-16").toISOString(),
   //cursor: offset.toString(),
+  limit,
   search: query,
 });
 
@@ -131,6 +134,7 @@ const scoreOptions = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
         </div>
       </div>
     </form>
+    <p>Received {posts.length} posts</p>
     <BskyFeedPostList client:only="react" posts={posts} mayClassify={true}>
       <div slot="fallback">Loading</div>
     </BskyFeedPostList>
