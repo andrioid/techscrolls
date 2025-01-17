@@ -62,6 +62,7 @@ export async function followingFeedHandler(
       if (p.repost) {
         // TODO: Why doesn't this work?!
         reason = {
+          $type: "app.bsky.feed.skeletonReasonRepost",
           repost: p.repost,
         };
       }

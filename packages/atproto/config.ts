@@ -2,7 +2,7 @@ export const config = (() => {
   const identifier = process.env["DID_HANDLE"];
   const password = process.env["DID_PASSWORD"];
   const port = process.env["PORT"] ?? 3000;
-  const fgHostname = process.env["FEEDGEN_HOSTNAME"] ?? "techscrolls.fly.dev";
+  const fgHostname = process.env["FEEDGEN_HOSTNAME"] ?? "technical.scrolls.org";
   const recordName = "testfeed";
   const pgURL =
     process.env["PG_URL"] ??
