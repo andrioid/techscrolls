@@ -16,7 +16,7 @@ export function followingPostsQuery(args: FeedHandlerArgs) {
     })
     .from(postTable)
     .innerJoin(fls, eq(postTable.authorId, fls.follows))
-    .leftJoin(fls, eq(repostTable.authorId, fls.follows))
+    .leftJoin(fls, eq(repostTable.repostAuthorId, fls.follows))
     .innerJoin(
       postScores,
       and(eq(postScores.postId, postTable.id), gte(postScores.avgScore, 70))

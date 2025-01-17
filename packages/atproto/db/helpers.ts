@@ -9,9 +9,3 @@ export const explainAnalyze = async <T extends SQLWrapper>(
   console.debug(debugResult);
   return query;
 };
-
-export const debugQuery = async <T extends SQLWrapper>(query: T) => {
-  const sql = JSON.stringify(query.getSQL());
-  console.debug(`SQL`, sql);
-  return query;
-};

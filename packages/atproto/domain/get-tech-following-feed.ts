@@ -28,12 +28,12 @@ export async function getTechFollowingFeed(
   const rpls = ctx.db
     .select({
       created: repostTable.created,
-      repostAuthor: repostTable.authorId,
+      repostAuthor: repostTable.repostAuthorId,
       subjectPostUri: repostTable.postId,
       repostUri: repostTable.repostUri,
     })
     .from(repostTable)
-    .innerJoin(fls, eq(repostTable.authorId, fls.follows))
+    .innerJoin(fls, eq(repostTable.repostAuthorId, fls.follows))
     .as("rpls");
 
   const posts = await ctx.db

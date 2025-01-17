@@ -1,6 +1,6 @@
 import { type AppBskyFeedGetFeedSkeleton } from "@atproto/api";
 import type { SkeletonReasonRepost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
-import { and, desc, eq, gt, isNotNull, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "..";
 import { postTable } from "../../domain/post/post.table";
 import { fromCursor, toCursor } from "../../helpers/cursor";
@@ -20,7 +20,7 @@ export async function followingFeedHandler(
   const sqs = sqScores(ctx.db);
 
   const dateField = sql<string>`GREATEST(${rpls.created}, ${postTable.created})`;
-  const posts = await ctx.db
+  const postQuery = ctx.db
     .select({
       id: postTable.id,
       date: dateField,
@@ -39,13 +39,14 @@ export async function followingFeedHandler(
           // Reposts by people we follow
           and(isNotNull(rpls.created))
         ),
-        cursor ? gt(dateField, fromCursor(cursor)) : undefined
+        cursor ? lt(dateField, fromCursor(cursor).toISOString()) : undefined
       )
     )
     .orderBy(desc(dateField))
     .limit(limit)
-    .groupBy(postTable.id, rpls.created, rpls.repostUri)
-    .offset(Number(cursor));
+    .groupBy(postTable.id, rpls.created, rpls.repostUri);
+
+  const posts = await postQuery;
 
   let newCursor: string | undefined;
   if (posts.length > 0) {
@@ -60,7 +61,7 @@ export async function followingFeedHandler(
     feed: posts.map((p) => {
       let reason: SkeletonReasonRepost | undefined = undefined;
       if (p.repost) {
-        // TODO: Why doesn't this work?!
+        // Note: Reason type is required. Client will get mad otherwise
         reason = {
           $type: "app.bsky.feed.skeletonReasonRepost",
           repost: p.repost,

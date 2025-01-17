@@ -1,6 +1,5 @@
 ---
 import { DEFAULT_FEED_ACTOR, feeds, getAdminStats } from "@andrioid/atproto";
-import AtpAgent from "@atproto/api";
 import Layout from "~astro/layout.astro";
 import PageLayout from "~astro/page-layout.astro";
 import { BskyFeedPostList } from "~react/bluesky/feed-post-list";
@@ -18,9 +17,10 @@ const maxscore =
   url.searchParams.get("maxscore") !== null
     ? Number(url.searchParams.get("maxscore"))
     : undefined;
-const offset = url.searchParams.get("offset")
-  ? Number(url.searchParams.get("offset"))
-  : 1;
+const cursor =
+  url.searchParams.get("cursor") !== null
+    ? (url.searchParams.get("cursor") as string)
+    : undefined;
 const limit = url.searchParams.get("limit")
   ? Number(url.searchParams.get("limit"))
   : 30;
@@ -37,31 +37,15 @@ const feedRes = await feed.handler({
   actorDid: DEFAULT_FEED_ACTOR,
   //cursor: new Date("2025-01-16").toISOString(),
   //cursor: offset.toString(),
+  cursor,
   limit,
   search: query,
 });
 
-// const val = lexicons.validate("app.bsky.feed.getFeedSkeleton#main", feedRes);
-// if (!val.success) {
-//   throw new Error("Feed output is invalid", { cause: val.error });
-// }
-// TODO: We can try to fetch our own feed with app.bsky.feed.getFeedSkeleton()
-const ta = new AtpAgent({
-  service: "http://localhost:4321",
-});
-/*
-const blah = await ta.app.bsky.feed.getFeedSkeleton({
-  feed: "at://did:plc:2uszitvsky5qnygpolsfr5ey/app.bsky.feed.generator/tech-following",
-});
-console.log("blah", blah);
-*/
-
 const posts = feedRes.feed;
 
 const nurl = new URL(url);
-const nextOffset = `${offset + limit - 1}`;
-const prevOffset = `${offset ? offset - limit : 0}`;
-nurl.searchParams.set("offset", `${nextOffset}`);
+nurl.searchParams.set("cursor", `${feedRes.cursor}`);
 const nextPage = nurl.toString();
 const scoreOptions = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 ---
@@ -101,7 +85,7 @@ const scoreOptions = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
               class="rounded-md border py-1.5 px-2"
             />
 
-            <input type="hidden" name="offset" value={offset} />
+            <input type="hidden" name="cursor" value={cursor} />
             <span>
               <select
                 name="minscore"
@@ -148,7 +132,7 @@ const scoreOptions = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
     <BskyFeedPostList client:only="react" posts={posts} mayClassify={true}>
       <div slot="fallback">Loading</div>
     </BskyFeedPostList>
-    <div>
+    <div class="space-y-4">
       <a href={nextPage}
         ><button class="py-1.5 px-3 rounded-md bg-gray-100 hover:text-sky-800"
           >Next page</button

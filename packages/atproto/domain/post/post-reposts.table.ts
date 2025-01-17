@@ -14,7 +14,7 @@ export const repostTable = pgTable(
       .references(() => postTable.id, {
         onDelete: "cascade", // delete if post goes away
       }),
-    authorId: text("author_id"),
+    repostAuthorId: text("author_id"),
     created: timestamp({
       withTimezone: true,
     })

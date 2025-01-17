@@ -18,7 +18,7 @@ export function followingRepostsQuery(args: FeedHandlerArgs) {
     // Only reposts
     .innerJoin(repostTable, eq(repostTable.postId, postTable.id))
     // Only reposts by those I follow
-    .innerJoin(fls, eq(repostTable.authorId, fls.follows))
+    .innerJoin(fls, eq(repostTable.repostAuthorId, fls.follows))
     // Only within score condition
     .innerJoin(
       postScores,
