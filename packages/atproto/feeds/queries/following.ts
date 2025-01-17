@@ -63,9 +63,9 @@ export async function followingFeedHandler(
       let reason: SkeletonReasonRepost | undefined = undefined;
       if (p.repost) {
         // TODO: Why doesn't this work?!
-        // reason = {
-        //   repost: p.repost,
-        // };
+        reason = {
+          repost: p.repost,
+        };
       }
       return {
         post: p.id,

@@ -37,6 +37,12 @@ const feedRes = await feed.handler({
   search: query,
 });
 
+// const val = lexicons.validate("app.bsky.feed.getFeedSkeleton#main", feedRes);
+// if (!val.success) {
+//   throw new Error("Feed output is invalid", { cause: val.error });
+// }
+// TODO: We can try to fetch our own feed with app.bsky.feed.getFeedSkeleton()
+
 const posts = feedRes.feed;
 
 const nurl = new URL(url);
