@@ -44,7 +44,7 @@ export async function followingFeedHandler(
     )
     .orderBy(desc(dateField))
     .limit(limit)
-    .groupBy(postTable.id, rpls.created, rpls.repostUri);
+    .groupBy(postTable.id, rpls.created, rpls.repostUri, postTable.replyRoot);
 
   const posts = await postQuery;
 
