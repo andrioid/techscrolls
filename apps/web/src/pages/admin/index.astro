@@ -39,6 +39,10 @@ const feedRes = await feed.handler({
   //cursor: offset.toString(),
   cursor,
   limit,
+  tagFilters:
+    !!maxscore || !!minscore
+      ? [{ tag: "tech", maxScore: maxscore, minScore: minscore }]
+      : undefined,
   search: query,
 });
 

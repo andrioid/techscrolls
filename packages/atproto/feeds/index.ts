@@ -25,6 +25,15 @@ export type FeedHandlerArgs = {
     minScore?: number;
     maxScore?: number;
   }>;
+  options?: {
+    onlyFollows?: boolean;
+    showPosts?: boolean;
+    showReposts?: boolean;
+    // posts
+    // posts f. follows
+    // reposts
+    // reposts f. follows
+  };
   search?: string;
 };
 

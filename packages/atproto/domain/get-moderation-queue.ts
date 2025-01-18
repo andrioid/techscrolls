@@ -1,7 +1,5 @@
-import { and, desc } from "drizzle-orm";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
-import { feedResult } from "../feeds/feed-result";
-import { postTable } from "./post/post.table";
+import { postQuery } from "../feeds/queries/post-query";
 
 const PER_PAGE = 30;
 
@@ -9,17 +7,11 @@ const PER_PAGE = 30;
 export async function getModerationPosts(
   args: FeedHandlerArgs
 ): Promise<FeedHandlerOutput> {
-  const { ctx, limit = PER_PAGE, cursor = "0", search } = args;
+  const { ctx, limit = PER_PAGE, cursor = "0", search, tagFilters } = args;
 
-  const posts = await ctx.db
-    .select(feedResult)
-    .from(postTable)
-    //.innerJoin(postTexts, eq(postTable.id, postTexts.post_id))
-    //.leftJoin(postScores, eq(postTable.id, postScores.postId))
-    .where(and())
-    .orderBy(desc(postTable.created))
-    .limit(limit)
-    .offset(Number(cursor));
+  const pq = postQuery(args);
+
+  const posts = await pq;
 
   return {
     feed: posts.map((p) => ({

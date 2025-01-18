@@ -39,8 +39,8 @@ export async function train(ctx: AtContext) {
       )`,
     })
     .from(postTexts)
-    .innerJoin(allTrainingPosts, eq(postTexts.post_id, allTrainingPosts.postId))
-    .groupBy(postTexts.post_id, allTrainingPosts.tag, allTrainingPosts.score);
+    .innerJoin(allTrainingPosts, eq(postTexts.postId, allTrainingPosts.postId))
+    .groupBy(postTexts.postId, allTrainingPosts.tag, allTrainingPosts.score);
 
   // What the f. do I need here, really?
   // 1. List of { text, tag, score }

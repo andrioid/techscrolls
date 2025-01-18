@@ -38,7 +38,7 @@ export const createBayesClassiferFn: FnType = async (ctx) => {
         text: postTexts.text,
       })
       .from(postTexts)
-      .where(eq(postTexts.post_id, post.uri));
+      .where(eq(postTexts.postId, post.uri));
     const text = embedText(res satisfies Array<ExtractedText>);
 
     const cl = await classify({

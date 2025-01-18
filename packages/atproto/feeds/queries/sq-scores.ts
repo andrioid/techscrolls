@@ -1,9 +1,29 @@
-import { and, avg, eq, sql } from "drizzle-orm";
+import { and, avg, eq, SQL, sql } from "drizzle-orm";
+import type { FeedHandlerArgs } from "..";
 import type { AtContext } from "../../context";
 import { postTags } from "../../domain/post/post-tag.table";
 import { tagTable } from "../../domain/tag/tag.table";
 
-export function sqScores(db: AtContext["db"]) {
+export function tagScoreSubQuery(
+  db: AtContext["db"],
+  tagFilters: Exclude<FeedHandlerArgs["tagFilters"], undefined>
+) {
+  let filters: Array<SQL | undefined> = [];
+
+  for (const tf of tagFilters) {
+    filters.push(
+      and(
+        eq(postTags.tagId, tf.tag),
+        tf.minScore
+          ? sql<number>`avg(${postTags.score}) >= ${tf.minScore}`
+          : undefined,
+        tf.maxScore
+          ? sql<number>`avg(${postTags.score}) < ${tf.maxScore}`
+          : undefined
+      )
+    );
+  }
+
   return db
     .selectDistinct({
       tag: postTags.tagId,
@@ -13,6 +33,6 @@ export function sqScores(db: AtContext["db"]) {
     .from(postTags)
     .innerJoin(tagTable, eq(postTags.tagId, tagTable.id))
     .groupBy(postTags.postId, postTags.tagId)
-    .having(and(sql<number>`avg(${postTags.score}) > 70`))
+    .having(and(...filters))
     .as("scores_subquery");
 }

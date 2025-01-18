@@ -7,14 +7,14 @@ import { postTable } from "./post.table";
 export const postTexts = pgTable(
   "post_texts",
   {
-    post_id: text("post_id").references(() => postTable.id, {
+    postId: text("post_id").references(() => postTable.id, {
       onDelete: "cascade",
     }),
     text: text("text").notNull(),
     source: text("source").$type<ExtractedTextType>().notNull(),
   },
   (t) => [
-    index("idx_postid").on(t.post_id),
-    unique("uniq_post_source").on(t.post_id, t.source),
+    index("idx_postid").on(t.postId),
+    unique("uniq_post_source").on(t.postId, t.source),
   ]
 );
