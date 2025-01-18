@@ -42,10 +42,12 @@ RUN cd /tmp/dev && bun install --frozen-lockfile
 #RUN npm rebuild @tensorflow/tfjs-node --build-from-source
 
 
-# Astro build
+# Build what needs building
 FROM base AS project
 COPY --from=deps --chown=1000:1000  /tmp/dev/node_modules node_modules
 COPY --chown=1000:1000 . .
+# Fail on type errors
+RUN bun run verify:types
 RUN bun run build
 
 # Service
