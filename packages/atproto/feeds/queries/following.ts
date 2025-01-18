@@ -12,7 +12,7 @@ export async function followingFeedHandler(
 ): Promise<FeedHandlerOutput> {
   const posts = await postQuery({
     ...args,
-    tagFilters: [
+    tagFilters: args.tagFilters ?? [
       {
         tag: "tech",
         minScore: 70,
