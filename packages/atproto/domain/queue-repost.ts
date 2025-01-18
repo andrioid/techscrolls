@@ -57,8 +57,9 @@ export async function queueRePost(
     .insert(repostTable)
     .values({
       repostUri: repostUri.toString(),
-      authorId: postMsg.did,
+      repostAuthorId: postMsg.did,
       postId: originalUri,
+      created: new Date(postMsg.commit.record.createdAt),
     })
     .onConflictDoNothing();
 }

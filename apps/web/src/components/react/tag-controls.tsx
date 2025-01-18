@@ -25,12 +25,13 @@ export function TagControls({ postUri }: { postUri: string }) {
         tags.data.map((tag) => {
           return {
             ...tag,
-            avgScore:
+            avgScore: Math.floor(
               tag.scores.length > 0
                 ? tag.scores.reduce((acc, curr) => {
                     return acc + curr.score;
                   }, 0) / tag.scores.length
-                : 0,
+                : 0
+            ),
           };
         })
       );

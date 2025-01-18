@@ -53,7 +53,7 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
       await tx
         .insert(postTexts)
         .values({
-          post_id: post.uri,
+          postId: post.uri,
           source: et.type,
           text: et.text,
         })

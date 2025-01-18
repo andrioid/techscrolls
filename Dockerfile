@@ -20,7 +20,7 @@ ENV PATH="/mise/shims:$PATH"
 RUN curl https://mise.run | sh
 
 WORKDIR /home/app
-RUN mise use --verbose -g bun@1.1.43 node@lts
+RUN mise use --verbose -g bun@1.1.45 node@lts
 
 # Deps
 FROM base as deps

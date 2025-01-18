@@ -1,6 +1,7 @@
 import { count, countDistinct, eq, isNull, sql } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { postRecords } from "./post/post-record.table";
+import { postTexts } from "./post/post-texts.table";
 import { postTable } from "./post/post.table";
 import { followTable } from "./user/user-follows.table";
 import { didTable } from "./user/user.table";
@@ -42,5 +43,19 @@ export async function getAdminStats(ctx: AtContext) {
     .leftJoin(postRecords, eq(postTable.id, postRecords.postId))
     .where(isNull(postRecords.postId));
 
-  return [...noFollows, ...noPosts, ...noUsers, ...noPostsMissingRecords];
+  const noPostsMissingText = await ctx.db
+    .select({
+      label: sql<string>`'Missing text'`,
+      value: sql<number>`COALESCE(COUNT(${postTable.id}), 0)`,
+    })
+    .from(postTable)
+    .leftJoin(postTexts, eq(postTable.id, postTexts.postId))
+    .where(isNull(postTexts.postId));
+  return [
+    ...noFollows,
+    ...noPosts,
+    ...noUsers,
+    ...noPostsMissingRecords,
+    ...noPostsMissingText,
+  ];
 }
