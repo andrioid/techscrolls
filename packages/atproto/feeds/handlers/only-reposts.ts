@@ -2,6 +2,7 @@ import { type AppBskyFeedGetFeedSkeleton } from "@atproto/api";
 import type { SkeletonReasonRepost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "..";
 import { toCursor } from "../../helpers/cursor";
+import { addJob } from "../../worker/add-job";
 import { postQuery } from "../queries/post-query";
 
 const PER_PAGE = 30;
@@ -10,6 +11,10 @@ const PER_PAGE = 30;
 export async function repostsOnlyFeedHandler(
   args: FeedHandlerArgs
 ): Promise<FeedHandlerOutput> {
+  if (args.actorDid) {
+    await addJob("update-followers", { did: args.actorDid });
+  }
+
   const posts = await postQuery({
     ...args,
     tagFilters: args.tagFilters ?? [

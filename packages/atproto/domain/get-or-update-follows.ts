@@ -21,15 +21,13 @@ export async function getOrUpdateFollows(
     .from(didTable)
     .where(eq(didTable.did, did));
 
-  // TODO: Refresh once in a while
   if (existingActor.length === 0) {
-    console.log("feed follower does not exist, adding", did);
+    console.log("[users] new feed user", did);
     await ctx.db.insert(didTable).values({
       did: did,
       addedBy: options?.addedBy ?? "feed",
     });
   }
-  //console.log("actor exists", existingActor);
 
   // Allow follower update every 48h
   const isFollowersStale =
@@ -37,14 +35,13 @@ export async function getOrUpdateFollows(
     new Date().getTime() - existingActor[0]?.modified.getTime() >
       48 * 60 * 60 * 1000;
 
-  if (isFollowersStale) console.log("[followers] stale", did);
+  if (isFollowersStale) console.log("[user] stale follows", did);
 
   const existingFollows = await ctx.db
     .select()
     .from(followTable)
     .where(eq(followTable.followedBy, did));
   if (existingFollows.length > 0 && !isFollowersStale) {
-    console.log("[followers] still fresh");
     return existingFollows.map((f) => f.follows);
   }
   const follows = await getAllFollows(ctx, did);

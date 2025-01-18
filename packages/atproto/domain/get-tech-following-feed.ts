@@ -6,7 +6,6 @@ import { max, min } from "drizzle-orm";
 import { and, desc, eq, gt, gte, isNotNull, or } from "drizzle-orm/expressions";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "../feeds";
 import { fromCursor, toCursor } from "../helpers/cursor";
-import { addJob } from "../worker/add-job";
 import { repostTable } from "./post/post-reposts.table";
 import { postScores } from "./post/post-scores.view";
 import { postTable } from "./post/post.table";
@@ -16,8 +15,6 @@ export async function getTechFollowingFeed(
   args: FeedHandlerArgs
 ): Promise<FeedHandlerOutput> {
   const { ctx, actorDid, cursor, limit = 50 } = args;
-
-  await addJob("update-followers", { did: actorDid });
 
   const fls = ctx.db
     .select({ follows: followTable.follows })

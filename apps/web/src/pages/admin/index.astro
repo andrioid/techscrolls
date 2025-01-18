@@ -25,6 +25,7 @@ const limit = url.searchParams.get("limit")
   ? Number(url.searchParams.get("limit"))
   : 30;
 const rkey = url.searchParams.get("rkey") ?? "tech-mod";
+const did = url.searchParams.get("did") ?? DEFAULT_FEED_ACTOR;
 
 const dat = await getAdminStats(at);
 const feed = feeds.find((f) => f.rkey === rkey);
@@ -34,7 +35,7 @@ if (!feed) {
 
 const feedRes = await feed.handler({
   ctx: Astro.locals.at,
-  actorDid: DEFAULT_FEED_ACTOR,
+  actorDid: did,
   //cursor: new Date("2025-01-16").toISOString(),
   //cursor: offset.toString(),
   cursor,
