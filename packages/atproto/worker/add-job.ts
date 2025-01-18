@@ -17,5 +17,5 @@ export const addJob: AddJobFn = (...args) => {
     maxAttempts: 2,
     ...args[2],
   };
-  return workerUtils.addJob(args[0], args[1], args[2]);
+  return workerUtils.addJob(args[0], args[1], taskSpec);
 };

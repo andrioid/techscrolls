@@ -1,4 +1,12 @@
-import { count, countDistinct, eq, isNull, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  countDistinct,
+  eq,
+  isNotNull,
+  isNull,
+  sql,
+} from "drizzle-orm";
 import type { AtContext } from "../context";
 import { postRecords } from "./post/post-record.table";
 import { postTexts } from "./post/post-texts.table";
@@ -49,8 +57,9 @@ export async function getAdminStats(ctx: AtContext) {
       value: sql<number>`COALESCE(COUNT(${postTable.id}), 0)`,
     })
     .from(postTable)
+    .innerJoin(postRecords, eq(postTable.id, postRecords.postId))
     .leftJoin(postTexts, eq(postTable.id, postTexts.postId))
-    .where(isNull(postTexts.postId));
+    .where(and(isNull(postTexts.postId), isNotNull(postRecords.value)));
   return [
     ...noFollows,
     ...noPosts,

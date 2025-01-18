@@ -2,6 +2,7 @@
 0,30 * * * * fetch-missing-post-records ?max=1
 15,45 * * * * classify-unclassified-posts ?max=1
 0 */2 * * * train-classifier ?max=1
+*/10 * * * * fix-missing-text-records ?max=1
 
 #dev
 #*/5 * * * * classify-unclassified-posts ?id=dev

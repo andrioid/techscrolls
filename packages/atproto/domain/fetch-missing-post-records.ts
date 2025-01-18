@@ -21,9 +21,7 @@ export async function fetchMissingPostRecords(ctx: AtContext) {
     return;
   }
 
-  console.log(
-    `[record-fetcher] Attempting to fetch ${missingPostUris.length} records`
-  );
+  console.log(`[record-fetcher] Fetching ${missingPostUris.length} records`);
 
   const fetchedPosts = await getPublicPosts(missingPostUris.map((p) => p.uri));
   for (const post of fetchedPosts) {
