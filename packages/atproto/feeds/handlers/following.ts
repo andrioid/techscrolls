@@ -2,7 +2,7 @@ import { type AppBskyFeedGetFeedSkeleton } from "@atproto/api";
 import type { SkeletonReasonRepost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import type { FeedHandlerArgs, FeedHandlerOutput } from "..";
 import { toCursor } from "../../helpers/cursor";
-import { postQuery } from "./post-query";
+import { postQuery } from "../queries/post-query";
 
 const PER_PAGE = 30;
 

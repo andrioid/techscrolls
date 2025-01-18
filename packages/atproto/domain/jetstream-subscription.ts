@@ -7,6 +7,7 @@ import {
 import { subMinutes } from "date-fns";
 import { desc } from "drizzle-orm";
 import type { AtContext } from "../context";
+import { hasLabel } from "../helpers/has-label";
 import { prettyBytes } from "../helpers/pretty-bytes";
 import { getDids } from "./jetstream-did-list";
 import { postTable } from "./post/post.table";
@@ -39,6 +40,9 @@ export async function listenForPosts(ctx: AtContext) {
   const initialMem = process.memoryUsage().rss;
 
   async function handlePost(msg: CommitEvent<CommitPost>) {
+    if (hasLabel(msg.commit.record.labels, ["porn"])) {
+      return; // We're not interested in posts with this label
+    }
     await queuePost(ctx, msg);
     postCounter++;
     const mem = process.memoryUsage().rss;

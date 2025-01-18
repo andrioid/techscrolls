@@ -35,10 +35,12 @@ export async function postQuery(args: FeedHandlerArgs) {
   const textSearch = textSearchSubQuery(ctx.db, search);
 
   let filters: Array<SQL | undefined> = [
+    // Reposts
+    options?.showPosts === false ? isNotNull(rpls.created) : undefined,
+    options?.showReposts === false ? isNull(rpls.created) : undefined,
     options?.onlyFollows
       ? or(
           // Posts that we follow
-          // TODO: Ignore replies if author isn't someone we follow
           // - Maybe subquery for replies so I can look up the author.. or get PSQL to parse the URL
           and(
             isNotNull(fls.follows),
@@ -52,8 +54,6 @@ export async function postQuery(args: FeedHandlerArgs) {
           ),
           // Reposts by people we follow
           and(isNotNull(rpls.created))
-          // TODO: Flags
-          // TODO: Options for reposts/posts/mustfollow
         )
       : undefined,
   ];

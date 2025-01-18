@@ -5,12 +5,12 @@ import type {
 import { config } from "../config";
 import type { AtContext } from "../context";
 import { getModerationPosts } from "../domain/get-moderation-queue";
-import { getTechAllFeed } from "../domain/get-tech-all-feed";
 import type { PostFlags } from "../domain/post/post-flags";
 import type { repostTable } from "../domain/post/post-reposts.table";
 import type { postTable } from "../domain/post/post.table";
-import { repostsOnlyFeed } from "./only-reposts";
-import { followingFeedHandler } from "./queries/following";
+import { followingFeedHandler } from "./handlers/following";
+import { repostsOnlyFeedHandler } from "./handlers/only-reposts";
+import { trendingAllFeedHandler } from "./handlers/trending-all";
 
 export const DEFAULT_FEED_ACTOR = "did:plc:rrrwbar3wv576qpsymwey5p5";
 export type FeedHandlerArgs = {
@@ -61,7 +61,7 @@ export const feeds: Array<FeedDefinition> = [
       did: config.feedGenDid,
       displayName: "📜 Following",
       description:
-        "Posts from your following; filtered for anything that isn't considered tech related.",
+        'Your following feed; filtered for anything that isn\'t technical.\n\nMore specifically: Posts, reposts and replies from those you follow if the content has been classified to be "techy" (clinical term) enough by our army of trained robot hamsters.',
       //avatar: avatarRef,
       createdAt: new Date("2024-12-19").toISOString(),
     },
@@ -73,11 +73,11 @@ export const feeds: Array<FeedDefinition> = [
     record: {
       did: config.feedGenDid,
       displayName: "📜 Trending",
-      description: "Curated posts on the subject of technology.",
+      description: "Experimental. Algorithms subject to change.",
       //avatar: avatarRef,
       createdAt: new Date("2024-12-19").toISOString(),
     },
-    handler: getTechAllFeed,
+    handler: trendingAllFeedHandler,
     private: false,
   },
   {
@@ -85,11 +85,11 @@ export const feeds: Array<FeedDefinition> = [
     record: {
       did: config.feedGenDid,
       displayName: "📜 Reposts",
-      description: "Experimental",
+      description: "Experimental. Algorithms subject to change.",
       createdAt: new Date("2025-01-11").toISOString(),
     },
-    handler: repostsOnlyFeed,
-    private: true,
+    handler: repostsOnlyFeedHandler,
+    private: false,
   },
   {
     rkey: "tech-mod",
