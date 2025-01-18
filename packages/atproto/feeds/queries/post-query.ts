@@ -38,7 +38,18 @@ export async function postQuery(args: FeedHandlerArgs) {
     options?.onlyFollows
       ? or(
           // Posts that we follow
-          and(isNotNull(fls.follows), isNull(rpls.created)),
+          // TODO: Ignore replies if author isn't someone we follow
+          // - Maybe subquery for replies so I can look up the author.. or get PSQL to parse the URL
+          and(
+            isNotNull(fls.follows),
+            isNull(rpls.created),
+            postTable.replyRoot
+              ? sql`split_part(${postTable.replyRoot}, '/', 3) IN (${fls.follows})`
+              : undefined,
+            postTable.replyParent
+              ? sql`split_part(${postTable.replyParent}, '/', 3) IN (${fls.follows})`
+              : undefined
+          ),
           // Reposts by people we follow
           and(isNotNull(rpls.created))
           // TODO: Flags
@@ -56,6 +67,7 @@ export async function postQuery(args: FeedHandlerArgs) {
       repostDate: rpls.created,
     })
     .from(postTable)
+    // TODO: If the post is a reply and we don't follow the author (only the replier), skip it
     .leftJoin(fls, and(eq(fls.follows, postTable.authorId)))
     .leftJoin(rpls, and(eq(rpls.subjectPostUri, postTable.id)))
     .innerJoin(tagScore, eq(tagScore.postId, postTable.id))
