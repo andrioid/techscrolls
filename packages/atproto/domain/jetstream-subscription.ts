@@ -19,18 +19,15 @@ export const LISTEN_NOTIFY_NEW_SUBSCRIBERS = "atproto.subscriber.update";
 export async function listenForPosts(ctx: AtContext) {
   const dids = await getDids(ctx);
 
-  const latestPost = await ctx.db
+  const [latestPost] = await ctx.db
     .select()
     .from(postTable)
     .orderBy(desc(postTable.created))
     .limit(1);
 
-  const cursor: string | undefined =
-    latestPost.length > 0
-      ? Math.floor(
-          new Date(latestPost[0].created).getTime() - 1000 * 60 * 5
-        ).toString()
-      : undefined;
+  const cursor: string | undefined = latestPost
+    ? subMinutes(new Date(latestPost.created), 5).getTime().toString()
+    : undefined;
 
   const js = await Jetstream.Create({
     wantedDids: dids,
@@ -45,14 +42,18 @@ export async function listenForPosts(ctx: AtContext) {
     if (hasLabel(msg.commit.record.labels, ["porn"])) {
       return; // We're not interested in posts with this label
     }
+    const rssBefore = process.memoryUsage().rss;
+    const memBeforeQueue = prettyBytes(rssBefore);
     await queuePost(ctx, msg);
     postCounter++;
-    const mem = process.memoryUsage().rss;
+
+    const rssAfter = process.memoryUsage().rss;
+    const memAfterQueue = prettyBytes(rssAfter);
     console.log(
       `[jetstream] queued ${new Date(
         msg.commit.record.createdAt
-      ).toISOString()} | ${postCounter} ${prettyBytes(mem)} ${Number(
-        (mem / initialMem) * 100
+      ).toISOString()} | ${postCounter} ${memBeforeQueue}/${memAfterQueue} ${Number(
+        (rssAfter / initialMem) * 100
       ).toFixed(2)}%`
     );
   }
