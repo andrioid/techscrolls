@@ -274,6 +274,27 @@
       "when": 1737283894571,
       "tag": "0038_colossal_titanium_man",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1737288934117,
+      "tag": "0039_omniscient_saracen",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1737291120937,
+      "tag": "0040_secret_leader",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1737291176166,
+      "tag": "0041_silky_eddie_brock",
+      "breakpoints": true
     }
   ]
 }

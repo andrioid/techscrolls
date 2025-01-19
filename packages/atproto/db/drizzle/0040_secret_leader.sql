@@ -1,0 +1,1 @@
+--- ALTER TABLE "external" ADD CONSTRAINT "external_url_post_externals_url_fk" FOREIGN KEY ("url") REFERENCES "public"."post_externals"("url") ON DELETE no action ON UPDATE no action;

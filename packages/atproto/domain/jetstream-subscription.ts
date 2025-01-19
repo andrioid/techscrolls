@@ -27,7 +27,9 @@ export async function listenForPosts(ctx: AtContext) {
 
   const cursor: string | undefined =
     latestPost.length > 0
-      ? Math.floor(new Date(latestPost[0].created).getTime()).toString()
+      ? Math.floor(
+          new Date(latestPost[0].created).getTime() - 1000 * 60 * 5
+        ).toString()
       : undefined;
 
   const js = await Jetstream.Create({

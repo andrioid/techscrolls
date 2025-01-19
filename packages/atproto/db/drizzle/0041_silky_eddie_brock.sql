@@ -1,0 +1,1 @@
+--- ALTER TABLE "external" DROP CONSTRAINT "external_url_post_externals_url_fk";

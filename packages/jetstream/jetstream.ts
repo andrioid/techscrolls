@@ -124,6 +124,8 @@ export class Jetstream {
     const args = this.args;
     url.searchParams.append("requireHello", "true");
     url.searchParams.append("compress", "true");
+
+    if (args.cursor) url.searchParams.append("cursor", args.cursor);
     return url.toString();
   }
 

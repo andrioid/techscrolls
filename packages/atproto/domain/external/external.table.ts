@@ -17,7 +17,7 @@ export const externalTable = pgTable("external", {
   markdown: text("markdown").notNull().default(""),
 });
 
-export const externalSchema = createInsertSchema(externalTable, {
+export const insertExternal = createInsertSchema(externalTable, {
   url: z.string().transform(normalizeUrl).pipe(z.string().url()),
   // TODO: Filter the markdown
 });
