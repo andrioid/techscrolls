@@ -32,11 +32,13 @@
     "@tensorflow/tfjs-node": "4.22.0",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.38.3",
+    "drizzle-zod": "^0.6.1",
+    "graphile-worker": "^0.16.6",
     "lande": "^1.0.10",
     "ml5": "^1.2.1",
     "natural": "^8.0.1",
     "postgres": "^3.4.5",
     "stopwords-iso": "^1.1.0",
-    "graphile-worker": "^0.16.6"
+    "zod": "^3.24.1"
   }
 }

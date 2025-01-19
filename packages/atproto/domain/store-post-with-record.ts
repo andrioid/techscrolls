@@ -15,6 +15,8 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
   const text = post.record?.text;
 
   const extractedText = await extractTextFromPost(ctx, post.uri, post.record);
+  // TODO: We need a common way for all this record parsing to take place
+  // Something like updatePostWithRecord(transaction) so we can use it for initial and updates
   if (isForeignLanguage(extractedText.join("\n"))) {
     return;
   }

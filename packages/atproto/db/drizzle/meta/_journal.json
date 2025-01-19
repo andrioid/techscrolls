@@ -260,6 +260,20 @@
       "when": 1737040143209,
       "tag": "0036_flashy_star_brand",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1737282971713,
+      "tag": "0037_cute_jack_murdock",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1737283894571,
+      "tag": "0038_colossal_titanium_man",
+      "breakpoints": true
     }
   ]
 }

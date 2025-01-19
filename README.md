@@ -2,6 +2,16 @@
 
 Prototyping atproto feed/label service
 
+### "Test in production"
+
+1. Make sure `FLY_DEV=1` and `PROD_PG_URL=xxx` is set in your .env
+2. Run `fly proxy 5432 -a techscrolls-db3`
+3. Run whatever package that uses our .env file
+
+```
+FLY_DEV=1 bun run xxx
+```
+
 ### Goals
 
 - [ ] Web service that listens for posts and allows me to add tags to posts. e.g. "#golang" "#tech" to train the classifiers

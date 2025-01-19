@@ -1,4 +1,5 @@
 import { defineConfig } from "drizzle-kit";
+import { config } from "./config";
 
 export default defineConfig({
   dialect: "postgresql",
@@ -8,6 +9,6 @@ export default defineConfig({
   ],
   out: "./db/drizzle",
   dbCredentials: {
-    url: process.env["PG_URL"] ?? "fail",
+    url: config.pgURL,
   },
 });

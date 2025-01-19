@@ -13,6 +13,7 @@ export async function createAtContext() {
   const db = drizzle({
     client: dbClient,
     logger: false,
+    // TODO: Add schema, but requires that we have that all imported
   });
 
   await db.execute("select 1"); // Make sure we're connected to DB

@@ -20,7 +20,9 @@ ENV PATH="/mise/shims:$PATH"
 RUN curl https://mise.run | sh
 
 WORKDIR /home/app
-RUN mise use --verbose -g bun@1.1.45 node@lts
+RUN mise settings experimental=true
+RUN mise use -g bun@1.1.45 node@lts go@1
+RUN mise use -g go:github.com/lapwat/papeer@latest
 
 # Deps
 FROM base as deps
