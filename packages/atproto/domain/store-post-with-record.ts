@@ -59,28 +59,27 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
         cid: post.cid,
       })
       .onConflictDoNothing();
-    for (const et of extractedText) {
-      await tx
-        .insert(postTexts)
-        .values({
+    await tx
+      .insert(postTexts)
+      .values(
+        extractedText.map((et) => ({
           postId: post.uri,
           source: et.type,
           text: et.text,
-        })
-        .onConflictDoNothing();
-    }
-
-    if (post.record.embed?.external) {
-      const embed = post.record.embed;
-      if (AppBskyEmbedExternal.isMain(embed)) {
-        const url = embed.external.uri;
-        if (!url.match(/(\w+\.(gif|png|jpeg|jpg))$/)) {
-          await addJob("scrape-external-url", {
-            url: embed.external.uri,
-            postId: post.uri,
-          });
-        }
+        }))
+      )
+      .onConflictDoNothing();
+  });
+  if (post.record.embed?.external) {
+    const embed = post.record.embed;
+    if (AppBskyEmbedExternal.isMain(embed)) {
+      const url = embed.external.uri;
+      if (!url.match(/(\w+\.(gif|png|jpeg|jpg))$/)) {
+        await addJob("scrape-external-url", {
+          url: embed.external.uri,
+          postId: post.uri,
+        });
       }
     }
-  });
+  }
 }
