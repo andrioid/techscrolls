@@ -49,7 +49,9 @@ export async function listenForPosts(ctx: AtContext) {
     postCounter++;
     const mem = process.memoryUsage().rss;
     console.log(
-      `[jetstream] queued ${postCounter} ${prettyBytes(mem)} ${Number(
+      `[jetstream] queued ${new Date(
+        msg.commit.record.createdAt
+      ).toISOString()} | ${postCounter} ${prettyBytes(mem)} ${Number(
         (mem / initialMem) * 100
       ).toFixed(2)}%`
     );
