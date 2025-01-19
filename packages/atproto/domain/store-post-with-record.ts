@@ -1,5 +1,6 @@
 import type { FeedPostWithUri } from "@andrioid/jetstream";
 import { AppBskyEmbedExternal, AtUri } from "@atproto/api";
+import { eq } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { addJob } from "../worker/add-job";
 import { extractTextFromPost } from "./extract-text-from-post";
@@ -14,6 +15,12 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
   const uri = new AtUri(post.uri);
   const authorId = uri.hostname;
   const text = post.record?.text;
+
+  const [existingRecord] = await ctx.db
+    .select({ id: postRecords.postId })
+    .from(postRecords)
+    .where(eq(postRecords.postId, post.uri));
+  if (existingRecord) return; // No need to do this twice
 
   const extractedText = await extractTextFromPost(ctx, post.uri, post.record);
   // TODO: We need a common way for all this record parsing to take place
