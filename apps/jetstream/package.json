@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "bun --watch --env-file=../../.env index.ts",
     "debug": "bun --inspect --env-file=../../.env index.ts",
-    "build": "bun build index.ts --minify --target node --outdir=dist",
+    "build": "rm -rf dist && bun build index.ts --minify --target node --outdir=dist && cp ../../packages/jetstream/zstd_dictionary.dat dist/",
     "prodbroken": "bun index.ts",
     "prodtest": "dotenvx run -f ../../.env -- node dist/index.js",
     "prod": "node dist/index.js",
