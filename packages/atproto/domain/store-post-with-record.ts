@@ -11,18 +11,18 @@ import { postRecords } from "./post/post-record.table";
 import { postTexts } from "./post/post-texts.table";
 import { postTable } from "./post/post.table";
 
-export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
+export async function storePost(db: AtContext["db"], post: FeedPostWithUri) {
   const uri = new AtUri(post.uri);
   const authorId = uri.hostname;
   const text = post.record?.text;
 
-  const [existingRecord] = await ctx.db
+  const [existingRecord] = await db
     .select({ id: postRecords.postId })
     .from(postRecords)
     .where(eq(postRecords.postId, post.uri));
   if (existingRecord) return; // No need to do this twice
 
-  const extractedText = await extractTextFromPost(ctx, post.uri, post.record);
+  const extractedText = await extractTextFromPost(db, post.uri, post.record);
   // TODO: We need a common way for all this record parsing to take place
   // Something like updatePostWithRecord(transaction) so we can use it for initial and updates
   if (isForeignLanguage(extractedText.join("\n"))) {
@@ -33,7 +33,7 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
   flags |= PostFlags.Body;
   if (post.record.reply) flags |= PostFlags.Replies;
 
-  await ctx.db.transaction(async (tx) => {
+  await db.transaction(async (tx) => {
     if (!post.record) {
       throw new Error("Missing post record");
     }

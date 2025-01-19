@@ -26,7 +26,7 @@ export type ExtractedText = {
 };
 
 export async function extractTextFromPost(
-  ctx: AtContext,
+  db: AtContext["db"],
   postUri: string,
   record: AppBskyFeedPost.Record,
   recursive: boolean = true
@@ -42,7 +42,7 @@ export async function extractTextFromPost(
   // 2. Check if this is a reply
   if (record.reply) {
     // Grab record for parent
-    const parent = await ctx.db
+    const parent = await db
       .select()
       .from(postRecords)
       .where(eq(postRecords.postId, record.reply.parent.uri));
@@ -52,7 +52,7 @@ export async function extractTextFromPost(
         type: "reply-parent",
       });
     if (record.reply.root.uri !== record.reply.parent.uri) {
-      const root = await ctx.db
+      const root = await db
         .select()
         .from(postRecords)
         .where(eq(postRecords.postId, record.reply.root.uri));
@@ -67,13 +67,13 @@ export async function extractTextFromPost(
   // 3. Embed record
   if (AppBskyEmbedRecord.isMain(record.embed)) {
     if (recursive) {
-      const [rec] = await ctx.db
+      const [rec] = await db
         .select()
         .from(postRecords)
         .where(eq(postRecords.postId, record.embed.record.uri));
       if (rec?.value) {
         const extractedTexts = await extractTextFromPost(
-          ctx,
+          db,
           rec.postId,
           rec.value,
           false
