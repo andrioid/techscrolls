@@ -17,5 +17,5 @@ export async function queuePost(
     rkey: postmsg.commit.rkey,
     record: postmsg.commit.record,
   });
-  await storePost(ctx, post);
+  await storePost(ctx.db, post);
 }

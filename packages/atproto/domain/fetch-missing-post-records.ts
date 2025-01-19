@@ -38,7 +38,11 @@ export async function fetchMissingPostRecords(ctx: AtContext) {
     const record = post.record as AppBskyFeedPost.Record;
 
     // Text extraction of missing posts
-    const extractedText = await extractTextFromPost(ctx, post.uri, post.record);
+    const extractedText = await extractTextFromPost(
+      ctx.db,
+      post.uri,
+      post.record
+    );
     if (isForeignLanguage(extractedText.join("\n"))) {
       return;
     }

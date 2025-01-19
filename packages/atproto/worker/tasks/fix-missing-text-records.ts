@@ -30,7 +30,7 @@ export default async function fixMissingTextRecords() {
 
   for (const mtp of missingTextPosts) {
     if (mtp.record === null) continue;
-    const extractedText = await extractTextFromPost(ctx, mtp.id, mtp.record);
+    const extractedText = await extractTextFromPost(ctx.db, mtp.id, mtp.record);
 
     if (isForeignLanguage(extractedText.join("\n"))) {
       return;
