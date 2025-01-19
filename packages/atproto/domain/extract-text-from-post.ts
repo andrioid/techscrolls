@@ -75,7 +75,8 @@ export async function extractTextFromPost(
         const extractedTexts = await extractTextFromPost(
           ctx,
           rec.postId,
-          rec.value
+          rec.value,
+          false
         );
         const embt = embedText(extractedTexts);
         if (embt.length > 0) {
