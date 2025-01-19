@@ -2,15 +2,13 @@ import { eq } from "drizzle-orm";
 import type { TaskSpec } from "graphile-worker";
 import processes from "node:child_process";
 import { createAtContext } from "../../context";
-import {
-  externalTable,
-  insertExternal,
-} from "../../domain/external/external.table";
+import { postTexts } from "../../domain/post/post-texts.table";
 
 export type ScrapeExternalUrlType = [
   identifier: "scrape-external-url",
   payload: {
     url: string;
+    postId: string;
   },
   spec?: TaskSpec
 ];
@@ -57,8 +55,8 @@ export default async function scrapeExternalUrlTask(
 
   const res = await ctx.db
     .select()
-    .from(externalTable)
-    .where(eq(externalTable.url, payload.url));
+    .from(postTexts)
+    .where(eq(postTexts.postId, payload.postId));
   // Check if we can find papeer
   if (res.length > 0) return; // Already processed
 
@@ -73,13 +71,11 @@ export default async function scrapeExternalUrlTask(
 
   // Store MAX_LENGTH of the received text in externalTable
   await ctx.db
-    .insert(externalTable)
-    .values(
-      insertExternal.parse({
-        url: payload.url,
-        markdown: truncatedScraped,
-        lastCrawled: new Date(),
-      })
-    )
+    .insert(postTexts)
+    .values({
+      source: "embed-external-body",
+      text: truncatedScraped,
+      postId: payload.postId,
+    })
     .onConflictDoNothing();
 }

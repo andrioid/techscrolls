@@ -17,7 +17,8 @@ export type ExtractedTextType =
   | "image-alt"
   | "video-alt"
   | "embed-record"
-  | "embed-external";
+  | "embed-external"
+  | "embed-external-body";
 
 export type ExtractedText = {
   text: string;

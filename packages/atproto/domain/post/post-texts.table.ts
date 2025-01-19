@@ -7,9 +7,11 @@ import { postTable } from "./post.table";
 export const postTexts = pgTable(
   "post_texts",
   {
-    postId: text("post_id").references(() => postTable.id, {
-      onDelete: "cascade",
-    }),
+    postId: text("post_id")
+      .notNull()
+      .references(() => postTable.id, {
+        onDelete: "cascade",
+      }),
     text: text("text").notNull(),
     source: text("source").$type<ExtractedTextType>().notNull(),
   },

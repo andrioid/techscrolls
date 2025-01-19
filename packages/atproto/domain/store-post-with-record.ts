@@ -5,7 +5,6 @@ import { addJob } from "../worker/add-job";
 import { extractTextFromPost } from "./extract-text-from-post";
 import { isForeignLanguage } from "./is-foreign-language";
 import { postRecordFlags } from "./post-record-flags";
-import { postExternals } from "./post/post-externals.table";
 import { PostFlags } from "./post/post-flags";
 import { postRecords } from "./post/post-record.table";
 import { postTexts } from "./post/post-texts.table";
@@ -69,16 +68,9 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
       if (AppBskyEmbedExternal.isMain(embed)) {
         const url = embed.external.uri;
         if (!url.match(/(\w+\.(gif|png|jpeg|jpg))$/)) {
-          await tx
-            .insert(postExternals)
-            .values({
-              postId: post.uri,
-              url: embed.external.uri,
-            })
-            .onConflictDoNothing();
-          // schedule for scraping
           await addJob("scrape-external-url", {
             url: embed.external.uri,
+            postId: post.uri,
           });
         }
       }
