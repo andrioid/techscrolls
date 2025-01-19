@@ -59,7 +59,7 @@ export const feeds: Array<FeedDefinition> = [
     rkey: "tech-following",
     record: {
       did: config.feedGenDid,
-      displayName: "📜 Following",
+      displayName: "🤖📜 Following",
       description:
         'Your following feed; filtered for anything that isn\'t technical.\n\nMore specifically: Posts, reposts and replies from those you follow if the content has been classified to be "techy" (clinical term) enough by our army of trained robot hamsters.',
       //avatar: avatarRef,
@@ -72,7 +72,7 @@ export const feeds: Array<FeedDefinition> = [
     rkey: "tech-all",
     record: {
       did: config.feedGenDid,
-      displayName: "📜 Trending",
+      displayName: "🤖📜 Trending",
       description: "Experimental. Algorithms subject to change.",
       //avatar: avatarRef,
       createdAt: new Date("2024-12-19").toISOString(),
@@ -84,7 +84,7 @@ export const feeds: Array<FeedDefinition> = [
     rkey: "tech-reposts",
     record: {
       did: config.feedGenDid,
-      displayName: "📜 Reposts",
+      displayName: "🤖📜 Reposts",
       description: "Experimental. Algorithms subject to change.",
       createdAt: new Date("2025-01-11").toISOString(),
     },
@@ -95,7 +95,7 @@ export const feeds: Array<FeedDefinition> = [
     rkey: "tech-mod",
     record: {
       did: config.feedGenDid,
-      displayName: "📜 Moderator queue",
+      displayName: "🤖📜 Moderator queue",
       description: "Posts that might need classifying",
       createdAt: new Date("2025-01-16").toISOString(),
     },
