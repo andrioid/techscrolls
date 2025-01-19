@@ -2,6 +2,7 @@ import type { AppBskyFeedPost } from "@atproto/api";
 import zstd from "@bokuweb/zstd-wasm";
 import fs from "node:fs";
 import path from "node:path";
+import { WebSocket, type RawData } from "ws";
 import type {
   CommitEvent,
   CommitPost,
@@ -19,7 +20,7 @@ const JETSTREAM_BASE_URL = "wss://jetstream2.us-east.bsky.network/subscribe";
 
 export class Jetstream {
   private connections: Array<SocketEntry> = [];
-  private decoder: TextDecoder = new TextDecoder();
+  private decoder = new TextDecoder();
   private zDict = Uint8Array.from(
     fs.readFileSync(path.join(import.meta.dirname, "./zstd_dictionary.dat"))
   );
@@ -107,9 +108,10 @@ export class Jetstream {
       const wss = new WebSocket(query);
 
       const socketId = crypto.randomUUID();
-      wss.addEventListener("open", (ev) => this.handleOpen(socketId, ev));
-      wss.addEventListener("message", (ev) => this.handleMessage(socketId, ev));
-      wss.addEventListener("close", (ev) => this.handleClose(socketId, ev));
+      wss.on("message", (ev) => this.handleMessage(socketId, ev));
+      wss.on("open", () => this.handleOpen(socketId));
+      wss.on("message", (ev) => this.handleMessage(socketId, ev));
+      wss.on("close", (ev) => this.handleClose(socketId, ev));
       this.connections.push({
         id: socketId,
         args,
@@ -139,15 +141,18 @@ export class Jetstream {
     });
   }
 
-  private handleOpen(socketId: string, ev: Event) {
+  private handleOpen(socketId: string) {
     const connection = this.connections.find((c) => c.id === socketId);
     if (!connection) return;
     console.log(`[jetstream] ${socketId.slice(-6)}: open ${connection.query}`);
     connection.wss.send(this.getConfigMessage(connection.args));
   }
 
-  private async handleMessage(socketId: string, ev: MessageEvent<Buffer>) {
-    const msg = await this.decodeMessage(ev.data);
+  private async handleMessage(socketId: string, data: RawData) {
+    if (!(data instanceof Buffer)) {
+      throw new Error("Message is not a buffer");
+    }
+    const msg = await this.decodeMessage(data);
     this.args.cursor = msg.time_us.toString();
     //console.log(`[jetstream] ${socketId.slice(-6)}: msg`, msg);
 
@@ -189,8 +194,8 @@ export class Jetstream {
     }
   }
 
-  private handleClose(socketId: string, ev: CloseEvent) {
-    console.log(`[jetstream] ${socketId.slice(-6)}: ${ev.reason} ${ev.code}`);
+  private handleClose(socketId: string, reason: number) {
+    console.log(`[jetstream] ${socketId.slice(-6)}: closed ${reason}`);
     const connection = this.connections.find((c) => c.id === socketId);
     if (!connection) return; // If not needed anymore, this will return
     const { args } = connection;
@@ -207,9 +212,10 @@ export class Jetstream {
         args,
         query: newQuery,
       };
-      wss.addEventListener("open", (ev) => this.handleOpen(socketId, ev));
-      wss.addEventListener("message", (ev) => this.handleMessage(socketId, ev));
-      wss.addEventListener("close", (ev) => this.handleClose(socketId, ev));
+      wss.on("message", (ev) => this.handleMessage(socketId, ev));
+      wss.on("open", () => this.handleOpen(socketId));
+      wss.on("message", (ev) => this.handleMessage(socketId, ev));
+      wss.on("close", (ev) => this.handleClose(socketId, ev));
 
       this.connections.push(newConnection);
     }, 30 * 60 * 60 * 1000); // 30 minute cool off

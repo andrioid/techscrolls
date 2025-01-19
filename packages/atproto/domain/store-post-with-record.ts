@@ -59,16 +59,18 @@ export async function storePost(ctx: AtContext, post: FeedPostWithUri) {
         cid: post.cid,
       })
       .onConflictDoNothing();
-    await tx
-      .insert(postTexts)
-      .values(
-        extractedText.map((et) => ({
-          postId: post.uri,
-          source: et.type,
-          text: et.text,
-        }))
-      )
-      .onConflictDoNothing();
+    if (extractedText.length > 0) {
+      await tx
+        .insert(postTexts)
+        .values(
+          extractedText.map((et) => ({
+            postId: post.uri,
+            source: et.type,
+            text: et.text,
+          }))
+        )
+        .onConflictDoNothing();
+    }
   });
   if (post.record.embed?.external) {
     const embed = post.record.embed;

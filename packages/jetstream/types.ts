@@ -4,6 +4,7 @@ import type {
   AppBskyFeedRepost,
   AppBskyGraphFollow,
 } from "@atproto/api";
+import { WebSocket } from "ws";
 
 export type SocketEntry = {
   id: string;

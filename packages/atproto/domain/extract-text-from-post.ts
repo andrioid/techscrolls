@@ -121,7 +121,7 @@ export async function extractTextFromPost(
     });
   }
 
-  return out;
+  return out.filter((t) => t.text !== undefined && t.text.length > 0);
 }
 
 export function embedText(texts: Array<ExtractedText>): string {

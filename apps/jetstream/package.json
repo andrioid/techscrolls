@@ -5,15 +5,20 @@
   "scripts": {
     "dev": "bun --watch --env-file=../../.env index.ts",
     "debug": "bun --inspect --env-file=../../.env index.ts",
-    "buildtest": "bun build index.ts --minify --target node --outdir=dist",
+    "build": "bun build index.ts --minify --target node --outdir=dist",
     "prod": "bun index.ts",
-    "prod:node": "bun run build && node dist/index.ts",
+    "prod:node": "dotenvx run -f ../../.env -- node dist/index.js",
     "prod:deno": "deno run --allow-env --allow-read --allow-ffi --allow-net --unstable-sloppy-imports --env-file=../../.env index.ts"
   },
   "dependencies": {
-    "@andrioid/atproto": "workspace:*"
+    "@andrioid/atproto": "workspace:*",
+    "bufferutil": "^4.0.9",
+    "ws": "^8.18.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.33.0",
+    "@types/node": "^22.10.7"
+  },
   "peerDependencies": {
     "typescript": "^5.0.0"
   }
