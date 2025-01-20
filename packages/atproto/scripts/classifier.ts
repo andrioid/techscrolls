@@ -1,8 +1,5 @@
 import { subHours } from "date-fns";
 import { and, eq, gte, inArray, isNull } from "drizzle-orm";
-import { mutedWordsClassifier } from "../classifiers/tech/muted-words";
-import { techLinkClassifier } from "../classifiers/tech/tech-links";
-import { techWordsRegExp } from "../classifiers/tech/tech-words";
 import { createBayesClassiferFn } from "../classifiers/tfjs";
 import type { ClassifierFn } from "../classifiers/types";
 import { createAtContext } from "../context";
@@ -12,7 +9,6 @@ import { postTags } from "../domain/post/post-tag.table";
 import { postTable } from "../domain/post/post.table";
 
 export const LISTEN_NOTIFY_POSTQUEUE = "atproto.postqueue";
-const POSTS_PER_CLASSIFIER_RUN = 500;
 
 // TODO: Need to move this and all of its deps to a new package. TFJS SUUUUCKS
 export async function classifier(postUri?: Array<string>) {
@@ -20,9 +16,9 @@ export async function classifier(postUri?: Array<string>) {
   const ctx = await createAtContext();
 
   const classifiers: Array<ClassifierFn> = [
-    mutedWordsClassifier,
-    techWordsRegExp,
-    techLinkClassifier,
+    // mutedWordsClassifier,
+    // techWordsRegExp,
+    // techLinkClassifier,
   ];
 
   // If not enough training data, the bayes classifier is skipped
