@@ -80,5 +80,5 @@ export async function listenForPosts(ctx: AtContext) {
   });
 
   let lastStarted = new Date();
-  await ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, handleNotify);
+  //await ctx.db.$client.listen(LISTEN_NOTIFY_NEW_SUBSCRIBERS, handleNotify);
 }

@@ -69,6 +69,10 @@ export default async function scrapeExternalUrlTask(
 
   // Run papeer against the URL
 
+  if (!truncatedScraped || !payload.postId) {
+    console.warn("scraper received empty text or postId");
+    return;
+  }
   // Store MAX_LENGTH of the received text in externalTable
   await ctx.db
     .insert(postTexts)

@@ -1,5 +1,5 @@
 import type { AppBskyFeedPost } from "@atproto/api";
-import zstd from "@bokuweb/zstd-wasm";
+import { Decoder } from "@toondepauw/node-zstd";
 import fs from "node:fs";
 import path from "node:path";
 import { WebSocket, type RawData } from "ws";
@@ -21,8 +21,8 @@ const JETSTREAM_BASE_URL = "wss://jetstream2.us-east.bsky.network/subscribe";
 export class Jetstream {
   private connections: Array<SocketEntry> = [];
   private decoder = new TextDecoder();
-  private zDict = Uint8Array.from(
-    fs.readFileSync(path.join(import.meta.dirname, "./zstd_dictionary.dat"))
+  private zDict = fs.readFileSync(
+    path.join(import.meta.dirname, "./zstd_dictionary.dat")
   );
   private args: JetStreamRequest;
   private listeners: Array<Listener> = [];
@@ -33,7 +33,6 @@ export class Jetstream {
   }
 
   static async Create(args: JetStreamRequest) {
-    await zstd.init();
     const instance = new Jetstream(args);
     return instance;
   }
@@ -42,11 +41,8 @@ export class Jetstream {
     if (buffer.length === 0) {
       throw new Error("Received an empty buffer");
     }
-    const uncompressed = zstd.decompressUsingDict(
-      zstd.createDCtx(),
-      Uint8Array.from(buffer),
-      this.zDict
-    );
+    const zDecoder = new Decoder(this.zDict);
+    const uncompressed = await zDecoder.decode(buffer);
     if (uncompressed.length === 0) throw new Error("Empty message");
     const decoded = this.decoder.decode(uncompressed);
 
