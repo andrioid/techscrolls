@@ -50,8 +50,8 @@ export async function createAtContext() {
     if (existingSession.length === 1) {
       const sdata = existingSession[0]
         .existingSession as unknown as AtpSessionData;
-      console.log("[atproto] attempting to reuse session");
-      const res = await atpAgent.resumeSession(sdata);
+      //console.log("[atproto] attempting to reuse session");
+      await atpAgent.resumeSession(sdata);
     } else {
       console.log(
         "[atproto] creating a new session",
