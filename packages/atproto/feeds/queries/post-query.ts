@@ -45,15 +45,10 @@ export async function postQuery(args: FeedHandlerArgs) {
           and(
             isNull(rpls.created), // Not a repost
             isNotNull(fls.follows),
-            or(
-              // Show only replies if they are replying to someone we follow
-              postTable?.replyRoot
-                ? sql`split_part(${postTable.replyRoot}, '/', 3) IN (${fls.follows})`
-                : undefined,
-              postTable.replyParent
-                ? sql`split_part(${postTable.replyParent}, '/', 3) IN (${fls.follows})`
-                : undefined
-            )
+            // Show only replies if they are replying to someone we follow
+            postTable.replyParent
+              ? sql`split_part(${postTable.replyParent}, '/', 3) IN (${fls.follows})`
+              : undefined
           ),
           // Reposts by people we follow
           and(isNotNull(rpls.created))

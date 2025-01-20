@@ -1,5 +1,6 @@
 import {
   Jetstream,
+  toFeedPostWithUri,
   type CommitEvent,
   type CommitPost,
   type CommitRepost,
@@ -8,11 +9,9 @@ import { subMinutes } from "date-fns";
 import { desc } from "drizzle-orm";
 import type { AtContext } from "../context";
 import { hasLabel } from "../helpers/has-label";
-import { prettyBytes } from "../helpers/pretty-bytes";
+import { addJob } from "../worker/add-job";
 import { getDids } from "./jetstream-did-list";
 import { postTable } from "./post/post.table";
-import { queuePost } from "./queue-post";
-import { queueRePost } from "./queue-repost";
 
 export const LISTEN_NOTIFY_NEW_SUBSCRIBERS = "atproto.subscriber.update";
 
@@ -35,31 +34,23 @@ export async function listenForPosts(ctx: AtContext) {
     cursor: cursor?.toString(),
   });
 
-  let postCounter = 0;
-  const initialMem = process.memoryUsage().rss;
-
   async function handlePost(msg: CommitEvent<CommitPost>) {
     if (hasLabel(msg.commit.record.labels, ["porn"])) {
       return; // We're not interested in posts with this label
     }
-    const rssBefore = process.memoryUsage().rss;
-    const memBeforeQueue = prettyBytes(rssBefore);
-    await queuePost(ctx, msg);
-    postCounter++;
-
-    const rssAfter = process.memoryUsage().rss;
-    const memAfterQueue = prettyBytes(rssAfter);
-    console.log(
-      `[jetstream] queued ${new Date(
-        msg.commit.record.createdAt
-      ).toISOString()} | ${postCounter} ${memBeforeQueue}/${memAfterQueue} ${Number(
-        (rssAfter / initialMem) * 100
-      ).toFixed(2)}%`
+    await addJob(
+      "queue-jetstream-post",
+      toFeedPostWithUri({
+        cid: msg.commit.cid,
+        did: msg.did,
+        record: msg.commit.record,
+        rkey: msg.commit.rkey,
+      })
     );
   }
 
   async function handleRepost(msg: CommitEvent<CommitRepost>) {
-    await queueRePost(ctx, msg);
+    await addJob("queue-jetstream-repost", msg);
   }
 
   async function handleNotify() {
