@@ -43,14 +43,17 @@ export async function postQuery(args: FeedHandlerArgs) {
           // Posts that we follow
           // - Maybe subquery for replies so I can look up the author.. or get PSQL to parse the URL
           and(
+            isNull(rpls.created), // Not a repost
             isNotNull(fls.follows),
-            isNull(rpls.created),
-            postTable.replyRoot
-              ? sql`split_part(${postTable.replyRoot}, '/', 3) IN (${fls.follows})`
-              : undefined,
-            postTable.replyParent
-              ? sql`split_part(${postTable.replyParent}, '/', 3) IN (${fls.follows})`
-              : undefined
+            or(
+              // Show only replies if they are replying to someone we follow
+              postTable?.replyRoot
+                ? sql`split_part(${postTable.replyRoot}, '/', 3) IN (${fls.follows})`
+                : undefined,
+              postTable.replyParent
+                ? sql`split_part(${postTable.replyParent}, '/', 3) IN (${fls.follows})`
+                : undefined
+            )
           ),
           // Reposts by people we follow
           and(isNotNull(rpls.created))

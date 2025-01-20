@@ -22,7 +22,7 @@ export async function createAtContext() {
     service: "https://bsky.social", // TODO: look up actual pds
     persistSession: async (evt, sessionData) => {
       if (!sessionData) return;
-      console.log("[atproto] storing session");
+      // Storing session
       await db
         .insert(appData)
         .values({

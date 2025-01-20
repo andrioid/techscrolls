@@ -5,8 +5,6 @@ import { toCursor } from "../../helpers/cursor";
 import { addJob } from "../../worker/add-job";
 import { postQuery } from "../queries/post-query";
 
-const PER_PAGE = 30;
-
 // TODO: This should in fact follow the same interface as the feed handlers
 export async function followingFeedHandler(
   args: FeedHandlerArgs
